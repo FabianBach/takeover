@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Laser Cat</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="documentation.css">
+</head>
+<body>
+
+<section id="cover">
+    <h1 class="h1 title">Laser Cat</h1>
+    <h1 class="h2 subtitle">Webapplikation zur Ansteuerung von Licht- und Sound-Effekten</h1>
+    <h1 class="h4 subtitle">Abschlussarbeit von Fabian Bach</h1>
+</section>
+
+<section id="table-of-contents">
+    <h1 class="h2">Inhalt</h1>
+</section>
+
+<section id="first-chapter" class="text">
+    <h1 class="h2">Idee & Konzept</h1>
+    <h2 class="h3">Idee</h2>
+    <p>
+        Vor allem in Diskotheken und auf Veranstaltungen werden oft Licht- und Sound-Effekte eingesetzt um die Besucher
+        zu unterhalten. Leider werden diese Effekte meist nur von einzelnen Personen oder programmierten Automatiken
+        gesteuert, die Besucher können diese also nur passiv erleben.
+    </p>
+    <p>
+        Meine Idee ist es dem Besucher die Möglichkeit zu bieten selbst aktiv zu werden und unkompliziert die Kontrolle
+        über einzelne Effekte zu übernehmen. Dazu soll ein möglichst intuitiv bedienbares Web-Interface erstellt werden,
+        welches über jedes Endgerät mit Internetverbindung und modernem Browser aufgerufen und bedient werden kann.
+        Zu diesen Geräten zählen zum Beispiel Smartphones, Tablet-Computer oder auch Touch-Tische.
+        So kann jeder Besucher einer Veranstaltung die Kontrolle über beispielsweise ein Licht übernehmen.
+    </p>
+    <p>
+        Die steuerbaren Effekte werden vorher von dem Veranstalter bzw. einer zuständigen Person konfiguriert.
+        Dabei werden mögliche Farben und Bewegungen eingestellt und falls nötig eingeschränkt.
+    </p>
+    <p>
+        Die fertige Applikation soll kostenfrei und offen zur Verfügung gestellt werden (Open Source).
+        Für Infos, Download und Installationsanweisungen könnte eine kleine Website erstellt werden sowie
+        eine Dokumentation des Codes zur einfachen Erweiterung durch Dritte.
+    </p>
+    <h2 class="h3">Konzept</h2>
+    <p>
+        Die zu erstellenden Komponenten der Applikation lassen sich in die drei Bereiche Sending-Client, Receiving-Client und Server aufteilen:
+    </p>
+    <h3 class="h4">Sending-Client</h3>
+    <p>
+        Die Aufgabe dieses Clients wird es sein die Steuerbefehle des Users zu erfassen, aufzubereiten und mit möglichst wenig Verzögerung an den Receiving-Client zu senden. Dabei müssen verschiedene Eingabemethoden wie Touch, Maus oder Tastatur berücksichtigt werden.
+        Die Applikation soll mit der aktuellen Technologie von HTML, CSS und Javascript umgesetzt werden um auf jedem Endgerät mit aktuellem Browser zu funktionieren und kein extra Programm auf dem Gerät installiert werden muss.
+        Da es sich bei den meisten Client-Geräten um Smartphones und Tablet-Computer handeln wird sollte viel Wert auf eine Optimierung für diese Geräte gelegt werden.
+        Um eine möglichst geringe Latenz zu erreichen ist es sinnvoll Web-Sockets zu verwenden.
+    </p>
+    <h3 class="h4">Receiving-Client</h3>
+    <p>
+        Der Receiving-Client wird die vom Sending-Client empfangenen Steuerbefehle je nach Konfiguration validieren, weiterverarbeiten und letztendlich zur Steuerung an das entsprechende Effektgerät bzw. die entsprechende Steuersoftware weitergeben. Als Schnittstelle zu diesen bieten sich das MIDI oder das DMX Protokoll an, welche zur Ansteuerung von Lichteffekten und Musikinstrumenten weit verbreitet sind und deshalb von den meisten Programmen zur Steuerung von Effekten unterstützt werden. Außerdem können somit der Receiving-Client und die Effekt-Software auf verschiedenen Maschinen betrieben werden.
+    </p>
+    <h3 class="h4">Server</h3>
+    <p>
+        Der Server wird sich nicht nur um die Ausspielung der Client-Applikationen kümmern, sondern diesen auch helfen permanente Verbindungen über Websockets untereinander aufzubauen, um so die direkte Kommunikation zwischen den beiden Clients zu ermöglichen. Dies ist notwendig, da sich die beiden Clients in den wenigsten Fällen im selben Netzwerk befinden werden.
+    </p>
+</section>
+
+
+<section id="souces">
+    <h1 class="h2">Quellenangabe</h1>
+
+    <h2 class="h3">Abschlussarbeit</h2>
+    <p class="source">
+        <span class="name">node.js</span>
+        <span class="source">http://nodejs.org/</span>
+        <span class="date">06.12.2014</span>
+    </p>
+    <p class="source">
+        <span class="name">Ruby</span>
+        <span class="source">http://rubyinstaller.org/</span>
+        <span class="date">08.12.2014</span>
+    </p>
+
+    <h2 class="h3">Dokumentation</h2>
+    <p class="source">
+        <span class="name">prince</span>
+        <span class="source">http://www.princexml.com/</span>
+        <span class="date">08.12.2014</span>
+    </p>
+    <p class="source">
+        <span class="name">normalize css</span>
+        <span class="source">http://necolas.github.io/normalize.css/</span>
+        <span class="date">08.12.2014</span>
+    </p>
+</section>
+</body>
+</html>
