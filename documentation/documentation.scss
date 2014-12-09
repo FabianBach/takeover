@@ -1,5 +1,6 @@
-$primary-color: aliceblue;
-$secondary-color: darkblue;
+$light-color: aliceblue;
+$dark-color: darkblue;
+$highlight-color: #ffc520;
 
 html{
   font-size: 100%;
@@ -7,14 +8,14 @@ html{
 
 body{
   font-family: monospace, sans-serif;
-  background-color: $secondary-color;
-  color: $primary-color;
+  background-color: $dark-color;
+  color: $light-color;
 }
 
 .h1, .h2, .h3, .h4, .h5{
   /*display: inline-block;*/
-  background-color: $primary-color;
-  color: $secondary-color;
+  background-color: $light-color;
+  color: $dark-color;
   padding: 0.5em;
 }
 
@@ -34,14 +35,47 @@ body{
   font-size: 1em;
 }
 
+a{
+  color: $light-color;
+
+  &:hover{
+    color: $highlight-color;
+  }
+}
+
 img{
   width: 100%;
-  border: 2px solid $primary-color;
-  background-color: $primary-color;
+  border: 2px solid $light-color;
+  background-color: $light-color;
 }
 
 body > section{
   max-width: 50%;
   min-width: 600px;
   margin: 0 auto;
+}
+
+
+.source-ctn{
+
+  margin-bottom: 2em;
+  line-height: 120%;
+
+  .name{
+    font-weight: bold;
+    background-color: $light-color;
+    color: $dark-color;
+    padding: 0.1em;
+  }
+  .source{
+
+  }
+  .date{
+    font-style: italic;
+  }
+  .description{
+    display: block;
+    margin-left: 1em;
+  }
+
 }

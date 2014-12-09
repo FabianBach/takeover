@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+<head>
     <meta charset="UTF-8">
-    <title>Laser Cat</title>
+    <title>Laser Cat Doku</title>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="documentation.css">
 </head>
@@ -10,22 +10,31 @@
 
 <section id="cover">
     <h1 class="h1 title">Laser Cat</h1>
+
     <h1 class="h2 subtitle">Webapplikation zur Ansteuerung von Licht- und Sound-Effekten</h1>
+
     <h1 class="h4 subtitle">Abschlussarbeit von Fabian Bach</h1>
 </section>
 
 <section id="table-of-contents">
+    //TODO: build dynamically
     <h1 class="h2">Inhalt</h1>
+    <ol>
+        <li><a href="#idee-konzept">Idee &amp; Konzept</a> </li>
+    </ol>
 </section>
 
-<section id="first-chapter" class="text">
-    <h1 class="h2">Idee & Konzept</h1>
+<section id="idee-konzept" class="chapter">
+    <h1 class="h2">Idee &amp; Konzept</h1>
+
     <h2 class="h3">Idee</h2>
+
     <p>
         Vor allem in Diskotheken und auf Veranstaltungen werden oft Licht- und Sound-Effekte eingesetzt um die Besucher
         zu unterhalten. Leider werden diese Effekte meist nur von einzelnen Personen oder programmierten Automatiken
         gesteuert, die Besucher können diese also nur passiv erleben.
     </p>
+
     <p>
         Meine Idee ist es dem Besucher die Möglichkeit zu bieten selbst aktiv zu werden und unkompliziert die Kontrolle
         über einzelne Effekte zu übernehmen. Dazu soll ein möglichst intuitiv bedienbares Web-Interface erstellt werden,
@@ -33,74 +42,124 @@
         Zu diesen Geräten zählen zum Beispiel Smartphones, Tablet-Computer oder auch Touch-Tische.
         So kann jeder Besucher einer Veranstaltung die Kontrolle über beispielsweise ein Licht übernehmen.
     </p>
+
     <p>
         Die steuerbaren Effekte werden vorher von dem Veranstalter bzw. einer zuständigen Person konfiguriert.
         Dabei werden mögliche Farben und Bewegungen eingestellt und falls nötig eingeschränkt.
     </p>
+
     <p>
         Die fertige Applikation soll kostenfrei und offen zur Verfügung gestellt werden (Open Source).
         Für Infos, Download und Installationsanweisungen könnte eine kleine Website erstellt werden sowie
         eine Dokumentation des Codes zur einfachen Erweiterung durch Dritte.
     </p>
+
     <h2 class="h3">Konzept</h2>
+
     <p>
-        Die zu erstellenden Komponenten der Applikation lassen sich in die drei Bereiche Sending-Client, Receiving-Client und Server aufteilen:
+        Die zu erstellenden Komponenten der Applikation lassen sich in die drei Bereiche Sending-Client,
+        Receiving-Client und Server aufteilen:
     </p>
+
     <h3 class="h4">Sending-Client</h3>
+
     <p>
-        Die Aufgabe dieses Clients wird es sein die Steuerbefehle des Users zu erfassen, aufzubereiten und mit möglichst wenig Verzögerung an den Receiving-Client zu senden. Dabei müssen verschiedene Eingabemethoden wie Touch, Maus oder Tastatur berücksichtigt werden.
-        Die Applikation soll mit der aktuellen Technologie von HTML, CSS und Javascript umgesetzt werden um auf jedem Endgerät mit aktuellem Browser zu funktionieren und kein extra Programm auf dem Gerät installiert werden muss.
-        Da es sich bei den meisten Client-Geräten um Smartphones und Tablet-Computer handeln wird sollte viel Wert auf eine Optimierung für diese Geräte gelegt werden.
+        Die Aufgabe dieses Clients wird es sein die Steuerbefehle des Users zu erfassen, aufzubereiten und mit möglichst
+        wenig Verzögerung an den Receiving-Client zu senden. Dabei müssen verschiedene Eingabemethoden wie Touch, Maus
+        oder Tastatur berücksichtigt werden.
+        Die Applikation soll mit der aktuellen Technologie von HTML, CSS und Javascript umgesetzt werden um auf jedem
+        Endgerät mit aktuellem Browser zu funktionieren und kein extra Programm auf dem Gerät installiert werden muss.
+        Da es sich bei den meisten Client-Geräten um Smartphones und Tablet-Computer handeln wird sollte viel Wert auf
+        eine Optimierung für diese Geräte gelegt werden.
         Um eine möglichst geringe Latenz zu erreichen ist es sinnvoll Web-Sockets zu verwenden.
     </p>
+
     <h3 class="h4">Receiving-Client</h3>
+
     <p>
-        Der Receiving-Client wird die vom Sending-Client empfangenen Steuerbefehle je nach Konfiguration validieren, weiterverarbeiten und letztendlich zur Steuerung an das entsprechende Effektgerät bzw. die entsprechende Steuersoftware weitergeben. Als Schnittstelle zu diesen bieten sich das MIDI oder das DMX Protokoll an, welche zur Ansteuerung von Lichteffekten und Musikinstrumenten weit verbreitet sind und deshalb von den meisten Programmen zur Steuerung von Effekten unterstützt werden. Außerdem können somit der Receiving-Client und die Effekt-Software auf verschiedenen Maschinen betrieben werden.
+        Der Receiving-Client wird die vom Sending-Client empfangenen Steuerbefehle je nach Konfiguration validieren,
+        weiterverarbeiten und letztendlich zur Steuerung an das entsprechende Effektgerät bzw. die entsprechende
+        Steuersoftware weitergeben. Als Schnittstelle zu diesen bieten sich das MIDI oder das DMX Protokoll an, welche
+        zur Ansteuerung von Lichteffekten und Musikinstrumenten weit verbreitet sind und deshalb von den meisten
+        Programmen zur Steuerung von Effekten unterstützt werden. Außerdem können somit der Receiving-Client und die
+        Effekt-Software auf verschiedenen Maschinen betrieben werden.
     </p>
+
     <h3 class="h4">Server</h3>
+
     <p>
-        Der Server wird sich nicht nur um die Ausspielung der Client-Applikationen kümmern, sondern diesen auch helfen permanente Verbindungen über Websockets untereinander aufzubauen, um so die direkte Kommunikation zwischen den beiden Clients zu ermöglichen. Dies ist notwendig, da sich die beiden Clients in den wenigsten Fällen im selben Netzwerk befinden werden.
+        Der Server wird sich nicht nur um die Ausspielung der Client-Applikationen kümmern, sondern diesen auch helfen
+        permanente Verbindungen über Websockets untereinander aufzubauen, um so die direkte Kommunikation zwischen den
+        beiden Clients zu ermöglichen. Dies ist notwendig, da sich die beiden Clients in den wenigsten Fällen im selben
+        Netzwerk befinden werden.
     </p>
 </section>
 
 
-<section id="souces">
+<section id="sources" class="chapter">
     <h1 class="h2">Quellenangabe</h1>
 
     <h2 class="h3">Tools</h2>
-    <p class="source">
+
+    <p class="source-ctn">
         <span class="name">node.js</span>
-        <span class="source">http://nodejs.org/</span>
+        <span class="source"><a href="http://nodejs.org/">http://nodejs.org/</a></span>
         <span class="date">06.12.2014</span>
         <span class="description">node.js server software environment</span>
     </p>
-    <p class="source">
+
+    <p class="source-ctn">
+        <span class="name">socket.io</span>
+        <span class="source"><a
+                href="https://www.npmjs.org/package/socket.io">https://www.npmjs.org/package/socket.io</a></span>
+        <span class="date">08.12.2014</span>
+        <span class="description">node.js package for easy use of websockets</span>
+    </p>
+
+    <p class="source-ctn">
+        <span class="name">midi</span>
+        <span class="source"><a href="https://www.npmjs.org/package/midi">https://www.npmjs.org/package/midi</a></span>
+        <span class="date">08.12.2014</span>
+        <span class="description">node.js package for midi support</span>
+    </p>
+
+    <p class="source-ctn">
+        <span class="name">Python</span>
+        <span class="source"><a href="https://www.python.org/">https://www.python.org/</a></span>
+        <span class="date">08.12.2014</span>
+        <span class="description">compiler needed to get midi running</span>
+    </p>
+
+    <p class="source-ctn">
         <span class="name">prince</span>
-        <span class="source">http://www.princexml.com/</span>
+        <span class="source"><a href="http://www.princexml.com/">http://www.princexml.com/</a></span>
         <span class="date">08.12.2014</span>
         <span class="description">Convert XML to printable PDF Files</span>
     </p>
-    <p class="source">
+
+    <p class="source-ctn">
         <span class="name">normalize css</span>
-        <span class="source">http://necolas.github.io/normalize.css/</span>
+        <span class="source"><a
+                href="http://necolas.github.io/normalize.css/">http://necolas.github.io/normalize.css/</a></span>
         <span class="date">08.12.2014</span>
         <span class="description">Helpfull stylesheet to start from</span>
     </p>
-    <p class="source">
+
+    <p class="source-ctn">
         <span class="name">Ruby</span>
-        <span class="source">http://rubyinstaller.org/</span>
+        <span class="source"><a href="http://rubyinstaller.org/">http://rubyinstaller.org/</a></span>
         <span class="date">08.12.2014</span>
         <span class="description">Used for SASS</span>
     </p>
-    <p class="source">
+
+    <p class="source-ctn">
         <span class="name">SASS</span>
-        <span class="source">http://sass-lang.com/</span>
+        <span class="source"><a href="http://sass-lang.com/">http://sass-lang.com/</a></span>
         <span class="date">08.12.2014</span>
         <span class="description">Write better stylesheets and convert them to css</span>
     </p>
 
     <h2 class="h3">Abschlussarbeit</h2>
-
 
     <h2 class="h3">Dokumentation</h2>
 

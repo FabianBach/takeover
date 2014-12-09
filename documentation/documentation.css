@@ -27,6 +27,11 @@ body {
 .h5 {
   font-size: 1em; }
 
+a {
+  color: aliceblue; }
+  a:hover {
+    color: #ffc520; }
+
 img {
   width: 100%;
   border: 2px solid aliceblue;
@@ -36,5 +41,19 @@ body > section {
   max-width: 50%;
   min-width: 600px;
   margin: 0 auto; }
+
+.source-ctn {
+  margin-bottom: 2em;
+  line-height: 120%; }
+  .source-ctn .name {
+    font-weight: bold;
+    background-color: aliceblue;
+    color: darkblue;
+    padding: 0.1em; }
+  .source-ctn .date {
+    font-style: italic; }
+  .source-ctn .description {
+    display: block;
+    margin-left: 1em; }
 
 /*# sourceMappingURL=documentation.css.map */
