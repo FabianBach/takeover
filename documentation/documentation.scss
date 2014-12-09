@@ -1,0 +1,47 @@
+$primary-color: aliceblue;
+$secondary-color: darkblue;
+
+html{
+  font-size: 100%;
+}
+
+body{
+  font-family: monospace, sans-serif;
+  background-color: $secondary-color;
+  color: $primary-color;
+}
+
+.h1, .h2, .h3, .h4, .h5{
+  /*display: inline-block;*/
+  background-color: $primary-color;
+  color: $secondary-color;
+  padding: 0.5em;
+}
+
+.h1{
+  font-size: 2em;
+}
+.h2{
+  font-size: 1.6em;
+}
+.h3{
+  font-size: 1.4em;
+}
+.h4{
+  font-size: 1.2em;
+}
+.h5{
+  font-size: 1em;
+}
+
+img{
+  width: 100%;
+  border: 2px solid $primary-color;
+  background-color: $primary-color;
+}
+
+body > section{
+  max-width: 50%;
+  min-width: 600px;
+  margin: 0 auto;
+}

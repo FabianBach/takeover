@@ -1,44 +1,40 @@
-html{
-    font-size: 100%;
-}
+html {
+  font-size: 100%; }
 
-body{
-    font-family: monospace, sans-serif;
-    background-color: darkblue;
-    color: aliceblue;
-}
+body {
+  font-family: monospace, sans-serif;
+  background-color: darkblue;
+  color: aliceblue; }
 
-.h1, .h2, .h3, .h4, .h5{
-    /*display: inline-block;*/
-    background-color: aliceblue;
-    color: darkblue;
-    padding: 0.5em;
-}
+.h1, .h2, .h3, .h4, .h5 {
+  /*display: inline-block;*/
+  background-color: aliceblue;
+  color: darkblue;
+  padding: 0.5em; }
 
-.h1{
-    font-size: 2em;
-}
-.h2{
-    font-size: 1.6em;
-}
-.h3{
-    font-size: 1.4em;
-}
-.h4{
-    font-size: 1.2em;
-}
-.h5{
-    font-size: 1em;
-}
+.h1 {
+  font-size: 2em; }
 
-img{
-    width: 100%;
-    border: 2px solid aliceblue;
-    background-color: aliceblue;
-}
+.h2 {
+  font-size: 1.6em; }
 
-body > section{
-    max-width: 50%;
-    min-width: 600px;
-    margin: 0 auto;
-}
+.h3 {
+  font-size: 1.4em; }
+
+.h4 {
+  font-size: 1.2em; }
+
+.h5 {
+  font-size: 1em; }
+
+img {
+  width: 100%;
+  border: 2px solid aliceblue;
+  background-color: aliceblue; }
+
+body > section {
+  max-width: 50%;
+  min-width: 600px;
+  margin: 0 auto; }
+
+/*# sourceMappingURL=documentation.css.map */
