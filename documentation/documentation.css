@@ -7,10 +7,11 @@ body {
   color: darkblue; }
 
 .h1, .h2, .h3, .h4, .h5 {
-  /*display: inline-block;*/
-  background-color: aliceblue;
-  color: darkblue;
-  padding: 0.5em; }
+  font-family: "Courier 10 Pitch", Courier, monospace;
+  background-color: darkblue;
+  color: aliceblue;
+  padding: 0.5em;
+  font-weight: 100; }
 
 .h1 {
   font-size: 2em; }
@@ -28,7 +29,7 @@ body {
   font-size: 1em; }
 
 a {
-  color: aliceblue; }
+  color: darkblue; }
   a:hover {
     color: #09ceff; }
 

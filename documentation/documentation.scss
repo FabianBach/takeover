@@ -13,10 +13,11 @@ body{
 }
 
 .h1, .h2, .h3, .h4, .h5{
-  /*display: inline-block;*/
-  background-color: $light-color;
-  color: $dark-color;
+  font-family: "Courier 10 Pitch", Courier, monospace;
+  background-color: $dark-color;
+  color: $light-color;
   padding: 0.5em;
+  font-weight: 100;
 }
 
 .h1{
@@ -36,7 +37,7 @@ body{
 }
 
 a{
-  color: $light-color;
+  color: $dark-color;
 
   &:hover{
     color: $highlight-color;
