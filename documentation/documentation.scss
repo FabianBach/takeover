@@ -1,15 +1,15 @@
 $light-color: aliceblue;
 $dark-color: darkblue;
-$highlight-color: #ffc520;
+$highlight-color: #09ceff;
 
 html{
   font-size: 100%;
 }
 
 body{
-  font-family: monospace, sans-serif;
-  background-color: $dark-color;
-  color: $light-color;
+  font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+  background-color: $light-color;
+  color: $dark-color;
 }
 
 .h1, .h2, .h3, .h4, .h5{

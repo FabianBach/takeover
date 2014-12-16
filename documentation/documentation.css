@@ -2,9 +2,9 @@ html {
   font-size: 100%; }
 
 body {
-  font-family: monospace, sans-serif;
-  background-color: darkblue;
-  color: aliceblue; }
+  font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+  background-color: aliceblue;
+  color: darkblue; }
 
 .h1, .h2, .h3, .h4, .h5 {
   /*display: inline-block;*/
@@ -30,7 +30,7 @@ body {
 a {
   color: aliceblue; }
   a:hover {
-    color: #ffc520; }
+    color: #09ceff; }
 
 img {
   width: 100%;

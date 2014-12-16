@@ -1,4 +1,4 @@
-Laser Cat
+takeover
 =========
 
 Server with frontend to send OSC, MIDI and DMX signals. 
