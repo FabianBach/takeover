@@ -1,13 +1,14 @@
 takeover
 =========
 
+##description
+
 Server with frontend to send OSC, MIDI and DMX signals. 
-See documentation directory for more information (written in german)
+See documentation directory for more information (written in german).
 Name is not final. Finding a name always is the hardest part...
 
 
-TODO
-====
+##todo
 
 - Basics
   - deliver the client html files
