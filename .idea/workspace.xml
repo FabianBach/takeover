@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6e32f366-82f9-4724-b28e-34de1af3d120" name="Default" comment="V 0.1.0&#10;- Trying to .gitignore stuff&#10;- Still committing just everything at once">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/Farting_Dog.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/deployment.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vagrant.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/watcherTasks.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    <list default="true" id="6e32f366-82f9-4724-b28e-34de1af3d120" name="Default" comment="">
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\.name" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\deployment.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\dictionaries\Farting_Dog.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\scopes\scope_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\takeover.iml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\vagrant.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\vcs.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\watcherTasks.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\workspace\web\takeover\.idea\workspace.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MOVED" beforePath="D:\workspace\web\takeover\.idea\laser-cat.iml" afterPath="$PROJECT_DIR$/.idea/takeover.iml" />
     </list>
     <list id="b2e0216a-7c4c-4a5f-bf2a-d99d9172dddb" name="Ignore List" comment="Made this list to not commit these files" />
     <ignored path="laser-cat.iws" />
@@ -348,7 +348,13 @@
       <option name="project" value="LOCAL" />
       <updated>1421759096923</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="V 0.1.0&#10;- Trying to .gitignore stuff&#10;- Still committing just everything at once">
+      <created>1421760356376</created>
+      <option name="number" value="00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1421760356376</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
