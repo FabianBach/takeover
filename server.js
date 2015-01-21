@@ -1,11 +1,17 @@
-var express = require('express');
-var app = express();
 
-app.get('/', function (req, res) {
+
+var express = require('express'),
+    socket = require('socket.io');
+
+
+
+var takeover = express();
+
+takeover.get('/', function (req, res) {
     res.send('Hallo Jana! Mau! :)!')
 });
 
-var server = app.listen(3000, function () {
+var server = takeover.listen(3000, function () {
 
     var host = server.address().address;
     var port = server.address().port;

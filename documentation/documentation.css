@@ -3,15 +3,11 @@ html {
 
 body {
   font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
-  background-color: aliceblue;
-  color: darkblue; }
+  background-color: #dedede;
+  color: #696969; }
 
 .h1, .h2, .h3, .h4, .h5 {
-  font-family: "Courier 10 Pitch", Courier, monospace;
-  background-color: darkblue;
-  color: aliceblue;
-  padding: 0.5em;
-  font-weight: 100; }
+  font-family: "Courier 10 Pitch", Courier, monospace; }
 
 .h1 {
   font-size: 2em; }
@@ -29,14 +25,14 @@ body {
   font-size: 1em; }
 
 a {
-  color: darkblue; }
+  color: #696969; }
   a:hover {
-    color: #09ceff; }
+    color: #4ca2c0; }
 
 img {
   width: 100%;
-  border: 2px solid aliceblue;
-  background-color: aliceblue; }
+  border: 2px solid #dedede;
+  background-color: #dedede; }
 
 body > section {
   max-width: 50%;
@@ -48,8 +44,8 @@ body > section {
   line-height: 120%; }
   .source-ctn .name {
     font-weight: bold;
-    background-color: aliceblue;
-    color: darkblue;
+    background-color: #dedede;
+    color: #696969;
     padding: 0.1em; }
   .source-ctn .date {
     font-style: italic; }

@@ -1,6 +1,6 @@
-$light-color: aliceblue;
-$dark-color: darkblue;
-$highlight-color: #09ceff;
+$light-color: #dedede;
+$dark-color: #696969;
+$highlight-color: #4ca2c0;
 
 html{
   font-size: 100%;
@@ -14,10 +14,10 @@ body{
 
 .h1, .h2, .h3, .h4, .h5{
   font-family: "Courier 10 Pitch", Courier, monospace;
-  background-color: $dark-color;
-  color: $light-color;
-  padding: 0.5em;
-  font-weight: 100;
+//  background-color: $dark-color;
+//  color: $light-color;
+//  padding: 0.5em;
+//  font-weight: bold;
 }
 
 .h1{
