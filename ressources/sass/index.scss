@@ -1,1 +1,14 @@
-@import "../../node_modules/normalize.css/normalize.css";
+html {
+  background-color: #333333;
+  color: #ddd;
+}
+
+// jQuery Mobile Overrides
+
+// Hide the number input on sliders
+.full-width-slider input {
+  display: none;
+}
+.full-width-slider .ui-slider-track {
+  margin-left: 15px;
+}
