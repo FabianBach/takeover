@@ -1,19 +1,23 @@
 $light-color: #dedede;
-$dark-color: #696969;
+$light-medium-color: #C2C2C2;
+$dark-color: #333333;
 $highlight-color: #4ca2c0;
+
+$font-monospace: "Courier 10 Pitch", Courier, monospace;
+$font-sans-serif: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
 
 html{
   font-size: 100%;
 }
 
 body{
-  font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+  font-family: $font-monospace;
   background-color: $light-color;
   color: $dark-color;
 }
 
 .h1, .h2, .h3, .h4, .h5{
-  font-family: "Courier 10 Pitch", Courier, monospace;
+  font-family: $font-sans-serif;
 //  background-color: $dark-color;
 //  color: $light-color;
 //  padding: 0.5em;
@@ -79,4 +83,9 @@ body > section{
     margin-left: 1em;
   }
 
+}
+
+code,
+pre{
+  background-color: $light-medium-color;
 }
