@@ -2,11 +2,17 @@
 // this function will return a new object with its own private scope and public methods
 // it can be handed a configuration object
 // somehow like a factory
-var abstractModule = function(config){
+var abstractModule = function(config, shared){
 
     /*
      * ** PRIVATE STUFF **
      */
+
+    // this object will be provided by an object that inherits from this object
+    // we can add members to it we want to share with it, but we don't want to make public
+    // the inheriting object can then use the normally private methods of this object
+    shared = shared || {};
+
     // this class does not inherit from any other class
     // so we start with a new and empty object
     // this object will be returned at the end
@@ -15,29 +21,52 @@ var abstractModule = function(config){
     // everything is private and can not be invoked outside of this scope
     // function will be appended to the returned object
     var id,
+        name,
+        type,
         position,
-        size;
+        size,
+        ioNamespace,
+        sockets = [];
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
-    function init(){
+    var init = function(){
 
-        var validation = validateConfig(config);
-        if (validation.error.length) return {error: validation.error};
+        var superfunction = shared.init || function(){};
+        superfunction();
+
+        // id
+        id = Math.random() * new Date().getTime() * 10000000;
+
+        var validationLog = validateConfig(config);
+        if (validationLog.error.length) return {error: validationLog.error};
 
         that = {};
 
-        var appliance = applyConfig(config);
-        if (appliance.error.length) return {error: appliance.error};
+        var applyLog = applyConfig(config);
+        //if (applyLog.error.length) return {error: applyLog.error};
 
+        var socketLog = createSocket(config.io);
+        //if (socketLog.error.length) return {error: socketLog.error};
+
+        setShared();
+
+        return {};
     };
+
+    //if something goes wrong do not return an instance but an object containing information about the error
+    var initialization = init();
+    if (initialization.error) return {error: initialization.error};
 
 
     // use the information provided in the validated configuration to set and override variables of the object
-    function applyConfig(config){
+    function applyConfig (config){
 
-        // id - validation optional
-        id = config.id || Math.random() * new Date().getTime() * 100000;
+        // name
+        name = config.name;
+
+        // type
+        type = config.type;
 
         // position - validation required
         position = config.position;
@@ -45,19 +74,90 @@ var abstractModule = function(config){
         // size - validation required
         size = config.size;
 
+    }
 
-    };
+    function createSocket (io){
+        ioNamespace = io.of("/" + getId());
 
-    //if something goes wrong do not return an instance but an object containing information about the error
-    var initialization = init();
-    if (initialization.error) return {error: initialization.error};
+        ioNamespace.on('connection', function(socket){
+            sockets.push(socket);
+            console.log('Connected to module ' + getName());
+
+            socket.on('value_change', onValueChange);
+        })
+    }
+
+    function onValueChange (data){
+        console.log('Module ' + getName(), data);
+
+        // validate the received data
+        var dataLog = checkData(data);
+        if (dataLog.error.length) return console.log('Invalid data');
+
+        // send out that OSC, MIDI or whatever protocol
+        doMapping(data);
+    }
+
+    // this function is supposed to check if the data is okay or if something messed up
+    // it could also correct the data in the object if an minor error is found and log a warning
+    function checkData (data){
+        return {error: {}}
+    }
+
+    // this function is supposed to map the received value to the different protocol values
+    // according to the mapping object defined in the config
+    // this method has to be defined by each specific module itself
+    // there is no general way to do this in this abstract object
+    function doMapping (data){
+
+        var superfunction = shared.doMapping || function(){};
+        superfunction(data);
+
+        console.log('Module ' + getName() + ' received: ' + data.toString().cyan);
+    }
+
+    // getters and setters
+
+    function getId (){
+        return id;
+    }
+
+    function getName (){
+        return name === 'unnamed' ? getId() : name;
+    }
+
+    function setName (newName){
+        if(newName){ name = String(newName)}
+    }
+
+    function getType (){
+        return type;
+    }
+
+    /*
+     * ** SHARED STUFF **
+     */
+
+    function setShared() {
+        // vars
+        shared.getId = getId;
+        shared.getName = getName;
+        shared.setName = setName;
+        shared.getType = getType;
+
+        // funcs
+        shared.init = init;
+        shared.doMapping = doMapping;
+    }
 
     /*
      * ** PUBLIC STUFF **
      */
-
-    // now add the functions, which are supposed to be public, to the object
+    // now add the functions to the returned object, which are supposed to be public in the interface
     // that.methodName = funcName;
+
+    that.getModuleId = getId;
+    that.getModuleName = getName;
 
     // return the finished object (somewhat an instance of the module object)
     return that;
@@ -70,22 +170,41 @@ module.exports = abstractModule;
  * ** STATIC STUFF **
  * the following stuff will not be altered at runtime
  * and will be the same for every instance of the module
+ * somehow like writing it to the prototype object, but not public
+ * this can not be invoked by an inheriting object, except by reference
  */
 
 // this function will check for errors in the config object
-// every module will check for its specific config values
-// but will not have to check for the values the super-object is checking for
+// this will only check values which all modules have in common
+// every module will have to check for its specific config values
 function validateConfig(config){
 
     error = [];
 
-    // if (something wrong) error.push('some error message for debuging');
+    //config itself
+    if (!config){
+        error.push('No config found!');
+        config = {};
+    }
+
+    // socket instance
+    if (!config.io){ error.push('No io in config')}
+    else {
+        //if (config.io._path !== './socket.io'){ error.push('io in config is no socket.io')} // config.io._path is undefined!!
+    }
+
+    //name
+    if (!config.name){ config.name = 'unnamed' }
+    else {config.name = String(config.name)}
+
+    // type
+    if (!config.type){ error.push('No type in config') }
 
     // position
     if (!config.position){ error.push('No position in config')}
     else {
-        if (!config.position.x){ error.push('No x-position in config')}
-        if (!config.position.y){ error.push('No y-position in config')}
+        if (config.position.x === undefined){ error.push('No x-position in config')}
+        if (config.position.y === undefined){ error.push('No y-position in config')}
     }
 
     // size
@@ -96,4 +215,8 @@ function validateConfig(config){
     }
 
     return {error: error};
-};
+}
+
+
+// nice logging
+require('colors');

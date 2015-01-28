@@ -1,0 +1,30 @@
+TODOS
+
+    error pattern could be made different
+        look at node.js error pattern in callback style
+        first argument is error, then stuff
+
+
+    check which functions can be made static
+        some functions just do not change or anything
+        and can be used like in the prototype object
+        if they do not need access to the private members
+
+
+    find a nice way to make the io instance available to all modules
+        but global would be uncool
+        at the moment it is passed to object by reference in the config object
+
+
+    overwork the way of logging
+        add some ids and more useful information
+        and some colors...
+
+
+    call super functions nicer somehow
+        at the moment we even have to check if there is this function in the shared object
+
+
+BUGS
+
+    no bugs yet... phew
