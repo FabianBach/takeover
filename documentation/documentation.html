@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>takeover Doku</title>
+    <title>takeover Dokumentation</title>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="documentation.css">
 </head>
@@ -12,6 +12,8 @@
     <h1 class="h1 title">takeover</h1>
 
     <!--<h1 class="h2 subtitle">TODO: get da freakin headline</h1>-->
+
+    <p class="h5">&laquo; Konzipierung und prototypische Implementierung einer Webapplikation zur interaktiven Einbindung von Besuchern auf Veranstaltungen am Beispiel von beeinflussbaren Licht- und Soundeffekten &raquo;</p>
 
     <h1 class="h4 subtitle">Abschlussarbeit von Fabian Bach</h1>
 </section>
@@ -48,8 +50,6 @@
     </p>
 
     <h2 class="h3">Konzept</h2>
-
-    <p>Arbeitstitel: &laquo; Konzipierung und prototypische Implementierung einer Webapplikation zur interaktiven Einbindung von Besuchern auf Veranstaltungen am Beispiel von beeinflussbaren Licht- und Soundeffekten &raquo;</p>
 
     <p>
         Die zu erstellenden Komponenten der Applikation lassen sich in die drei Bereiche
@@ -104,18 +104,20 @@
     <h1 class="h2">Some code to show</h1>
     <p>Nah, just checkin out that <code>&lt;code&gt;-tag</code></p>
     <pre><code>
-        var i = 0;
-        for (i; i < 10; i++){
+        var i;
+        for (i = 0; i < 10; i++){
             //do something!
         };
         //done
     </code></pre>
 </section>
 
-<section id="sources" class="chapter">
-    <h1 class="h2">Quellenangabe</h1>
+<section id="tools" class="chapter">
+    <h1 class="h2">Verwendete Tools</h1>
 
-    <h2 class="h3">Tools</h2>
+    <!--TODO: add version numbers!-->
+
+    <h2 class="h3">Server</h2>
 
     <p class="source-ctn">
         <span class="name">node.js</span>
@@ -143,15 +145,10 @@
         <span class="name">Python</span>
         <span class="source"><a href="https://www.python.org/">https://www.python.org/</a></span>
         <span class="date">08.12.2014</span>
-        <span class="description">compiler needed to get midi running</span>
+        <span class="description">compiler needed to get midi node package running</span>
     </p>
 
-    <p class="source-ctn">
-        <span class="name">prince</span>
-        <span class="source"><a href="http://www.princexml.com/">http://www.princexml.com/</a></span>
-        <span class="date">08.12.2014</span>
-        <span class="description">Convert XML to printable PDF Files</span>
-    </p>
+    <h2 class="h3">Client</h2>
 
     <p class="source-ctn">
         <span class="name">normalize css</span>
@@ -175,10 +172,20 @@
         <span class="description">Used for SASS</span>
     </p>
 
-    <h2 class="h3">Abschlussarbeit</h2>
-
     <h2 class="h3">Dokumentation</h2>
 
+    <p class="source-ctn">
+        <span class="name">prince</span>
+        <span class="source"><a href="http://www.princexml.com/">http://www.princexml.com/</a></span>
+        <span class="date">08.12.2014</span>
+        <span class="description">Convert XML to printable PDF Files</span>
+    </p>
+</section>
+
+<section id="sources" class="chapter">
+    <h1 class="h2">Quellenangabe</h1>
+    <h2 class="h3">Webseiten</h2>
+    <h2 class="h3">Bücher</h2>
 </section>
 </body>
 </html>
