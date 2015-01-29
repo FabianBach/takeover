@@ -38,7 +38,13 @@ io.sockets.on('connection', function(socket){
         console.log('Oh, client disconnected...');
     });
 
-    socket.on('value_change', function(data){
-        console.log('Value changed: ', data);
-    });
+    socket.on('get_module_list', function(){
+        // TODO: send the modules (get em via control-module.getModuleList)
+    })
+
 });
+
+// TODO: require(control-module.js)
+// TODO: somehow set the io in control-module.js
+// TODO: get control module configs via filereader
+// TODO: build each config to module

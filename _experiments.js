@@ -1,19 +1,19 @@
 // Testing the abstract control module
 // just fuzzing around with config and stuff
 
-var controlModule = require('./ressources/server_modules/control-module.js'),
+var controlModules = require('./ressources/server_modules/control-module.js'),
     io,
     modules = [];
 
 var init = function(){
 
     try{
-        modules[modules.length] = controlModule({
+        modules[modules.length] = controlModules.createModule({
 
             io: io,
 
             type: '_abstract',
-            name: 'weird nonsense',
+            name: 'Abstract',
             position: {
                 x: 50,
                 y: 0
@@ -27,9 +27,8 @@ var init = function(){
         console.log(error);
     }
 
-
     try{
-        modules[modules.length] = controlModule({
+        modules[modules.length] = controlModules.createModule({
 
             io: io,
 
@@ -48,12 +47,7 @@ var init = function(){
         console.log(error);
     }
 
-
-
-
-    for(var i = 0; i < modules.length; i++){
-        //console.log(modules[i].getModuleName());
-    }
+    console.log(controlModules.getModuleList());
 
 };
 
@@ -62,6 +56,23 @@ var setIo = function(_io){
     init();
 };
 module.exports.setIo = setIo;
+
+
+
+
+
+// Testing event handler
+// everything is working just perfectly fine
+//var eventHandler = require('./ressources/server_modules/event-part.js');
+//eventHandler = eventHandler();
+//
+//var obj = {hell : 'yeah!'};
+//
+//eventHandler.on('yep', function(data){
+//    console.log('yep'.cyan, this.hell, data);
+//}, obj);
+//
+//eventHandler.fire('yep', {nice: 'stuff'}, 'no problem');
 
 
 
@@ -106,3 +117,7 @@ module.exports.setIo = function(_io){
     io = _io;
     console.log(io);
 };*/
+
+
+
+require('colors');

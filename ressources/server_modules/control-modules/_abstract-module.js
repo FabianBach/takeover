@@ -26,27 +26,27 @@ var abstractModule = function(config, shared){
         position,
         size,
         ioNamespace,
-        sockets = [];
+        sockets = [],
+        eventHandler;
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
     var init = function(){
 
-        var superfunction = shared.init || function(){};
-        superfunction();
+        id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
 
-        // id
-        id = Math.random() * new Date().getTime() * 10000000;
+        eventHandler = require('./../event-part.js')();
 
         var validationLog = validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
-
-        that = {};
 
         var applyLog = applyConfig(config);
         //if (applyLog.error.length) return {error: applyLog.error};
 
         var socketLog = createSocket(config.io);
+        //if (socketLog.error.length) return {error: socketLog.error};
+
+        var eventLog = setEvents();
         //if (socketLog.error.length) return {error: socketLog.error};
 
         setShared();
@@ -81,14 +81,21 @@ var abstractModule = function(config, shared){
 
         ioNamespace.on('connection', function(socket){
             sockets.push(socket);
-            console.log('Connected to module ' + getName());
+            console.log('Connected to module ' + getNameAndId());
+            eventHandler.fire('socket_connected', socket);
 
-            socket.on('value_change', onValueChange);
+            socket.on('value_change', function(){
+                eventHandler.fire('value_change', arguments);
+            });
         })
     }
 
+    function setEvents(){
+        eventHandler.on('value_change', onValueChange)
+    }
+
     function onValueChange (data){
-        console.log('Module ' + getName(), data);
+        console.log('Module ' + getNameAndId(), data);
 
         // validate the received data
         var dataLog = checkData(data);
@@ -110,10 +117,7 @@ var abstractModule = function(config, shared){
     // there is no general way to do this in this abstract object
     function doMapping (data){
 
-        var superfunction = shared.doMapping || function(){};
-        superfunction(data);
-
-        console.log('Module ' + getName() + ' received: ' + data.toString().cyan);
+        console.log('Module ' + getNameAndId() + ' would do mapping now: ', data);
     }
 
     // getters and setters
@@ -130,20 +134,31 @@ var abstractModule = function(config, shared){
         if(newName){ name = String(newName)}
     }
 
+    function getNameAndId (){
+        return getName().yellow + '(' + getId().grey + ')';
+    }
+
     function getType (){
         return type;
+    }
+
+    function getEventHandler (){
+        return eventHandler;
     }
 
     /*
      * ** SHARED STUFF **
      */
 
+    // gets called at the end of the init() function
     function setShared() {
         // vars
         shared.getId = getId;
         shared.getName = getName;
         shared.setName = setName;
+        shared.getNameAndId = getNameAndId;
         shared.getType = getType;
+        shared.getEventHandler = getEventHandler;
 
         // funcs
         shared.init = init;
@@ -156,8 +171,10 @@ var abstractModule = function(config, shared){
     // now add the functions to the returned object, which are supposed to be public in the interface
     // that.methodName = funcName;
 
-    that.getModuleId = getId;
-    that.getModuleName = getName;
+    that.getId = getId;
+    that.getName = getName;
+    that.getType = getType;
+
 
     // return the finished object (somewhat an instance of the module object)
     return that;

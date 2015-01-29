@@ -7,6 +7,8 @@
 
 require('colors');
 
+var that = {};
+
 // all available modules should be listed here
 var controlModules = {};
     controlModules['_abstract'] = require('./control-modules/_abstract-module.js');
@@ -14,25 +16,41 @@ var controlModules = {};
 
 var createdModules = {};
 
-var controlModuleFactory = function(config){
+function controlModuleFactory (config){
 
     if (!config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red) }
 
-    var module = controlModules[config.type];
-        module = module(config);
+    // create the module
+    var module = controlModules[config.type](config);
 
+    // check if module was returned or if something went wrong when creating
     if (module.error){
         console.log( 'control-module-factory '.grey + ('something went wrong when creating a ' + config.type).red );
         console.log( 'control-module-factory '.grey + (module.toString()).red );
-        throw module.error;
-        //return module;
+        throw new Error(module.error.toString());
     }
 
-    createdModules[module.getModuleId] = module;
-
-    console.log( 'control-module-factory '.grey + ('created: '.green + module.getModuleName() + ' ' + module.getModuleId().toString().grey));
+    // save the reference to every created module in static array
+    createdModules[module.getId()] = module;
+    console.log( 'control-module-factory '.grey + ('created: '.green + module.getName() + ' '+ module.getType()+ ' ' + module.getId().toString().grey));
 
     return module;
-};
+}
 
-module.exports = controlModuleFactory;
+function getModuleList(){
+    var list = [];
+    for (id in createdModules){
+        var moduleObj = createdModules[id];
+        list.push({
+            id: moduleObj.getId(),
+            name: moduleObj.getName(),
+            type: moduleObj.getType()
+        })
+    }
+    return list;
+}
+
+that.createModule = controlModuleFactory;
+that.getModuleList = getModuleList;
+
+module.exports = that;
