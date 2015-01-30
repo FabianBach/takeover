@@ -1,7 +1,7 @@
 // Testing the abstract control module
 // just fuzzing around with config and stuff
 
-var controlModules = require('./ressources/server_modules/control-module.js'),
+var controlModules = require('./resources/server_modules/control-module.js'),
     io,
     modules = [];
 
@@ -13,15 +13,8 @@ var init = function(){
             io: io,
 
             type: '_abstract',
-            name: 'Abstract',
-            position: {
-                x: 50,
-                y: 0
-            },
-            size: {
-                x: 50,
-                y: 50
-            }
+            name: 'Abstract'
+
         });
     }catch(error){
         console.log(error);
@@ -33,15 +26,8 @@ var init = function(){
             io: io,
 
             type: 'simple button',
-            name: 'Testbutton',
-            position: {
-                x: 0,
-                y: 0
-            },
-            size: {
-                x: 50,
-                y: 50
-            }
+            name: 'Testbutton'
+
         });
     }catch(error){
         console.log(error);
@@ -63,7 +49,7 @@ module.exports.setIo = setIo;
 
 // Testing event handler
 // everything is working just perfectly fine
-//var eventHandler = require('./ressources/server_modules/event-part.js');
+//var eventHandler = require('./resources/server_modules/event-part.js');
 //eventHandler = eventHandler();
 //
 //var obj = {hell : 'yeah!'};

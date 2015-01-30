@@ -26,7 +26,7 @@
       },
       "byte_3" : { //max value = 7 bit (1111111) = 127
         "mapping" : false,
-        "value" : 127
+        "value" : "Name of other module"
       }
     },
 

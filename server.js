@@ -10,41 +10,65 @@ if(process.argv.length > 2){
 
 var express = require('express'),
     io = require('socket.io'),
-    http = require('http');
+    http = require('http'),
 
-var experiments = require('./_experiments.js');
+    controlModules = require('./resources/server_modules/control-module.js'),
 
-var takeover = express();
+    server,
 
-takeover.use(express.static(__dirname + '/public'));
+    takeover = {};
 
-var server = takeover.listen(port, function () {
+function init(){
+
+    takeover = express();
+    takeover.use(express.static(__dirname + '/public'));
+
+    server = takeover.listen(port, onServerReady);
+
+    io = io.listen(server);
+
+}
+init();
+
+function onServerReady(){
 
     var host = server.address().address;
     var port = server.address().port;
 
-    console.log('Server listening at http://%s:%s', host, port)
+    console.log('Server listening at http://%s:%s', host, port.toString().cyan);
 
-});
+    openWebSockets();
 
-io = io.listen(server);
-experiments.setIo(io);
+    controlModules.setIo(io);
+    controlModules.createFromFiles();
+}
 
-io.sockets.on('connection', function(socket){
+function openWebSockets(){
 
-    console.log('Yeay, client connected!');
+    io.sockets.on('connection', function(socket){
+        console.log('Yeay, client connected!');
+
+        setSocketListeners(socket);
+    });
+}
+
+function setSocketListeners(socket){
 
     socket.on('disconnect', function(){
         console.log('Oh, client disconnected...');
     });
 
     socket.on('get_module_list', function(){
-        // TODO: send the modules (get em via control-module.getModuleList)
+        var list = controlModules.getModuleList();
+        socket.emit('module_list', JSON.stringify(list));
     })
+}
 
-});
 
 // TODO: require(control-module.js)
 // TODO: somehow set the io in control-module.js
 // TODO: get control module configs via filereader
 // TODO: build each config to module
+
+// beautiful loggin
+require('colors');

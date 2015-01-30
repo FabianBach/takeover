@@ -40,6 +40,7 @@ var simpleButton = function(config, shared){
 
         return {};
     };
+
     var initialization = init();
     //if something goes wrong do not return an instance but an object containing information about the error
     if (initialization.error) return {error: initialization.error};

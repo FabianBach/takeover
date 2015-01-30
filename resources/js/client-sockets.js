@@ -6,9 +6,14 @@ var socket = io.connect('/');
 socket.on('connecting', function(){
     console.log('Connecting...');
 });
+
 socket.on('connect', function(){
    console.log('Connection to server established!');
+
+    socket.emit('get_module_list');
+
 });
+
 socket.on('disconnect', function(){
    console.log('Disconnected.');
 });
@@ -27,4 +32,10 @@ socket.on('connect_failed', function(){
 });
 socket.on('error', function(){
     console.log('Error!');
+});
+
+
+
+socket.on('module_list', function(list){
+    console.log(list);
 });

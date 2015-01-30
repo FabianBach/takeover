@@ -8,7 +8,7 @@ module.exports = function(grunt) {
             html: {
                 files: [
                     {   expand: true,
-                        cwd: 'ressources/html/',
+                        cwd: 'resources/html/',
                         flatten: true, //copy without subdirectories
                         src: ['**'],
                         dest: 'public/',
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
             js: {
                 files: [
                     {   expand: true,
-                        cwd: 'ressources/js/',
+                        cwd: 'resources/js/',
                         flatten: true, //copy without subdirectories
                         src: ['**'],
                         dest: 'public/js/',
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
             compile: {
                 files: [{
                     expand: true,
-                    cwd: 'ressources/sass/',
+                    cwd: 'resources/sass/',
                     src: ['main.scss'],
                     dest: 'public/css/',
                     ext: '.css'
@@ -43,21 +43,21 @@ module.exports = function(grunt) {
 
         watch: {
             html: {
-                files: ['ressources/html/*.html'],
+                files: ['resources/html/*.html'],
                 tasks: ['copy:html'],
                 options: {
                     spawn: false
                 }
             },
             sass: {
-                files: ['ressources/sass/*.scss'],
+                files: ['resources/sass/*.scss'],
                 tasks: ['sass:compile'],
                 options: {
                     spawn: false
                 }
             },
             js: {
-                files: ['ressources/js/*.js'],
+                files: ['resources/js/*.js'],
                 tasks: ['copy:js'],
                 options: {
                     spawn: false
