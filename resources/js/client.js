@@ -157,7 +157,6 @@ var startSockets = function(){
     socket.on('module_list', function(list){
 
         list = JSON.parse(list);
-
         $.each(list, function(key, value){
             moduleBuilder.create(value);
         });

@@ -75,7 +75,7 @@ var simpleButton = function(config, shared){
     // this method has to be defined by each specific module itself
     // there is no general way to do this in this abstract object
     function doMapping (data){
-        console.log('Module ' + shared.getNameAndId() + 'got it and stops propagation: ', data);
+        console.log('Module ' + shared.getNameAndId() + ' value: ', data);
 
         return {error: []}
     }
@@ -122,7 +122,7 @@ module.exports = simpleButton;
 // every module will have to check for its specific config values
 function validateConfig(config){
 
-    error = [];
+    var error = [];
 
     return {error: error};
 }

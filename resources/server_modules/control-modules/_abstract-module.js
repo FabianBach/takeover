@@ -92,7 +92,11 @@ var abstractModule = function(config, shared){
         // will ce invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
             activeConnections.length = activeConnections.length || 0;
-            console.log('Connected to module ' + getNameAndId());
+            console.log('Connected to module ' + getNameAndId() + socket.id.grey);
+
+            socket.on('disconnect', function(){
+                disableSocket(socket);
+            });
 
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
@@ -102,33 +106,31 @@ var abstractModule = function(config, shared){
                 disableSocket(socket);
             }
 
-            // after a timeout the connection will be disabled and put back in waiting line
-            if(maxTime){
-                setTimeout(function(){
-                    disableSocket(socket);
-                }, maxTime);
-            }
-
-            console.log('maxUsers: \t' + maxUsers.toString().yellow, '\nactive: \t' + activeConnections.length.toString().yellow, '\nwaiting: \t' + waitingConnections.length.toString().yellow);
+            console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
 
         });
+    }
+
+    function setSocketTimeout(socket){
+        // after a timeout the connection will be disabled and put back in waiting line
+        if(maxTime){
+            setTimeout(function(){
+                waitingConnections.length
+                    ? disableSocket(socket)
+                    : setSocketTimeout(socket)
+            }, maxTime);
+        }
     }
 
     function enableSocket(socket){
         activeConnections[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
-        eventHandler.fire('active_socket_connected', socket);
+        eventHandler.fire('socket_enabled', socket);
 
-        socket.on('disconnect', function(){
-            delete activeConnections[socket.id];
-            activeConnections.length = activeConnections.length - 1;
-            eventHandler.fire('active_socket_disconnected', socket);
-        });
-        socket.on('value_change', function(){
-            eventHandler.fire('value_change', arguments);
-        });
+        socket.on('value_change', fireValueChange);
 
         socket.emit('enable');
+        setSocketTimeout(socket);
 
         return socket;
     }
@@ -137,26 +139,27 @@ var abstractModule = function(config, shared){
     function disableSocket(socket){
 
         // removes the listener
-        // function has to be provided
-        socket.removeListener('value_change', function(){
-            eventHandler.fire('value_change', arguments);
-        });
+        // function has to be provided to find listener
+        socket.removeListener('value_change', fireValueChange);
 
-        // remove from active list if it was disabled from timeout
-        if (activeConnections[socket.id]){
+        // push it back in waiting line
+        if(socket.connected){
+            waitingConnections.push(socket);
+            eventHandler.fire('socket_waiting', socket);
+            socket.emit('disable');
+        }
+
+        // remove from active list
+        if(activeConnections[socket.id]){
             delete activeConnections[socket.id];
             activeConnections.length = activeConnections.length - 1;
-            eventHandler.fire('active_socket_disabled', socket);
+            eventHandler.fire('socket_disabled', socket);
         }
-        // push it back in waiting line
-        waitingConnections.push(socket);
-        eventHandler.fire('waiting_socket_connected', socket);
-        socket.emit('disable');
     }
 
     // this will step trough the waiting list until it finds a connected socket
     // this socket will then be made active
-    function onActiveSocketDisconnect(){
+    function moveWatingline(){
         var newActive;
         for(var i = 0, l = waitingConnections.length, con; i < l; i++){
             con = waitingConnections.shift();
@@ -168,11 +171,16 @@ var abstractModule = function(config, shared){
         if (newActive){ enableSocket(newActive); }
     }
 
+    // this is put in a seperate function to be able to remove it from the socket listener
+    // TODO: could be merged with onValueChange?
+    function fireValueChange(){
+        eventHandler.fire('value_change', arguments);
+    }
+
     // sets all the listeners on the shared event handler and appends functions to the events
     function setEvents(){
         eventHandler.on('value_change', onValueChange);
-        eventHandler.on('active_socket_disconnected', onActiveSocketDisconnect);
-        eventHandler.on('active_socket_disabled', onActiveSocketDisconnect); // invoke same function
+        eventHandler.on('socket_disabled', moveWatingline);
     }
 
     // gets invoked when a client sends a new value for the module
@@ -217,7 +225,7 @@ var abstractModule = function(config, shared){
     }
 
     function getNameAndId (){
-        return getName().yellow + '(' + getId().grey + ')';
+        return getName().cyan + ' (' + getId().grey + ')';
     }
 
     function getType (){
@@ -307,7 +315,7 @@ module.exports = abstractModule;
 // every module will have to check for its specific config values
 function validateConfig(config){
 
-    error = [];
+    var error = [];
 
     // config itself
     if (!config){
@@ -332,10 +340,10 @@ function validateConfig(config){
     if (!config.title){ config.title = ''}
 
     // multiple users
-    if (!config.maxUsers){ config.maxUsers = 1}
+    config.maxUsers = parseInt(config.maxUsers) || 1;
 
     // max use time
-    if (!config.maxTime){ config.maxTime = 0}
+    config.maxTime = parseInt(config.maxTime) * 1000 || 0;
 
     return {error: error};
 }

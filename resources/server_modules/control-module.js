@@ -78,8 +78,8 @@ function createFromFiles(configsPath){
     function onFileRead (error, buffer){
         if(error) return console.log(error);
 
-        jsonConfig = buffer.toString();
-        config = JSON.parse(jsonConfig);
+        var jsonConfig = buffer.toString();
+        var config = JSON.parse(jsonConfig);
 
         createModule(config);
     }
@@ -89,8 +89,8 @@ function createFromFiles(configsPath){
 
 function getModuleList(){
     var list = [];
-    for (id in createdModules){
-        var moduleObj = createdModules[id];
+    for (var moduleId in createdModules){
+        var moduleObj = createdModules[moduleId];
         list.push({
             id: moduleObj.getId(),
             name: moduleObj.getName(),

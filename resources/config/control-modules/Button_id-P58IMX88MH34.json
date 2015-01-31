@@ -1,0 +1,7 @@
+{
+  "_id" : "P58IMX88MH34",
+  "type": "simple-button",
+  "name": "Multiple User Button",
+  "title": "Multiple Users",
+  "maxUsers": 5
+}

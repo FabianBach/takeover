@@ -1,0 +1,7 @@
+{
+  "_id" : "2L48POEP9OIDC",
+  "type": "simple-button",
+  "name": "Timeout Button",
+  "title": "One person with timeout",
+  "maxTime" : 5
+}
