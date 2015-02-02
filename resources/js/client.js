@@ -69,7 +69,8 @@ var moduleBuilder = (function(){
 
         var $ref = $(template);
 
-        $ref.socket = io.connect('/' + config.id);
+        //$ref.socket = io.connect('/' + config.id);
+        $ref.socket = io.connect(window.location.toString() + config.id);
         $ref.socket.on('connect', function(){
             console.log('Module ' + config.type + ' ' + config.name + ' ' + config.id + ' connected');
         });
@@ -121,7 +122,8 @@ var moduleBuilder = (function(){
  */
 var startSockets = function(){
 
-    var socket = io.connect('/');
+    //var socket = io.connect('/');
+    var socket = io.connect(window.location.toString());
 
     socket.on('connecting', function(){
         console.log('Connecting...');
