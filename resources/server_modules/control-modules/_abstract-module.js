@@ -26,6 +26,10 @@ var abstractModule = function(config, shared){
         title,
         maxUsers,
         maxTime,
+        resolution,
+        value,
+        minValue,
+        maxValue,
         ioNamespace,
         activeConnections = {},
         waitingConnections = [],
@@ -35,28 +39,21 @@ var abstractModule = function(config, shared){
     // it will validate the configuration and set the super object to inherit from
     var init = function(){
 
-        eventHandler = require('./../event-part.js')();
+        eventHandler = require('./../event-part.js')(); // could be replaced by node event handler
 
         var validationLog = validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
 
-        var applyLog = applyConfig(config);
-        //if (applyLog.error.length) return {error: applyLog.error};
+        applyConfig(config);
 
         var socketLog = createSocket(config.io);
-        //if (socketLog.error.length) return {error: socketLog.error};
+        if (socketLog.error.length) return {error: socketLog.error};
 
-        var eventLog = setEvents();
-        //if (socketLog.error.length) return {error: socketLog.error};
-
+        setEvents();
         setShared();
 
-        return {};
+        return {error: []};
     };
-
-    var initialization = init();
-    // if something goes wrong do not return an instance but an object containing information about the error
-    if (initialization.error) return {error: initialization.error};
 
     // use the information provided in the validated configuration to set and override variables of the object
     function applyConfig (config){
@@ -79,6 +76,12 @@ var abstractModule = function(config, shared){
         // max time to use this before it lets next person
         maxTime = config.maxTime;
 
+        resolution = config.resolution;
+
+        maxValue = resolution;
+        minValue = 0;
+        value = minValue;
+
     }
 
 
@@ -86,10 +89,11 @@ var abstractModule = function(config, shared){
     // it will also handle the connecting sockets and save the references
     // also, the connections will be set active or put in the waiting line
     function createSocket (io){
+        var error = [];
         // creates a new and unique namespace using the id
         ioNamespace = io.of("/" + getId());
 
-        // will ce invoked when a client connects to the namespace
+        // will be invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
             activeConnections.length = activeConnections.length || 0;
             console.log('Connected to module ' + getNameAndId() + socket.id.grey);
@@ -109,6 +113,8 @@ var abstractModule = function(config, shared){
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
 
         });
+
+        return {error: error};
     }
 
     function setSocketTimeout(socket){
@@ -173,8 +179,9 @@ var abstractModule = function(config, shared){
 
     // this is put in a seperate function to be able to remove it from the socket listener
     // TODO: could be merged with onValueChange?
-    function fireValueChange(){
-        eventHandler.fire('value_change', arguments);
+    function fireValueChange(data){
+        console.log(data);
+        eventHandler.fire('value_change', data);
     }
 
     // sets all the listeners on the shared event handler and appends functions to the events
@@ -186,28 +193,7 @@ var abstractModule = function(config, shared){
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (data){
-        console.log('Module ' + getNameAndId(), data);
-
-        // validate the received data
-        var dataLog = checkData(data);
-        if (dataLog.error.length) return console.log('Invalid data');
-
-        // send out that OSC, MIDI or whatever protocol
-        doMapping(data);
-    }
-
-    // this function is supposed to check if the data is okay or if something messed up
-    // it could also correct the data in the object if an minor error is found and log a warning
-    function checkData (data){
-        return {error: {}}
-    }
-
-    // this function is supposed to map the received value to the different protocol values
-    // according to the mapping object defined in the config
-    // this method has to be defined by each specific module itself
-    // there is no general way to do this in this abstract object
-    function doMapping (data){
-        console.log('Module ' + getNameAndId() + ' would do mapping now: ', data);
+        setValue(data);
     }
 
     // getters and setters
@@ -256,28 +242,46 @@ var abstractModule = function(config, shared){
         return waitingConnections.length
     }
 
+    function getResolution(){
+        return resolution;
+    }
+
+    function getValue(){
+        return value;
+    }
+
+    function setValue(data){
+        value = data;
+    }
+
+    function getMinValue(){
+        return minValue;
+    }
+
+    function getMaxValue(){
+        return maxValue;
+    }
+
     /*
      * ** SHARED STUFF **
      */
-
     // gets called at the end of the init() function
     function setShared() {
+
+        // inherit from public
+        for(var publicMember in that){
+            shared[publicMember] = that[publicMember];
+        }
+
         // vars
-        shared.getId = getId;
-        shared.getName = getName;
+        shared.setValue = setValue;
         shared.setName = setName;
         shared.getNameAndId = getNameAndId;
-        shared.getType = getType;
-        shared.getTitle = getTitle;
         shared.getEventHandler = getEventHandler;
-        shared.getMaxUserNumber = getMaxUserNumber;
-        shared.getMaxTime = getMaxTime;
-        shared.getActiveConnectionsCount = getActiveConnectionsCount;
-        shared.getWaitingConnectionsCount = getWaitingConnectionsCount;
 
         // funcs
-        shared.init = init; // TODO: check if in use or delete
-        shared.doMapping = doMapping; // TODO: check if in use or delete
+        //shared.init = init; // TODO: check if in use or delete
+        //shared.doMapping = doMapping; // TODO: check if in use or delete
     }
 
     /*
@@ -290,11 +294,19 @@ var abstractModule = function(config, shared){
     that.getName = getName;
     that.getType = getType;
     that.getTitle = getTitle;
+    that.getResolution = getResolution;
+    that.getValue = getValue;
+    that.getMinValue = getMinValue;
+    that.getMaxValue = getMaxValue;
     that.getMaxUserNumber = getMaxUserNumber;
     that.getMaxTime = getMaxTime;
     that.getActiveConnectionsCount = getActiveConnectionsCount;
     that.getWaitingConnectionsCount = getWaitingConnectionsCount;
 
+
+    var initialization = init();
+    // if something goes wrong do not return an instance but an object containing information about the error
+    if (initialization.error.length) return {error: initialization.error};
     // return the finished object (somewhat an instance of the module object)
     return that;
 };
@@ -335,6 +347,7 @@ function validateConfig(config){
 
     // type
     if (!config.type){ error.push('No type in config') }
+    config.type = config.type.toLowerCase();
 
     // title
     if (!config.title){ config.title = ''}
@@ -344,6 +357,9 @@ function validateConfig(config){
 
     // max use time
     config.maxTime = parseInt(config.maxTime) * 1000 || 0;
+
+    // resolution
+    config.resolution = parseInt(config.resolution || 100);
 
     return {error: error};
 }

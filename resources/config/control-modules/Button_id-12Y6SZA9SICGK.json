@@ -2,5 +2,33 @@
   "_id" : "12Y6SZA9SICGK",
   "type": "simple-button",
   "name": "Single User Button",
-  "title": "One person only"
+  "title": "Short timeout",
+
+  "maxTime" : 2,
+
+  "resolution": 1,
+
+  "mapping": [
+    {
+      "type": "dmx",
+      "channel": 96,
+      "minValue": 64,
+      "maxValue": 128
+    },
+    { "type" : "midi",
+      "msgType" : "Note On",
+      "channel" :  9,
+      "byte_1" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 100,
+        "foreignValue": "P58IMX88MH34"
+      },
+      "byte_2" : {
+        "doMapping" : true,
+        "minValue" : 63,
+        "maxValue" : 127
+      }
+    }
+  ]
 }

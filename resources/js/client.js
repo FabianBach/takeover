@@ -46,10 +46,12 @@ var moduleBuilder = (function(){
         var template = $templates.find('#' + config.type).html();
         if (!template) return console.warn('moduleBuilder: type not found in templates');
 
-        template = template.replace('{{id}}', config.id).
-            replace('{{type}}', config.type).
-            replace('{{name}}', config.name).
-            replace('{{title}}', config.title);
+        template = template.replace('{{id}}', config.id)
+            .replace('{{type}}', config.type)
+            .replace('{{name}}', config.name)
+            .replace('{{title}}', config.title)
+            .replace('{{minValue}}', config.minValue)
+            .replace('{{maxValue}}', config.maxValue);
 
         switch(config.type){
 
@@ -61,7 +63,6 @@ var moduleBuilder = (function(){
         }
 
         return template;
-
     }
 
     function createModule(template, config){
@@ -80,10 +81,10 @@ var moduleBuilder = (function(){
 
             case 'simple-button':
                 $ref.on('vmousedown', function(){
-                    $ref.socket.emit('value_change', 'down')
+                    $ref.socket.emit('value_change', $ref.attr('max-value'))
                 });
                 $ref.on('vmouseup', function(){
-                    $ref.socket.emit('value_change', 'up')
+                    $ref.socket.emit('value_change', $ref.attr('min-value'))
                 });
                 break;
 
@@ -96,6 +97,7 @@ var moduleBuilder = (function(){
 
         $ref.socket.on('disable', function(){
             $ref.find('.input').attr('disabled', true);
+            $ref.socket.emit('value_change', $ref.attr('min-value'))
         });
 
         $ref.socket.on('enable', function(){

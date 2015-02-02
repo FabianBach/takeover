@@ -3,5 +3,29 @@
   "type": "simple-button",
   "name": "Timeout Button",
   "title": "One person with timeout",
-  "maxTime" : 5
+
+  "maxTime" : 5,
+
+  "resolution": 1,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 64,
+      "minValue": 0,
+      "maxValue": 10
+    },
+    { "type" : "midi",
+      "msgType" : "Note On",
+      "channel" :  15,
+      "byte_1" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 127
+      },
+      "byte_2" : {
+        "doMapping" : false,
+        "value" : 127
+      }
+    }
+  ]
 }

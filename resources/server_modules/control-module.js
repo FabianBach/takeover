@@ -26,8 +26,12 @@ function createModule (config){
     // set io in config
     config.io = config.io || io;
 
+    var shared = {
+        'getModuleById': getModuleById
+    };
+
     // create the module
-    var module = controlModules[config.type](config);
+    var module = controlModules[config.type](config, shared);
 
     // check if module was returned or if something went wrong when creating
     if (module.error){
@@ -90,15 +94,23 @@ function createFromFiles(configsPath){
 function getModuleList(){
     var list = [];
     for (var moduleId in createdModules){
-        var moduleObj = createdModules[moduleId];
-        list.push({
-            id: moduleObj.getId(),
-            name: moduleObj.getName(),
-            type: moduleObj.getType(),
-            title: moduleObj.getTitle()
-        })
+        list.push(getModuleById(moduleId));
     }
     return list;
+}
+
+function getModuleById(moduleId){
+    var moduleObj = createdModules[moduleId];
+    if(!moduleObj) return null;
+    return({
+        id: moduleObj.getId(),
+        name: moduleObj.getName(),
+        type: moduleObj.getType(),
+        title: moduleObj.getTitle(),
+        value: moduleObj.getValue(),
+        minValue: moduleObj.getMinValue(),
+        maxValue: moduleObj.getMaxValue()
+    })
 }
 
 function setIo (_io){
@@ -108,6 +120,7 @@ function setIo (_io){
 that.createModule = createModule;
 that.createFromFiles = createFromFiles;
 that.getModuleList = getModuleList;
+that.getModuleById = getModuleById;
 that.setIo = setIo;
 
 module.exports = that;

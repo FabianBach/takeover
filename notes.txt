@@ -25,6 +25,11 @@ TODOS
         at the moment we even have to check if there is this function in the shared object
 
 
+    public functions do not have to be set in shared because they are public, right?
+        maybe the shared object should inherit from the public
+        would need a function to do that... stepping over each public adding it to shared
+
+
 BUGS
 
     no bugs yet... phew

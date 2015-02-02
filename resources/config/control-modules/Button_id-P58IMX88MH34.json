@@ -3,5 +3,17 @@
   "type": "simple-button",
   "name": "Multiple User Button",
   "title": "Multiple Users",
-  "maxUsers": 5
+
+  "maxUsers": 5,
+
+  "resolution": 1,
+
+  "mapping": [
+    {
+      "type": "dmx",
+      "channel": 32,
+      "minValue": 16,
+      "maxValue": 128
+    }
+  ]
 }

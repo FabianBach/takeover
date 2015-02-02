@@ -1,0 +1,37 @@
+// sample view config
+        // json
+
+{
+  "id": "ABCDE12345",
+  "name": "sample view",
+  "orientation": "landscape",
+  "grid": {
+    "x": 10,
+    "y": 4
+  },
+  "controls": [
+    {
+      "id": "ABCDE12345",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "height": 2,
+        "width": 2
+      }
+    },
+    {
+      "id": "FGHIJ67890",
+      "position": {
+        "x": 3,
+        "y": 0
+      },
+      "size": {
+        "height": 2,
+        "width": 4
+      },
+      "orientation" : "vertical" //sliders only, also "horizontal"
+    }
+  ]
+}
