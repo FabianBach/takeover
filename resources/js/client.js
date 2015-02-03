@@ -36,20 +36,32 @@ var moduleBuilder = (function(){
     }
 
     function create (config){
-        var template = createTemplate(config);
-        var reference = createModule(template, config);
-        $('#controls').append(reference);
+        var node = createFromTemplate(config);
+        var module = createModule(node, config);
+        $('#controls').append(module);
+
+        switch (config.type){
+
+            case 'slider':
+                module.inputNode.slider();
+                break;
+
+            default :
+                break;
+        }
     }
 
-    function createTemplate (config){
+    function createFromTemplate (config){
 
         var template = $templates.find('#' + config.type).html();
         if (!template) return console.warn('moduleBuilder: type not found in templates');
 
-        template = template.replace('{{id}}', config.id)
+        template = template
+            .replace('{{id}}', config.id)
             .replace('{{type}}', config.type)
             .replace('{{name}}', config.name)
             .replace('{{title}}', config.title)
+            .replace('{{value}}', config.value)
             .replace('{{minValue}}', config.minValue)
             .replace('{{maxValue}}', config.maxValue);
 
@@ -58,55 +70,115 @@ var moduleBuilder = (function(){
             case '_abstract':
                 break;
 
-            case 'simple button':
+            case 'button':
                 break;
         }
 
-        return template;
+        return $(template);
     }
 
-    function createModule(template, config){
+    function createModule(node, config){
 
-        var $ref = $(template);
-
-        //$ref.socket = io.connect('/' + config.id);
-        $ref.socket = io.connect(window.location.toString() + config.id);
-        $ref.socket.on('connect', function(){
-            console.log('Module ' + config.type + ' ' + config.name + ' ' + config.id + ' connected');
-        });
+        node.inputNode = node.find('.value-holder');
+        node.disableNode = node.find('.disable-holder');
 
         switch (config.type){
 
             case '_abstract':
                 break;
 
-            case 'simple-button':
-                $ref.on('vmousedown', function(){
-                    $ref.socket.emit('value_change', $ref.attr('max-value'))
+            case 'button':
+                node.socket = connectSocket(config.namespace);
+
+                node.socket.on('disable', function(){
+                    node.socket.emit('value_change', node.inputNode.attr('min-value'))
                 });
-                $ref.on('vmouseup', function(){
-                    $ref.socket.emit('value_change', $ref.attr('min-value'))
+
+                node.inputNode.on('vmousedown', function(){
+                    node.socket.emit('value_change', node.inputNode.attr('max-value'))
+                });
+                node.inputNode.on('vmouseup', function(){
+                    node.socket.emit('value_change', node.inputNode.attr('min-value'))
                 });
                 break;
 
-            case 'simple-slider':
-                $ref.on('change', function(){
-                    $ref.socket.emit('value_change', this.value);
+            case 'slider':
+                node.socket = connectSocket(config.namespace);
+                node.inputNode.on('change', function(event){
+                    node.socket.emit('value_change', this.value);
+                });
+                break;
+
+            case 'xy-pad':
+                node.xSocket = connectSocket(config.namespace.x);
+                node.ySocket = connectSocket(config.namespace.y);
+                var sendXYCoords = function(event){
+                    node.xSocket.emit('value_change', event.clientX);
+                    node.ySocket.emit('value_change', event.clientY);
+                };
+
+                node.on('vmousemove', node.sendCoords);
+
+                node.on('vmousedown', function(event) {
+                    sendXYCoords(event);
+                    node.sendCoords = sendXYCoords;
+                });
+
+                node.on('vmouseup', function(){
+                    node.sendCoords = function(){};
                 });
                 break;
         }
 
-        $ref.socket.on('disable', function(){
-            $ref.find('.input').attr('disabled', true);
-            $ref.socket.emit('value_change', $ref.attr('min-value'))
-        });
+        function connectSocket(namespace){
+            namespace = namespace.replace('/', '');
+            var socket = io.connect(window.location.toString() + namespace);
 
-        $ref.socket.on('enable', function(){
-            $ref.find('.input').removeAttr('disabled');
-        });
+            socket.on('disable', function(){
+                switch (config.type){
+                    case 'slider':
+                        node.disableNode.slider('disable');
+                        break;
 
-        return $ref;
+                    default :
+                        node.disableNode.attr('disabled', true);
+                }
+            });
+
+            socket.on('enable', function(){
+                switch (config.type){
+                    case 'slider':
+                        node.disableNode.slider('enable');
+                        node.inputNode.slider('refresh');
+                        break;
+
+                    default :
+                        node.disableNode.removeAttr('disabled');
+                }
+            });
+
+            socket.on('value_update', function(data){
+                console.log(data);
+                switch (config.type){
+                    case 'slider':
+                        node.inputNode.attr('value', data);
+                        node.inputNode.slider('refresh');
+                        break;
+
+                    default :
+                        node.inputNode.value(data);
+                }
+            });
+
+            return socket;
+        }
+
+        return node;
     }
+
+
+
+    var module
 
     var that = {};
 

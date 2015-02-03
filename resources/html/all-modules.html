@@ -1,27 +1,45 @@
 <div>
+
     <section id="_abstract">
-
         <div class="input container {{type}}" id="{{id}}">
-            <span class="input">{{title}}</span>
+            <span class="value-holder disable-holder">{{title}}</span>
         </div>
-
     </section>
 
 
-    <section id="simple-button">
-
-        <div class="input container {{type}}" id="{{id}}" min-value="{{minValue}}" max-value="{{maxValue}}">
-            <button class="input ui-btn">{{title}}</button>
-        </div>
-
-    </section>
-
-
-    <section id="simple-slider">
-
+    <section id="button">
         <div class="input container {{type}}" id="{{id}}">
-            <input class="input" type='number' data-type='range' min='{{minValue}}' max='{{maxValue}}' step='{{stepSize}}' value='{{value}}'>
+            <button class="ui-btn value-holder disable-holder"
+                    min-value="{{minValue}}"
+                    max-value="{{maxValue}}">
+                {{title}}
+            </button>
         </div>
-
     </section>
+
+
+    <section id="slider">
+        <div class="input container {{type}}" id="{{id}}">
+            <input class='value-holder disable-holder'
+                   type='number'
+                   data-type='range'
+                   min='{{minValue}}'
+                   max='{{maxValue}}'
+                   value='{{value}}'
+                   data-highlight='true'>
+        </div>
+    </section>
+
+
+    <section id="xy-pad">
+        <div class="input container {{type}}" id="{{id}}">
+            <div class="value-holder disable-holder"
+                 min='{{minValue}}'
+                 max='{{maxValue}}'
+                 step='{{resolution}}'
+                 value='{{value}}'>
+            </div>
+        </div>
+    </section>
+
 </div>

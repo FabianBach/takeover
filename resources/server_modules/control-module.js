@@ -13,7 +13,9 @@ var io = undefined;
 // all available modules should be listed here
 var controlModules = {};
     controlModules['_abstract'] = require('./control-modules/_abstract-module.js');
-    controlModules['simple-button'] = require('./control-modules/button-simple.js');
+    controlModules['button'] = require('./control-modules/button.js');
+    controlModules['slider'] = require('./control-modules/slider.js');
+    controlModules['xy-pad'] = require('./control-modules/xy-pad.js');
 
 var createdModules = {};
 
@@ -105,6 +107,7 @@ function getModuleById(moduleId){
     return({
         id: moduleObj.getId(),
         name: moduleObj.getName(),
+        namespace: moduleObj.getNamespace(),
         type: moduleObj.getType(),
         title: moduleObj.getTitle(),
         value: moduleObj.getValue(),

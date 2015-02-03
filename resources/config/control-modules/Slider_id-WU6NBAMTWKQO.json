@@ -1,30 +1,30 @@
 {
-  "_id" : "2L48POEP9OIDC",
-  "type": "button",
-  "name": "5 sec timeout button",
-  "title": "5 sec timeout button",
+  "_id" : "WU6NBAMTWKQO",
+  "type": "slider",
+  "name": "5 sec timeout slider",
+  "title": "5 sec timeout slider",
 
   "maxTime" : 5,
 
-  "resolution": 1,
+  "resolution": 100,
 
   "mapping": [
     { "type": "dmx",
-      "channel": 64,
+      "channel": 4,
       "minValue": 0,
-      "maxValue": 10
+      "maxValue": 255
     },
     { "type" : "midi",
       "msgType" : "Note On",
       "channel" :  15,
       "byte_1" : {
+        "doMapping" : false,
+        "value" : 32
+      },
+      "byte_2" : {
         "doMapping" : true,
         "minValue" : 0,
         "maxValue" : 127
-      },
-      "byte_2" : {
-        "doMapping" : false,
-        "value" : 127
       }
     }
   ]

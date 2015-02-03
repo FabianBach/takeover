@@ -1,8 +1,8 @@
 {
   "_id" : "P58IMX88MH34",
-  "type": "simple-button",
-  "name": "Multiple User Button",
-  "title": "Multiple Users",
+  "type": "button",
+  "name": "up to 5 users button",
+  "title": "up to 5 users button",
 
   "maxUsers": 5,
 

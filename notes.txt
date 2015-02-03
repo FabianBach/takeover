@@ -9,11 +9,14 @@ TODOS
         some functions just do not change or anything
         and can be used like in the prototype object
         if they do not need access to the private members
+        or if those members can be passed
+        or just use bind
 
 
     find a nice way to make the io instance available to all modules
         but global would be uncool
         at the moment it is passed to object by reference in the config object
+        UPDATE: I guess that is the best way to do this?
 
 
     overwork the way of logging
@@ -23,12 +26,7 @@ TODOS
 
     call super functions nicer somehow
         at the moment we even have to check if there is this function in the shared object
-
-
-    public functions do not have to be set in shared because they are public, right?
-        maybe the shared object should inherit from the public
-        would need a function to do that... stepping over each public adding it to shared
-
+        UPDATE: do we even have to call superfuncs or is it cool that way?
 
 BUGS
 

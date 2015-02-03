@@ -33,7 +33,8 @@ var abstractModule = function(config, shared){
         ioNamespace,
         activeConnections = {},
         waitingConnections = [],
-        eventHandler;
+        eventHandler,
+        mappings;
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
@@ -50,7 +51,6 @@ var abstractModule = function(config, shared){
         if (socketLog.error.length) return {error: socketLog.error};
 
         setEvents();
-        setShared();
 
         return {error: []};
     };
@@ -81,6 +81,8 @@ var abstractModule = function(config, shared){
         maxValue = resolution;
         minValue = 0;
         value = minValue;
+
+        mappings = config.mapping;
 
     }
 
@@ -193,8 +195,135 @@ var abstractModule = function(config, shared){
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (data){
-        setValue(data);
+
+        data = data[0];
+
+        var dataLog = checkData(data);
+        if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad data: ', data, dataLog);
+
+        setValue(data, false);
+
+        var mappingLog = doMapping(data);
+        if (mappingLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map data ', data, mappingLog);
+
+        // ioNamespace.emit('value_update', getValue()); sends the new value out
     }
+
+    // this function is supposed to map the received value to the different protocol values
+    // according to the mapping object defined in the config
+    // this method has to be defined by each specific module itself
+    // there is no general way to do this in this abstract object
+    function doMapping (data){
+        console.log('Module ' + getNameAndId() + ' value: ', data);
+        var error = [];
+
+        for(var i = 0; i < mappings.length; i++){
+            var mapping = mappings[i];
+
+            switch (mapping.type){
+
+                case 'dmx':
+                    useDmx(data, mapping);
+                    break;
+
+                case 'midi':
+                    useMidi(data, mapping);
+                    break;
+
+                case 'osc':
+                    useOsc(data, mapping);
+                    break;
+
+                default :
+                    error.push('Can not map to: '+ mapping.type);
+            }
+        }
+
+        return {error: error}
+    }
+
+    // this function is supposed to check if the data is okay or if something messed up
+    // it could also correct the data in the object if an minor error is found and log a warning
+    function checkData (data){
+        // TODO
+        return {error: []}
+    }
+
+    // MIDI, DMX and OSC
+
+    // DMX
+    function useDmx (data, mappingData){
+
+        data = parseInt(data);
+        var mappedValue;
+
+        mappedValue = getMappedValue(data, getMaxValue(), mappingData.minValue, mappingData.maxValue);
+        if(mappingData.fine){
+            var mappedValueCh1 = mappedValue % 255;
+            var mappedValueCh2 = mappedValue / 255;
+            sendDmx({
+                channel: mappingData.channel,
+                value: mappedValueCh1
+            });
+            sendDmx({
+                channel: mappingData.channel+1,
+                value: mappedValueCh2
+            });
+        }else{
+            sendDmx({
+                channel: mappingData.channel,
+                value: mappedValue
+            });
+        }
+    }
+
+    // MIDI
+    function useMidi (data, mappingData){
+
+        data = parseInt(data);
+        var type = mappingData.msgType;
+        var channel = mappingData.channel;
+        var mappedValue1 = getMappedMidiValue(mappingData.byte_1, data);
+        var mappedValue2 = getMappedMidiValue(mappingData.byte_2, data);
+
+        function getMappedMidiValue(mapping, data){
+            var mappedValue,
+                mapData,
+                mapMax;
+
+            if(mapping.doMapping){
+                // get foreign value and map that
+                if (mapping.foreignValue){
+                    var foreignModule = shared.getModuleById(mapping.foreignValue);
+                    var foreignValue = foreignModule && foreignModule.value;
+                    var foreignMax = foreignModule && foreignModule.maxValue;
+                    mapData = foreignValue || data;
+                    mapMax = foreignMax || getMaxValue();
+                }else{
+                    mapData = data;
+                    mapMax = getMaxValue()
+                }
+                mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue);
+            }else{
+                mappedValue = mapping.value;
+            }
+            return mappedValue;
+        }
+
+        sendMidi({
+            type: type,
+            channel: channel,
+            value1: mappedValue1,
+            value2: mappedValue2
+        });
+    }
+
+    // OSC
+    function useOsc (data, mappingData){
+        console.log('OSC not implemented yet!'.red, data);
+        sendOsc(data);
+    }
+
 
     // getters and setters
 
@@ -250,8 +379,10 @@ var abstractModule = function(config, shared){
         return value;
     }
 
-    function setValue(data){
+    function setValue(data, fireEvent){
         value = data;
+        if (fireEvent === false){ return; }
+        fireValueChange(data);
     }
 
     function getMinValue(){
@@ -262,26 +393,8 @@ var abstractModule = function(config, shared){
         return maxValue;
     }
 
-    /*
-     * ** SHARED STUFF **
-     */
-    // gets called at the end of the init() function
-    function setShared() {
-
-        // inherit from public
-        for(var publicMember in that){
-            shared[publicMember] = that[publicMember];
-        }
-
-        // vars
-        shared.setValue = setValue;
-        shared.setName = setName;
-        shared.getNameAndId = getNameAndId;
-        shared.getEventHandler = getEventHandler;
-
-        // funcs
-        //shared.init = init; // TODO: check if in use or delete
-        //shared.doMapping = doMapping; // TODO: check if in use or delete
+    function getNamespace(){
+        return ioNamespace.name;
     }
 
     /*
@@ -292,6 +405,7 @@ var abstractModule = function(config, shared){
 
     that.getId = getId;
     that.getName = getName;
+    that.getNamespace = getNamespace;
     that.getType = getType;
     that.getTitle = getTitle;
     that.getResolution = getResolution;
@@ -303,6 +417,22 @@ var abstractModule = function(config, shared){
     that.getActiveConnectionsCount = getActiveConnectionsCount;
     that.getWaitingConnectionsCount = getWaitingConnectionsCount;
 
+    /*
+     * ** SHARED STUFF **
+     */
+    // inherit from public
+    for(var publicMember in that){
+        shared[publicMember] = that[publicMember];
+    }
+
+    // vars
+    shared.setValue = setValue;
+    shared.setName = setName;
+    shared.getNameAndId = getNameAndId;
+    shared.getEventHandler = getEventHandler;
+
+    // funcs
+    // none
 
     var initialization = init();
     // if something goes wrong do not return an instance but an object containing information about the error
@@ -314,13 +444,41 @@ var abstractModule = function(config, shared){
 // return the specified object when using require()
 module.exports = abstractModule;
 
+
 /*
  * ** STATIC STUFF **
+ *
  * the following stuff will not be altered at runtime
  * and will be the same for every instance of the module
  * somehow like writing it to the prototype object, but not public
  * this can not be invoked by an inheriting object, except by reference
  */
+
+// these functions will send the mapped data to the external devices
+// or if no device is available they will just log it or do something else... like nothing
+function sendDmx (dmxObj){
+    console.log('DMX: ' + dmxObj.value + ' channel: ' + dmxObj.channel);
+}
+
+function sendMidi (midiObj){
+    console.log('MIDI: ' + midiObj.type + ' ' + midiObj.channel + ' ' + midiObj.value1 + ' ' + midiObj.value2);
+}
+
+function sendOsc (oscObj){
+    console.log('OSC: ' + oscObj);
+}
+
+// takes the actual and the maximum value of the module
+// to return the actual value of the mapped min and max
+function getMappedValue (modVal, modMax, mapMin, mapMax){
+
+    var modPercent = modVal / modMax;
+
+    var mapDelta = mapMax - mapMin;
+    var mapValue = mapMin + (mapDelta * modPercent);
+
+    return parseInt(mapValue);
+}
 
 // this function will check for errors in the config object
 // this will only check values which all modules have in common
@@ -360,6 +518,135 @@ function validateConfig(config){
 
     // resolution
     config.resolution = parseInt(config.resolution || 100);
+
+    // MAPPING
+    if (config.mapping){
+        var mappingLog = validateMapping(config.mapping);
+        if (mappingLog.error.length){ error.push({'mappingError': mappingLog.error});}
+    }
+
+    return {error: error};
+}
+
+function validateMapping(mappingConfig){
+
+    var error = [];
+
+    for(var i = 0; i < mappingConfig.length; i++){
+        var mapping = mappingConfig[i];
+        if (!mapping.type){
+            error.push('No mapping type defined');
+            break
+        }
+        mapping.type = mapping.type.toLowerCase();
+
+        var log ={};
+        switch (mapping.type){
+            case 'midi':
+                log = validateMidiMapping(mapping);
+                break;
+
+            case 'dmx':
+                log = validateDmxMapping(mapping);
+                break;
+
+            case 'osc':
+                log = validateOscMapping(mapping);
+                break;
+
+            default :
+                error.push('Unknown mapping type: ' + mapping.type);
+        }
+        error = log.error;
+    }
+
+    return {error: error};
+}
+
+function validateMidiMapping(mapping){
+    var error = [];
+
+    // message type
+    mapping.msgType = mapping.msgType && mapping.msgType.toLowerCase() || 'note on';
+
+    // channel
+    if (!mapping.channel) {error.push('No MIDI channel defined in mapping.')}
+    else{
+        mapping.channel = parseInt(mapping.channel);
+        if (mapping.channel < 1){ mapping.channel = 1}
+        if (mapping.channel > 16){ mapping.channel = 16}
+    }
+
+    // byte_1
+    mapping.byte_1 = mapping.byte_1 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
+    mapping.byte_1.doMapping = mapping.byte_1.doMapping || false;
+    if (mapping.byte_1.doMapping){
+        //minimum value
+        mapping.byte_1.minValue = parseInt(mapping.byte_1.minValue) || 0;
+        if (mapping.byte_1.minValue < 0){ mapping.byte_1.minValue = 0 }
+        if (mapping.byte_1.minValue > 127){ mapping.byte_1.minValue = 127 }
+        //maximum value
+        mapping.byte_1.maxValue = parseInt(mapping.byte_1.maxValue) || 0;
+        if (mapping.byte_1.maxValue < 0){ mapping.byte_1.maxValue = 0 }
+        if (mapping.byte_1.maxValue > 127){ mapping.byte_1.maxValue = 127 }
+
+        if (mapping.byte_1.minValue === mapping.byte_1.maxValue){error.push("minValue and maxValue are the same")}
+    }else{
+        mapping.byte_1.value = parseInt(mapping.byte_1.value || mapping.byte_1.maxValue || mapping.byte_1.minValue || 0);
+        if (mapping.byte_1.value < 0){ mapping.byte_1.value = 0 }
+        if (mapping.byte_1.value > 127){ mapping.byte_1.value = 127 }
+    }
+    // byte_2
+    mapping.byte_2 = mapping.byte_2 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
+    mapping.byte_2.doMapping = mapping.byte_2.doMapping || false;
+    if (mapping.byte_2.doMapping){
+        //minimum value
+        mapping.byte_2.minValue = parseInt(mapping.byte_2.minValue) || 0;
+        if (mapping.byte_2.minValue < 0){ mapping.byte_2.minValue = 0 }
+        if (mapping.byte_2.minValue > 127){ mapping.byte_2.minValue = 127 }
+        //maximum value
+        mapping.byte_2.maxValue = parseInt(mapping.byte_2.maxValue) || 0;
+        if (mapping.byte_2.maxValue < 0){ mapping.byte_2.maxValue = 0 }
+        if (mapping.byte_2.maxValue > 127){ mapping.byte_2.maxValue = 127 }
+
+        if (mapping.byte_2.minValue === mapping.byte_2.maxValue){error.push("minValue and maxValue are the same")}
+    }else{
+        mapping.byte_2.value = parseInt(mapping.byte_2.value || mapping.byte_2.maxValue || mapping.byte_2.minValue || 0);
+        if (mapping.byte_2.value < 0){ mapping.byte_2.value = 0 }
+        if (mapping.byte_2.value > 127){ mapping.byte_2.value = 127 }
+    }
+
+    return {error: error};
+}
+
+function validateDmxMapping(mapping){
+    var error = [];
+
+    if (!mapping.channel){ error.push('No DMX channel defined')}
+    else{
+        mapping.channel = parseInt(mapping.channel);
+        if (mapping.channel < 1){ mapping.channel = 1}
+        if (mapping.channel > 512){ mapping.channel = 512}
+    }
+    mapping.minValue = parseInt(mapping.minValue  || 0);
+    if(mapping.fine){
+        mapping.maxValue = parseInt(mapping.maxValue  || 255*255);
+    }else{
+        mapping.maxValue = parseInt(mapping.maxValue  || 255);
+    }
+
+    if (mapping.minValue === mapping.maxValue){error.push("minValue and maxValue are the same")}
+
+    return {error: error};
+}
+
+function validateOscMapping(mapping){
+    var error = [];
+
+    if (!mapping.channel){error.push('No OSC channel defined')}
+    if (!mapping.datatype){error.push('No OSC data-type defined')}
+    mapping.minValue = mapping.minValue  || 0;
+    mapping.maxValue = mapping.maxValue  || 255;
 
     return {error: error};
 }

@@ -1,8 +1,8 @@
 {
   "_id" : "12Y6SZA9SICGK",
-  "type": "simple-button",
-  "name": "Single User Button",
-  "title": "Short timeout",
+  "type": "button",
+  "name": "2 sec timeout button",
+  "title": "2 sec timeout button",
 
   "maxTime" : 2,
 
