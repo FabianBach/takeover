@@ -12,4 +12,26 @@ The interactions of the client will be send to the server via web-sockets in rea
 On the server the received values will be mapped on previously configured DMX, MIDI and DMX values
 and be sent to listening hardware and software.
 
-See documentation directory for more information (written in german).
+For more information see the documentation directory (german) or read the comments in the code.
+
+
+##installation
+This version does not send any MIDI, DMX or OSC Signals yet, it just logs to the console.
+To run this alpha state of the project follow the steps:
+
+- Install node.js
+- Install grunt globally 
+    (console: npm install grunt-cli -g)
+    (http://gruntjs.com/getting-started)
+    
+- Install Ruby
+- Install Sass Gem for Ruby
+    
+- open console in project root directory and 
+    - npm install
+    - grunt sass
+    - grunt copy
+    
+- run the server: node server.js
+
+- to configure the inputs edit the json files in resources/config/
