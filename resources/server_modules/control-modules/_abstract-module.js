@@ -34,7 +34,9 @@ var abstractModule = function(config, shared){
         activeConnections = {},
         waitingConnections = [],
         eventHandler,
-        mappings;
+        mappings,
+        dmx,
+        universe;
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
@@ -83,6 +85,9 @@ var abstractModule = function(config, shared){
         value = minValue;
 
         mappings = config.mapping;
+
+        dmx = config.dmx;
+        universe = config.universe;
 
     }
 
@@ -324,6 +329,24 @@ var abstractModule = function(config, shared){
         sendOsc(data);
     }
 
+    function sendDmx (dmxObj){
+        console.log('DMX: ' + dmxObj.value + ' channel: ' + dmxObj.channel);
+        if (!dmx){ return }
+        var sendObj = {2 : parseInt(dmxObj.value)};
+        //sendObj[parseInt(dmxObj.channel)] = dmxObj.value;
+        console.log(sendObj);
+        //dmx.update('takeover', {2: dmxObj.value});
+        universe.update(sendObj);
+
+    }
+
+    function sendMidi (midiObj){
+        console.log('MIDI: ' + midiObj.type + ' ' + midiObj.channel + ' ' + midiObj.value1 + ' ' + midiObj.value2);
+    }
+
+    function sendOsc (oscObj){
+        console.log('OSC: ' + oscObj);
+    }
 
     // getters and setters
 
@@ -456,17 +479,6 @@ module.exports = abstractModule;
 
 // these functions will send the mapped data to the external devices
 // or if no device is available they will just log it or do something else... like nothing
-function sendDmx (dmxObj){
-    console.log('DMX: ' + dmxObj.value + ' channel: ' + dmxObj.channel);
-}
-
-function sendMidi (midiObj){
-    console.log('MIDI: ' + midiObj.type + ' ' + midiObj.channel + ' ' + midiObj.value1 + ' ' + midiObj.value2);
-}
-
-function sendOsc (oscObj){
-    console.log('OSC: ' + oscObj);
-}
 
 // takes the actual and the maximum value of the module
 // to return the actual value of the mapped min and max

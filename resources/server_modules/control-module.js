@@ -9,6 +9,13 @@ var that = {};
 
 // save the socket.io reference and share it with control modules created
 var io = undefined;
+var DMX = require('dmx');
+var dmx = new DMX();
+var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
+dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
+//TODO: add universe in module config and add here if not done yet
+//var universe = dmx.addUniverse('takeover', 'null', 0);
+var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);
 
 // all available modules should be listed here
 var controlModules = {};
@@ -27,6 +34,8 @@ function createModule (config){
 
     // set io in config
     config.io = config.io || io;
+    config.dmx = config.dmx || dmx;
+    config.universe = config.universe || universe;
 
     var shared = {
         'getModuleById': getModuleById

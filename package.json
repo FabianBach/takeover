@@ -6,7 +6,9 @@
   "main": "server.js",
   "dependencies": {
     "colors": "^1.0.3",
+    "dmx": "0.0.1",
     "express": "^4.11.0",
+    "ftdi": "^1.1.0",
     "normalize.css": "^3.0.2",
     "socket.io": "^1.2.1"
   },

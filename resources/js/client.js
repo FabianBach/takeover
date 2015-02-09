@@ -207,6 +207,7 @@ var startSockets = function(){
 
     socket.on('disconnect', function(){
         console.log('Disconnected.');
+        //TODO: disable all inputs?
     });
 
 

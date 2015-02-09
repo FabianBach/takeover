@@ -10,9 +10,9 @@
 
   "mapping": [
     { "type": "dmx",
-      "channel": 64,
+      "channel": 2,
       "minValue": 0,
-      "maxValue": 10
+      "maxValue": 255
     },
     { "type" : "midi",
       "msgType" : "Note On",
