@@ -10,7 +10,7 @@
 
   "mapping": [
     { "type": "dmx",
-      "channel": 4,
+      "channel": 3,
       "minValue": 0,
       "maxValue": 255
     },

@@ -11,8 +11,8 @@ var that = {};
 var io = undefined;
 var DMX = require('dmx');
 var dmx = new DMX();
-var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
-dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
+//var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
+//dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
 //TODO: add universe in module config and add here if not done yet
 //var universe = dmx.addUniverse('takeover', 'null', 0);
 var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);

@@ -3,6 +3,9 @@
  * This file is used for development and documentation
  */
 
+        //TODO: flag for reset to min when disabled
+
+
 {
 
   "_id": "A1B2C3D4E5F6", // has to be unique
@@ -29,7 +32,7 @@
         "doMapping" : true,
         "minValue" : 0, // no negative values
         "maxValue" : 127 // 7 bit == 127 max
-        // "foreignValue": "GHIJK19829" // TODO: alternative Id of other module
+        "foreignValue": "GHIJK19829"
       },
       "byte_2" : {
         "doMapping" : false,

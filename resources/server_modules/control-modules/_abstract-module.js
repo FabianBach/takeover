@@ -259,6 +259,8 @@ var abstractModule = function(config, shared){
     // DMX
     function useDmx (data, mappingData){
 
+        //TODO: foreign value?
+
         data = parseInt(data);
         var mappedValue;
 
@@ -332,12 +334,11 @@ var abstractModule = function(config, shared){
     function sendDmx (dmxObj){
         console.log('DMX: ' + dmxObj.value + ' channel: ' + dmxObj.channel);
         if (!dmx){ return }
-        var sendObj = {2 : parseInt(dmxObj.value)};
-        //sendObj[parseInt(dmxObj.channel)] = dmxObj.value;
+        var sendObj = {};
+        sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
         console.log(sendObj);
         //dmx.update('takeover', {2: dmxObj.value});
         universe.update(sendObj);
-
     }
 
     function sendMidi (midiObj){
