@@ -2,7 +2,7 @@
   "_id" : "P58IMX88MH34",
   "type": "button",
   "name": "up to 5 users button",
-  "title": "up to 5 users button",
+  "title": "BAM",
 
   "maxUsers": 5,
 
@@ -12,8 +12,8 @@
     {
       "type": "dmx",
       "channel": 2,
-      "minValue": 16,
-      "maxValue": 128
+      "minValue": 10,
+      "maxValue": 255
     },
     {
       "type": "dmx",
@@ -23,8 +23,8 @@
     },
     {
       "type": "dmx",
-      "channel": 17,
-      "minValue": 100,
+      "channel": 13,
+      "minValue": 120,
       "maxValue": 255
     }
   ]

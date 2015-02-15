@@ -1,0 +1,40 @@
+{
+  "startupMapping": [
+    {
+      "type": "dmx",
+      "channel": 1,
+      "value": 0
+    },
+    {
+      "type": "dmx",
+      "channel": 11,
+      "value": 0
+    },
+    {
+      "type": "dmx",
+      "channel": 12,
+      "value": 255
+    },
+    {
+      "type": "dmx",
+      "channel": 13,
+      "value": 120
+    },
+    {
+      "type": "dmx",
+      "channel": 17,
+      "value": 255
+    },
+    {
+      "type" : "midi",
+      "msgType" : "Note On",
+      "channel" :  9,
+      "byte_1" : {
+        "value" : 100
+      },
+      "byte_2" : {
+        "value" : 127
+      }
+    }
+  ]
+}

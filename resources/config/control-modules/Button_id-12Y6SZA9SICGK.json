@@ -12,8 +12,8 @@
     {
       "type": "dmx",
       "channel": 3,
-      "minValue": 64,
-      "maxValue": 128
+      "minValue": 10,
+      "maxValue": 255
     },
     { "type" : "midi",
       "msgType" : "Note On",

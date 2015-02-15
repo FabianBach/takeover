@@ -25,6 +25,15 @@ var controlModules = {};
 
 var createdModules = {};
 
+function init (callback){
+    callback = callback || function(){console.log('Finished creating modules.'.cyan)};
+
+    createFromFiles(function(){
+        doStartupMapping();
+        callback();
+    });
+}
+
 function createModule (config){
 
     if (!io){ return console.log( 'control-module-factory '.grey + 'No io set!'.red )}
@@ -56,14 +65,18 @@ function createModule (config){
     return module;
 }
 
-function createFromFiles(configsPath){
+function createFromFiles(configsPath, callback){
 
-    configsPath = configsPath || './resources/config/control-modules/';
+    if (typeof(configsPath) === 'function'){ callback = configsPath }
+    if (typeof(configsPath) !== 'string'){configsPath = './resources/config/control-modules/';}
+    if (configsPath[configsPath.length-1] !== '/'){ configsPath += '/'}
 
-    if(configsPath[configsPath.length-1] !== '/'){ configsPath += '/'}
+    callback = callback || function(){};
 
     var filesystem = require('fs'),
-        path = require('path');
+        path = require('path'),
+        filesToRead = 0,
+        filesRead = 0;
 
     // get all json from config path
     filesystem.readdir( configsPath, function(error, fileArray){
@@ -83,6 +96,7 @@ function createFromFiles(configsPath){
     function readJson(pathArray){
         for(var i = 0; i < pathArray.length; i++){
             console.log(pathArray[i].cyan);
+            filesToRead++;
             filesystem.readFile(pathArray[i], onFileRead);
         }
     }
@@ -96,6 +110,11 @@ function createFromFiles(configsPath){
 
         // TODO: if not deactivated
         createModule(config);
+        filesRead++;
+
+        if(filesRead === filesToRead){
+            callback();
+        }
     }
 
     // TODO: maybe even watch that folder...
@@ -124,14 +143,53 @@ function getModuleById(moduleId){
     })
 }
 
+function doStartupMapping(startupConfigPath){
+
+    startupConfigPath = startupConfigPath || './resources/config/startup-mapping.json';
+
+    var filesystem = require('fs');
+    filesystem.readFile(startupConfigPath, onFileRead);
+
+    function onFileRead (error, buffer){
+        if(error) return console.log(error.toString().yellow);
+
+        var jsonConfig = buffer.toString();
+        var config = JSON.parse(jsonConfig);
+
+        if (!config.startupMapping) return console.log('No startup mapping used.'.yellow);
+        for(var i = 0; i < config.startupMapping.length; i++){
+            doMapping(config.startupMapping[i]);
+        }
+    }
+
+    function doMapping(mapping){
+        switch (mapping.type.toLowerCase()){
+            case 'dmx':
+                if (!mapping.channel || typeof mapping.value === 'undefined') return console.log('Bad startup mapping: missing information.'.yellow);
+                var sendObj = {};
+                sendObj[parseInt(mapping.channel)-1] = mapping.value;
+                universe.update(sendObj);
+                break;
+
+            case 'midi':
+                break;
+
+            case 'osc':
+                break;
+        }
+    }
+}
+
 function setIo (_io){
     io = _io;
 }
 
+that.init = init;
 that.createModule = createModule;
 that.createFromFiles = createFromFiles;
 that.getModuleList = getModuleList;
 that.getModuleById = getModuleById;
+that.doStartupMapping = doStartupMapping;
 that.setIo = setIo;
 
 module.exports = that;

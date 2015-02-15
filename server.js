@@ -40,7 +40,7 @@ function onServerReady(){
     openWebSockets();
 
     controlModules.setIo(io);
-    controlModules.createFromFiles();
+    controlModules.init();
 }
 
 function openWebSockets(){

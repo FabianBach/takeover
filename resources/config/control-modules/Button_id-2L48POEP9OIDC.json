@@ -11,7 +11,7 @@
   "mapping": [
     { "type": "dmx",
       "channel": 4,
-      "minValue": 0,
+      "minValue": 10,
       "maxValue": 255
     },
     { "type" : "midi",

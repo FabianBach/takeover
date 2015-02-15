@@ -1,0 +1,23 @@
+{
+  "_id" : "1G963EZACT8G0",
+  "type": "slider",
+  "name": "GOBO",
+  "title": "GOBO",
+
+  "maxTime": 5,
+
+  "resolution": 100,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 14,
+      "minValue": 0,
+      "maxValue": 125
+    },
+    { "type": "dmx",
+      "channel": 4,
+      "minValue": 10,
+      "maxValue": 255
+    }
+  ]
+}
