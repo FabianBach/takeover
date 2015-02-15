@@ -54,6 +54,9 @@ var abstractModule = function(config, shared){
 
         setEvents();
 
+        //initial mapping to set stuff up
+        eventHandler.fire('value_change', [value]);
+
         return {error: []};
     };
 
@@ -155,6 +158,8 @@ var abstractModule = function(config, shared){
         // function has to be provided to find listener
         socket.removeListener('value_change', fireValueChange);
 
+        //TODO: reset to min value if flag in config is set to do so
+
         // push it back in waiting line
         if(socket.connected){
             waitingConnections.push(socket);
@@ -187,7 +192,6 @@ var abstractModule = function(config, shared){
     // this is put in a seperate function to be able to remove it from the socket listener
     // TODO: could be merged with onValueChange?
     function fireValueChange(data){
-        console.log(data);
         eventHandler.fire('value_change', data);
     }
 
@@ -201,6 +205,7 @@ var abstractModule = function(config, shared){
     // should check if value is a valid one and then call mapping
     function onValueChange (data){
 
+        //FIXME: why??
         data = data[0];
 
         var dataLog = checkData(data);
@@ -332,17 +337,15 @@ var abstractModule = function(config, shared){
     }
 
     function sendDmx (dmxObj){
-        console.log('DMX: ' + dmxObj.value + ' channel: ' + dmxObj.channel);
+        console.log('DMX: channel: ' + dmxObj.channel + ' value: '+ dmxObj.value);
         if (!dmx){ return }
         var sendObj = {};
         sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
-        console.log(sendObj);
-        //dmx.update('takeover', {2: dmxObj.value});
         universe.update(sendObj);
     }
 
     function sendMidi (midiObj){
-        console.log('MIDI: ' + midiObj.type + ' ' + midiObj.channel + ' ' + midiObj.value1 + ' ' + midiObj.value2);
+        console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
     }
 
     function sendOsc (oscObj){
@@ -536,6 +539,8 @@ function validateConfig(config){
     if (config.mapping){
         var mappingLog = validateMapping(config.mapping);
         if (mappingLog.error.length){ error.push({'mappingError': mappingLog.error});}
+    } else {
+        config.mapping = [];
     }
 
     return {error: error};

@@ -1,43 +1,60 @@
 <div id="module-templates">
 
     <section id="_abstract">
-        <div class="input container {{type}}" id="{{id}}">
-            <span class="value-holder disable-holder">{{title}}</span>
+        <div class="input-container {{type}}" id="{{id}}">
+            <div class="input"
+                 touch-action="none"
+                 value-holder
+                 disable-holder>
+                <span class="label">{{title}}</span>
+            </div>
         </div>
     </section>
 
 
     <section id="button">
-        <div class="input container {{type}}" id="{{id}}">
-            <button class="ui-btn value-holder disable-holder"
-                    min-value="{{minValue}}"
-                    max-value="{{maxValue}}">
-                {{title}}
-            </button>
+        <div class="input-container {{type}}" id="{{id}}">
+            <div class="input"
+                touch-action="none"
+                min-value="{{minValue}}"
+                max-value="{{maxValue}}"
+                value-holder
+                disable-holder>
+                <span class="label">{{title}}</span>
+            </div>
         </div>
     </section>
 
 
     <section id="slider">
-        <div class="input container {{type}}" id="{{id}}">
-            <input class='value-holder disable-holder'
-                   type='number'
-                   data-type='range'
-                   min='{{minValue}}'
-                   max='{{maxValue}}'
-                   value='{{value}}'
-                   data-highlight='true'>
+        <div class="input-container {{type}}" id="{{id}}">
+            <div class="input"
+                touch-action="none"
+                min-value="{{minValue}}"
+                max-value="{{maxValue}}"
+                value="{{value}}"
+                value-holder
+                disable-holder>
+                <span class="label">{{title}}</span>
+                <span class="progress">&nbsp;</span>
+            </div>
         </div>
     </section>
 
 
     <section id="xy-pad">
-        <div class="input container {{type}}" id="{{id}}">
-            <div class="value-holder disable-holder"
-                 min='{{minValue}}'
-                 max='{{maxValue}}'
-                 step='{{resolution}}'
-                 value='{{value}}'>
+        <div class="input-container {{type}}" id="{{id}}">
+            <div class="input"
+                 touch-action="none"
+                 x-min-value="{{minValueX}}"
+                 y-min-value="{{minValueY}}"
+                 x-max-value="{{maxValueX}}"
+                 y-max-value="{{maxValueY}}"
+                 x-value="{{valueX}}"
+                 y-value="{{valueY}}"
+                 value-holder
+                 disable-holder>
+                <span class="label">{{title}}</span>
             </div>
         </div>
     </section>

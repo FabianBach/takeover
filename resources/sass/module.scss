@@ -1,0 +1,33 @@
+$input-color-1: #666;
+$input-color-2: #aaa;
+$input-color-3: #ddd;
+$input-color-active: #98c0dd;
+
+.input{
+  position: relative;
+
+  margin: 0.2em;
+  padding: 1em;
+
+  text-align: center;
+  cursor: crosshair;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+[disable-holder][disabled]{
+  opacity: 0.6;
+  background-color: $input-color-3;
+  cursor: default;
+}
+
+
+// import all the modules here
+@import "module_button";
+@import "module_slider";

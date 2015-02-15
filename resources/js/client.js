@@ -39,22 +39,13 @@ var moduleBuilder = (function(){
         var node = createFromTemplate(config);
         var module = createModule(node, config);
         $('#controls').append(module);
-
-        switch (config.type){
-
-            case 'slider':
-                module.inputNode.slider();
-                break;
-
-            default :
-                break;
-        }
+        afterAppend(module, config);
     }
 
     function createFromTemplate (config){
 
         var template = $templates.find('#' + config.type).html();
-        if (!template) return console.warn('moduleBuilder: type not found in templates');
+        if (!template) return console.warn('moduleBuilder: type not found in templates: ' + config.type);
 
         template = template
             .replace('{{id}}', config.id)
@@ -72,6 +63,12 @@ var moduleBuilder = (function(){
 
             case 'button':
                 break;
+
+            case 'slider':
+                break;
+
+            case 'xy-pad':
+                break;
         }
 
         return $(template);
@@ -79,35 +76,92 @@ var moduleBuilder = (function(){
 
     function createModule(node, config){
 
-        node.inputNode = node.find('.value-holder');
-        node.disableNode = node.find('.disable-holder');
+        node.inputNode = node.find('[value-holder]');
+        node.disableNode = node.find('[disable-holder]');
 
         switch (config.type){
 
             case '_abstract':
                 break;
 
+
             case 'button':
                 node.socket = connectSocket(config.namespace);
 
-                node.socket.on('disable', function(){
-                    node.socket.emit('value_change', node.inputNode.attr('min-value'))
+                node.inputNode.on('pointerdown', function(){
+                    if(node.enabled){
+                        node.socket.emit('value_change', node.inputNode.attr('max-value'));
+                        node.active = true;
+                        node.inputNode.addClass('active');
+                    }
                 });
-
-                node.inputNode.on('vmousedown', function(){
-                    node.socket.emit('value_change', node.inputNode.attr('max-value'))
-                });
-                node.inputNode.on('vmouseup', function(){
-                    node.socket.emit('value_change', node.inputNode.attr('min-value'))
+                $('html').on('pointerup pointercancel', function(){
+                    if(node.active){
+                        node.socket.emit('value_change', node.inputNode.attr('min-value'));
+                        node.active = false;
+                        node.inputNode.removeClass('active');
+                    }
                 });
                 break;
+
 
             case 'slider':
                 node.socket = connectSocket(config.namespace);
-                node.inputNode.on('change', function(event){
-                    node.socket.emit('value_change', this.value);
+
+                node.inputNode.on('pointerenter', function(event){
+                    if (node.enabled){ node.focus = true; }
                 });
+
+                node.inputNode.on('pointerleave', function(event){
+                    node.focus = false;
+                    //node.active = false;
+                });
+
+                node.inputNode.on('pointerdown', function(event){
+                    if (node.enabled){ node.active = true; }
+                });
+
+                $('html').on('pointerup pointercancel', function(event){
+                    node.active = false;
+                });
+
+                node.inputNode.on('pointermove pointerdown', function(event){
+                    if(node.focus && node.active){
+
+                        //TODO: if vertical use y
+
+                        var xZero = node.inputNode[0].offsetLeft;
+                        //var yZero = node.inputNode[0].offsetTop;
+
+                        var xMax = node.inputNode[0].clientWidth;
+                        //var yMax = node.inputNode[0].clientHeight;
+
+                        var deltaX = event.pageX - xZero;
+                        //var deltaY = event.pageY - yZero;
+
+                        var progressX = deltaX / xMax;
+                        //var progressY = deltaY / yMax;
+
+                        var maxValX = parseInt(node.inputNode.attr('max-value'));
+                        //var maxValY = parseInt(node.inputNode.attr('y-max-value'));
+
+                        var minValX = parseInt(node.inputNode.attr('min-value'));
+                        //var minValY = parseInt(node.inputNode.attr('min-value'));
+
+                        var value = progressX * maxValX;
+
+                        if(value < minValX){value = minValX}
+                        if(value > maxValX){value = maxValX}
+
+                        node.socket.emit('value_change', value);
+
+                        node.find('.progress').css('right', (1-progressX)*100 +'%');
+
+                    }
+                });
+
                 break;
+
 
             case 'xy-pad':
                 node.xSocket = connectSocket(config.namespace.x);
@@ -136,37 +190,30 @@ var moduleBuilder = (function(){
 
             socket.on('disable', function(){
                 switch (config.type){
-                    case 'slider':
-                        node.disableNode.slider('disable');
-                        break;
 
                     default :
                         node.disableNode.attr('disabled', true);
+                        node.disabled = true;
+                        node.enabled = false;
                 }
             });
 
             socket.on('enable', function(){
                 switch (config.type){
-                    case 'slider':
-                        node.disableNode.slider('enable');
-                        node.inputNode.slider('refresh');
-                        break;
 
                     default :
                         node.disableNode.removeAttr('disabled');
+                        node.disabled = false;
+                        node.enabled = true;
                 }
             });
 
             socket.on('value_update', function(data){
                 console.log(data);
                 switch (config.type){
-                    case 'slider':
-                        node.inputNode.attr('value', data);
-                        node.inputNode.slider('refresh');
-                        break;
 
                     default :
-                        node.inputNode.value(data);
+                        node.inputNode.attr('value', data);
                 }
             });
 
@@ -176,9 +223,27 @@ var moduleBuilder = (function(){
         return node;
     }
 
+    function afterAppend(module, config){
+        switch (config.type){
+
+            case '_abstract':
+                break;
+
+            case 'button':
+                break;
+
+            case 'slider':
+                break;
+
+            case 'xy-pad':
+                break;
+
+        }
+    }
 
 
-    var module
+
+    var module;
 
     var that = {};
 

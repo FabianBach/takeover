@@ -26,6 +26,14 @@ To run this alpha state of the project follow the steps:
     
 - Install Ruby
 - Install Sass Gem for Ruby
+
+- Windows:
+    - install Visual Studio Express for DMX
+    - install .NET Framework
+  
+- Unix:
+    - install come C++ compiler
+    - install Mono
     
 - open console in project root directory and 
     - npm install
@@ -34,4 +42,4 @@ To run this alpha state of the project follow the steps:
     
 - run the server: node server.js
 
-- to configure the inputs edit the json files in resources/config/
+- to configure the inputs edit the json files in resources/config/ and restart server

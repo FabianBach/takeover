@@ -3,18 +3,17 @@
 // it will create and return a control module object
 // this will be the only control module needed to require
 
-// TODO: maybe this object should hold things like the socket instance and MIDI and stuff
-
 var that = {};
 
 // save the socket.io reference and share it with control modules created
 var io = undefined;
+
+// save the dmx reference and share it with control modules created
+// TODO: there could be multiple DMX devices connected
 var DMX = require('dmx');
 var dmx = new DMX();
 //var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
 //dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
-//TODO: add universe in module config and add here if not done yet
-//var universe = dmx.addUniverse('takeover', 'null', 0);
 var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);
 
 // all available modules should be listed here
@@ -29,7 +28,6 @@ var createdModules = {};
 function createModule (config){
 
     if (!io){ return console.log( 'control-module-factory '.grey + 'No io set!'.red )}
-
     if (!config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
 
     // set io in config

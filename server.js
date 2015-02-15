@@ -64,11 +64,5 @@ function setSocketListeners(socket){
     })
 }
 
-
-// TODO: require(control-module.js)
-// TODO: somehow set the io in control-module.js
-// TODO: get control module configs via filereader
-// TODO: build each config to module
-
 // beautiful loggin
 require('colors');

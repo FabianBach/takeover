@@ -1,0 +1,12 @@
+.button{
+  background-color: $input-color-2;
+  color: $input-color-1;
+
+  .active{
+    background-color: $input-color-active;
+    color: $input-color-3;
+  }
+
+  .input{
+  }
+}
