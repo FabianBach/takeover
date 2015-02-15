@@ -3,7 +3,9 @@
  * This file is used for development and documentation
  */
 
-        //TODO: flag for reset to min when disabled
+        // TODO: flag for reset to min when disabled
+        // TODO: flag to reverse / invert single mapping from min-max to max-min
+
 
 
 {

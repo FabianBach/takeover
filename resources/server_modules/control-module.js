@@ -94,6 +94,7 @@ function createFromFiles(configsPath){
         var jsonConfig = buffer.toString();
         var config = JSON.parse(jsonConfig);
 
+        // TODO: if not deactivated
         createModule(config);
     }
 

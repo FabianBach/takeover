@@ -34,6 +34,24 @@ var xyPad = function(config, shared){
         }
     }
 
+    var getXMinValue = xAxis.getMinValue;
+    var getYMinValue = yAxis.getMinValue;
+    function getMinValue(){
+        return{
+            x: getXMinValue(),
+            y: getYMinValue()
+        }
+    }
+
+    var getXMaxValue = xAxis.getMaxValue;
+    var getYMaxValue = yAxis.getMaxValue;
+    function getMaxValue(){
+        return{
+            x: getXMaxValue(),
+            y: getYMaxValue()
+        }
+    }
+
     var getXNamespace = xAxis.getNamespace;
     var getYNamespace = yAxis.getNamespace;
     function getNamespace(){
@@ -49,6 +67,8 @@ var xyPad = function(config, shared){
     // OVERRIDE
     that.getId = getId;
     that.getValue = getValue;
+    that.getMinValue = getMinValue;
+    that.getMaxValue = getMaxValue;
     that.getNamespace = getNamespace;
 
     return that;
@@ -61,7 +81,7 @@ module.exports = xyPad;
  */
 
 //function validateConfig(config) {
-//
+// TODO: check for x and y stuff
 //    var error = [];
 
 // validate

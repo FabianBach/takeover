@@ -1,23 +1,23 @@
-.slider{
+.xy-pad{
   border: 2px solid $input-color-2;
   color: $input-color-1;
 
   .input{
   }
 
-  .progress{
+  .indicator{
     position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
     right: 100%;
+    top: 100%;
+    bottom: 0;
 
     background-color: $input-color-2;
   }
 
   .active {
 
-    .progress{
+    .indicator{
       background-color: $input-color-active;
       color: $input-color-3;
     }

@@ -14,6 +14,18 @@
       "channel": 2,
       "minValue": 16,
       "maxValue": 128
+    },
+    {
+      "type": "dmx",
+      "channel": 16,
+      "minValue": 12,
+      "maxValue": 130
+    },
+    {
+      "type": "dmx",
+      "channel": 17,
+      "minValue": 100,
+      "maxValue": 255
     }
   ]
 }
