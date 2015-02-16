@@ -55,7 +55,9 @@ var abstractModule = function(config, shared){
         setEvents();
 
         //initial mapping to set stuff up
-        eventHandler.fire('value_change', [value]);
+        //eventHandler.fire('value_change', [value]);
+        // TODO: apply special mapping or value when no client is connected initially
+        // also, the startup mapping will be applied, so no need to apply min values
 
         return {error: []};
     };
@@ -142,6 +144,7 @@ var abstractModule = function(config, shared){
         activeConnections[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
         eventHandler.fire('socket_enabled', socket);
+        // TODO: apply special mapping or value when connected before first input
 
         socket.on('value_change', fireValueChange);
 
@@ -158,7 +161,8 @@ var abstractModule = function(config, shared){
         // function has to be provided to find listener
         socket.removeListener('value_change', fireValueChange);
 
-        //TODO: reset to min value if flag in config is set to do so
+        // TODO: reset to min value if flag in config is set to do so
+        // TODO: apply special mapping or value when disabled
 
         // push it back in waiting line
         if(socket.connected){
@@ -187,6 +191,11 @@ var abstractModule = function(config, shared){
             }
         }
         if (newActive){ enableSocket(newActive); }
+        else {
+            if (activeConnections.length) { return }
+            console.log('No connections to ' + getNameAndId());
+            // TODO: apply special mapping on no client connected
+        }
     }
 
     // this is put in a seperate function to be able to remove it from the socket listener

@@ -1,8 +1,8 @@
 {
   "_id" : "WU6NBAMTWKQO",
   "type": "slider",
-  "name": "COLOR",
-  "title": "COLOR",
+  "name": "Color slider",
+  "title": "Color",
 
   "maxTime" : 5,
 

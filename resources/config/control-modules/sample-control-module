@@ -3,10 +3,12 @@
  * This file is used for development and documentation
  */
 
-        // TODO: flag for reset to min when disabled
         // TODO: flag to reverse / invert single mapping from min-max to max-min
-
-
+        // TODO: Mapping or values to use when no client is connected
+        // TODO: Mapping or values to use when active client disconnects
+        // TODO: Mapping or values to use on connection before first input
+        // TODO: Animations from valueX to valueY, especially cool for buttons
+        // TODO: Delay for mappings, to make things happen one after another
 
 {
 
@@ -14,8 +16,7 @@
   "name" : "sample module mapping",
   "title": "Some label",
   "type" : "slider", // this can be any type of module such as button, slider, etc...
-//  "minValue": 0,
-//  "maxValue": 100,
+  "disabled" : true,
   "resolution": 100,
   "maxTime": 60, // seconds
   "maxUsers": 1,
@@ -33,7 +34,7 @@
       "byte_1" : {
         "doMapping" : true,
         "minValue" : 0, // no negative values
-        "maxValue" : 127 // 7 bit == 127 max
+        "maxValue" : 127, // 7 bit == 127 max
         "foreignValue": "GHIJK19829"
       },
       "byte_2" : {
@@ -50,7 +51,12 @@
 
       // this will combine two channels to use 256 * 256 steps
       // when end of channel 1 is reached channel two will increment by one and set channel 1 back to 0
-      "fine" : true
+      "fine" : true,
+
+      "animation" : {
+        "type" : "linear",
+        "time" : 2000
+      }
 
     },
 
@@ -62,5 +68,14 @@
       "maxValue" : "100" // can get as big as a int or float can cat I guess
     }
 
+  ],
+  "onDisconnectMapping" : [
+    // TODO
+  ],
+  "onConnectMapping" : [
+    // TODO
+  ],
+  "noConnectionMapping" : [
+    // TODO
   ]
 }

@@ -2,7 +2,7 @@
   "_id" : "12Y6SZA9SICGK",
   "type": "button",
   "name": "2 sec timeout button",
-  "title": "2 sec timeout button",
+  "title": "Green flash",
 
   "maxTime" : 2,
 

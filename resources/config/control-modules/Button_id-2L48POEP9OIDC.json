@@ -2,7 +2,7 @@
   "_id" : "2L48POEP9OIDC",
   "type": "button",
   "name": "5 sec timeout button",
-  "title": "5 sec timeout button",
+  "title": "Blue flash",
 
   "maxTime" : 5,
 

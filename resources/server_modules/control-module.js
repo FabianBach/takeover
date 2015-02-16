@@ -103,12 +103,12 @@ function createFromFiles(configsPath, callback){
 
     // create from each json
     function onFileRead (error, buffer){
-        if(error) return console.log(error);
+        if (error) return console.log(error);
 
         var jsonConfig = buffer.toString();
         var config = JSON.parse(jsonConfig);
 
-        // TODO: if not deactivated
+        if (config.disabled){ return }
         createModule(config);
         filesRead++;
 
@@ -143,19 +143,23 @@ function getModuleById(moduleId){
     })
 }
 
-function doStartupMapping(startupConfigPath){
+function doStartupMapping(startupConfig){
 
-    startupConfigPath = startupConfigPath || './resources/config/startup-mapping.json';
-
-    var filesystem = require('fs');
-    filesystem.readFile(startupConfigPath, onFileRead);
+    if(startupConfig){
+        stepConfig(startupConfig);
+    }else{
+        var startupConfigPath = './resources/config/startup-mapping.json';
+        var filesystem = require('fs');
+        filesystem.readFile(startupConfigPath, onFileRead);
+    }
 
     function onFileRead (error, buffer){
         if(error) return console.log(error.toString().yellow);
-
         var jsonConfig = buffer.toString();
-        var config = JSON.parse(jsonConfig);
+        stepConfig(JSON.parse(jsonConfig));
+    }
 
+    function stepConfig(config){
         if (!config.startupMapping) return console.log('No startup mapping used.'.yellow);
         for(var i = 0; i < config.startupMapping.length; i++){
             doMapping(config.startupMapping[i]);
