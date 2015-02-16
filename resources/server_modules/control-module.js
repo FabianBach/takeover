@@ -3,8 +3,6 @@
 // it will create and return a control module object
 // this will be the only control module needed to require
 
-var that = {};
-
 // save the socket.io reference and share it with control modules created
 var io = undefined;
 
@@ -14,6 +12,7 @@ var DMX = require('dmx');
 var dmx = new DMX();
 //var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
 //dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
+// TODO: at the moment always the enttec open is selected
 var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);
 
 // all available modules should be listed here
@@ -36,8 +35,9 @@ function init (callback){
 
 function createModule (config){
 
-    if (!io){ return console.log( 'control-module-factory '.grey + 'No io set!'.red )}
-    if (!config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
+    // FIXME: has io really to be set when creating stuff?
+    if (!io){ return console.log( 'control-module-factory '.grey + 'No io set, do that first!'.red )}
+    if (!config || !config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
 
     // set io in config
     config.io = config.io || io;
@@ -73,51 +73,16 @@ function createFromFiles(configsPath, callback){
 
     callback = callback || function(){};
 
-    var filesystem = require('fs'),
-        path = require('path'),
-        filesToRead = 0,
-        filesRead = 0;
-
-    // get all json from config path
-    filesystem.readdir( configsPath, function(error, fileArray){
-        if (error){ return console.log(error)}
-        var filteredArray = [];
-
-        for (var i = 0; i < fileArray.length; i++) {
-            var item = fileArray[i];
-            if (path.extname(item) === '.json') {
-                filteredArray.push(configsPath + item);
+    var configsModule = require('./config-module.js');
+    configsModule.getConfigsFromPath(configsPath, function(configs){
+        for (var i = 0; i < configs.length; i++){
+            var config = configs[i];
+            if (!config.disabled){
+                createModule(config);
             }
         }
-        readJson(filteredArray);
+        callback();
     });
-
-    //read each json
-    function readJson(pathArray){
-        for(var i = 0; i < pathArray.length; i++){
-            console.log(pathArray[i].cyan);
-            filesToRead++;
-            filesystem.readFile(pathArray[i], onFileRead);
-        }
-    }
-
-    // create from each json
-    function onFileRead (error, buffer){
-        if (error) return console.log(error);
-
-        var jsonConfig = buffer.toString();
-        var config = JSON.parse(jsonConfig);
-
-        if (config.disabled){ return }
-        createModule(config);
-        filesRead++;
-
-        if(filesRead === filesToRead){
-            callback();
-        }
-    }
-
-    // TODO: maybe even watch that folder...
 }
 
 function getModuleList(){
@@ -188,6 +153,7 @@ function setIo (_io){
     io = _io;
 }
 
+var that = {};
 that.init = init;
 that.createModule = createModule;
 that.createFromFiles = createFromFiles;
