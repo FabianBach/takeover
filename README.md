@@ -16,8 +16,9 @@ For more information see the documentation directory (german) or read the commen
 
 
 ##installation
-This version does not send any MIDI, DMX or OSC Signals yet, it just logs to the console.
-To run this alpha state of the project follow the steps:
+This Version does send DMX if you have an Enttec Open USB interface!
+It does not send any MIDI, OSC Signals yet, it just logs MIDI to the console.
+To run this alpha state of the project follow these steps:
 
 - Install node.js
 - Install grunt globally 
