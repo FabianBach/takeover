@@ -3,10 +3,11 @@
 
 /**
  * WEBSOCKETS
+ *
+ * requires socket.io
  */
 var startSockets = function(){
 
-    //var socket = io.connect('/');
     var socket = io.connect(window.location.toString());
 
     socket.on('connecting', function(){
@@ -39,20 +40,24 @@ var startSockets = function(){
     });
 
 
-    moduleBuilder.init(function(){
-        socket.emit('get_module_list');
+    viewBuilder.init(function(){
+        socket.emit('get_view_list');
     });
 
-    socket.on('module_list', function(list){
-
+    socket.on('view_list', function(list){
         list = JSON.parse(list);
-        $.each(list, function(key, value){
-            moduleBuilder.create(value);
-        });
+        console.log('Viewlist:',list);
 
+        for(var view in list) {
+            // TODO: make list in html and emit get_view on selection
+            socket.emit('get_view', view);
+        }
+    });
+
+    socket.on('view_config', function(view) {
+        view = JSON.parse(view);
+        console.log('View ' + view.id + ':', view);
+        viewBuilder.create(view);
     });
 };
-
-$(document).ready(function(){
-    startSockets();
-});
+startSockets();

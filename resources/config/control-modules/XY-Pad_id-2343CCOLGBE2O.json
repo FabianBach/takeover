@@ -1,9 +1,9 @@
 {
-  "_id": "2343CCOLGBE2O",
+  "id": "2343CCOLGBE2O",
   "type": "xy-pad",
   "name": "debug pad",
   "title": "Position",
-  "resolution": 100,
+  "resolution": 255,
   "xMapping": [
     {
       "type": "dmx",

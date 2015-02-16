@@ -1,12 +1,12 @@
 {
-  "_id" : "1G963EZACT8G0",
+  "id" : "1G963EZACT8G0",
   "type": "slider",
   "name": "Gobo Slider",
   "title": "Gobo",
 
   "maxTime": 5,
 
-  "resolution": 100,
+  "resolution": 255,
 
   "mapping": [
     { "type": "dmx",

@@ -1,0 +1,49 @@
+{
+  "id": "YP15IVTDCNPC",
+  "name": "first view",
+  "orientation": "portrait",
+  "grid": {
+    "x": 4,
+    "y": 8
+  },
+  "controls": [
+    {
+      "id": "P58IMX88MH34",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "height": 1,
+      "width": 4
+    },
+    {
+      "id": "2343CCOLGBE2O",
+      "position": {
+        "x": 0,
+        "y": 1
+      },
+      "height": 4,
+      "width": 4
+    },
+    {
+      "id": "WU6NBAMTWKQO",
+      "position": {
+        "x": 0,
+        "y": 5
+      },
+      "height": 1,
+      "width": 4,
+      "orientation": "vertical"
+    },
+    {
+      "id": "1G963EZACT8G0",
+      "position": {
+        "x": 0,
+        "y": 6
+      },
+      "height": 1,
+      "width": 4,
+      "orientation": "vertical"
+    }
+  ]
+}

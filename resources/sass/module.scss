@@ -3,14 +3,24 @@ $input-color-2: #aaa;
 $input-color-3: #ddd;
 $input-color-active: #98c0dd;
 
+.input-container{
+  position: absolute;
+
+  //TODO: borderbox
+//  margin: 0.2em;
+//  padding: 1em;
+}
+
 .input{
   position: relative;
 
-  margin: 0.2em;
-  padding: 1em;
+  height: 100%;
+  width: 100%;
 
   text-align: center;
   cursor: crosshair;
+
+  border: 2px solid $input-color-1;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;

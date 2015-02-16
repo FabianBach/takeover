@@ -1,5 +1,7 @@
 /**
  * CONTROL MODULE BUILDER
+ *
+ * requires sockets to be ready
  */
 
 var moduleBuilder = (function(){
@@ -8,11 +10,13 @@ var moduleBuilder = (function(){
 
     function init(callback){
         getTemplates(function(){
-            callback.call();
+            callback();
         })
     }
 
     function getTemplates(callback){
+
+        if ($templates){ callback(); }
 
         $.ajax({
             url: 'all-modules.html',
@@ -23,7 +27,7 @@ var moduleBuilder = (function(){
 
         function success (data){
             $templates = $(data.toString());
-            callback.call();
+            callback();
         }
 
         function fail (){
@@ -34,8 +38,7 @@ var moduleBuilder = (function(){
     function create (config){
         var node = createFromTemplate(config);
         var module = createModule(node, config);
-        $('#controls').append(module);
-        afterAppend(module, config);
+        return module;
     }
 
     function createFromTemplate (config){
@@ -52,7 +55,6 @@ var moduleBuilder = (function(){
         switch(config.type){
 
             case 'xy-pad':
-                console.log(config);
                 template = template
                     .replace('{{valueX}}', config.value.x)
                     .replace('{{valueY}}', config.value.x)
@@ -135,11 +137,11 @@ var moduleBuilder = (function(){
 
                         //TODO: if vertical use y
 
-                        var xZero = node.inputNode[0].offsetLeft;
-                        //var yZero = node.inputNode[0].offsetTop;
+                        var xZero = node.inputNode.offset().left;
+                        //var yZero = node.inputNode.offset().top;
 
-                        var xMax = node.inputNode[0].clientWidth;
-                        //var yMax = node.inputNode[0].clientHeight;
+                        var xMax = node.inputNode.width();
+                        //var yMax = node.inputNode.height();
 
                         var deltaX = event.pageX - xZero;
                         //var deltaY = event.pageY - yZero;
@@ -199,11 +201,11 @@ var moduleBuilder = (function(){
                 node.inputNode.on('pointermove pointerdown', function(event){
                     if(node.focus && node.active){
 
-                        var xZero = node.inputNode[0].offsetLeft;
-                        var yZero = node.inputNode[0].offsetTop;
+                        var xZero = node.inputNode.offset().left;
+                        var yZero = node.inputNode.offset().top;
 
-                        var xMax = node.inputNode[0].clientWidth;
-                        var yMax = node.inputNode[0].clientHeight;
+                        var xMax = node.inputNode.width();
+                        var yMax = node.inputNode.height();
 
                         var deltaX = event.pageX - xZero;
                         var deltaY = event.pageY - yZero;
@@ -282,28 +284,6 @@ var moduleBuilder = (function(){
 
         return node;
     }
-
-    function afterAppend(module, config){
-        switch (config.type){
-
-            case '_abstract':
-                break;
-
-            case 'button':
-                break;
-
-            case 'slider':
-                break;
-
-            case 'xy-pad':
-                break;
-
-        }
-    }
-
-
-
-    var module;
 
     var that = {};
 

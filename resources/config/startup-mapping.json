@@ -2,8 +2,18 @@
   "startupMapping": [
     {
       "type": "dmx",
-      "channel": 1,
-      "value": 0
+      "channel": 2,
+      "value": 10
+    },
+    {
+      "type": "dmx",
+      "channel": 3,
+      "value": 10
+    },
+    {
+      "type": "dmx",
+      "channel": 4,
+      "value": 10
     },
     {
       "type": "dmx",
@@ -19,6 +29,11 @@
       "type": "dmx",
       "channel": 13,
       "value": 120
+    },
+    {
+      "type": "dmx",
+      "channel": 16,
+      "value": 10
     },
     {
       "type": "dmx",

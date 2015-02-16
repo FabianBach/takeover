@@ -13,6 +13,7 @@ var express = require('express'),
     http = require('http'),
 
     controlModules = require('./resources/server_modules/control-module.js'),
+    viewModules = require('./resources/server_modules/view-module.js'),
 
     server,
 
@@ -40,13 +41,17 @@ function onServerReady(){
     openWebSockets();
 
     controlModules.setIo(io);
-    controlModules.init();
+    controlModules.init(function(){
+        viewModules.init();
+    });
+
+
 }
 
 function openWebSockets(){
 
     io.sockets.on('connection', function(socket){
-        console.log('Yeay, client connected!');
+        console.log('Yeay, client connected!'.rainbow);
 
         setSocketListeners(socket);
     });
@@ -54,13 +59,23 @@ function openWebSockets(){
 
 function setSocketListeners(socket){
 
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function(data){
         console.log('Oh, client disconnected...');
     });
 
-    socket.on('get_module_list', function(){
+    socket.on('get_module_list', function(data){
         var list = controlModules.getModuleList();
         socket.emit('module_list', JSON.stringify(list));
+    });
+
+    socket.on('get_view_list', function(data){
+        var list = viewModules.getViews();
+        socket.emit('view_list', JSON.stringify(list));
+    });
+
+    socket.on('get_view', function(viewId){
+        var view = viewModules.getViewById(viewId);
+        socket.emit('view_config', JSON.stringify(view));
     })
 }
 

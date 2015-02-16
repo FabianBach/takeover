@@ -1,5 +1,5 @@
 {
-  "_id" : "P58IMX88MH34",
+  "id" : "P58IMX88MH34",
   "type": "button",
   "name": "up to 5 users button",
   "title": "BAM",
@@ -11,9 +11,15 @@
   "mapping": [
     {
       "type": "dmx",
-      "channel": 2,
+      "channel": 1,
       "minValue": 10,
-      "maxValue": 255
+      "maxValue": 160
+    },
+    {
+      "type": "dmx",
+      "channel": 5,
+      "minValue": 0,
+      "maxValue": 11
     },
     {
       "type": "dmx",

@@ -12,7 +12,7 @@
 
 {
 
-  "_id": "A1B2C3D4E5F6", // has to be unique
+  "id": "A1B2C3D4E5F6", // has to be unique
   "name" : "sample module mapping",
   "title": "Some label",
   "type" : "slider", // this can be any type of module such as button, slider, etc...

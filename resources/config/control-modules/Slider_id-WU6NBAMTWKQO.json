@@ -1,12 +1,12 @@
 {
-  "_id" : "WU6NBAMTWKQO",
+  "id" : "WU6NBAMTWKQO",
   "type": "slider",
   "name": "Color slider",
   "title": "Color",
 
   "maxTime" : 5,
 
-  "resolution": 100,
+  "resolution": 255,
 
   "mapping": [
     { "type": "dmx",

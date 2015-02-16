@@ -25,7 +25,7 @@ var controlModules = {};
 var createdModules = {};
 
 function init (callback){
-    callback = callback || function(){console.log('Finished creating modules.'.cyan)};
+    callback = callback || function(){console.log('Finished creating control-modules.'.cyan)};
 
     createFromFiles(function(){
         doStartupMapping();
@@ -109,6 +109,8 @@ function getModuleById(moduleId){
 }
 
 function doStartupMapping(startupConfig){
+
+    console.log('Doing startup mapping...'.cyan);
 
     if(startupConfig){
         stepConfig(startupConfig);
