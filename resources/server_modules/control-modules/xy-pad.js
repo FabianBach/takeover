@@ -5,16 +5,16 @@ var xyPad = function(config, shared){
 
     // this object inherits from the abstract object
     var abstract = require('./_abstract-module.js');
-    var id = config._id || parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
+    var id = config.id || parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
 
     // build x-axis
     config.mapping = config.xMapping;
-    config._id = id + '-X';
+    config.id = id + '-X';
     var xAxis = abstract(config, shared);
 
     //build y-axis
     config.mapping = config.yMapping;
-    config._id = id + '-Y';
+    config.id = id + '-Y';
     var yAxis = abstract(config, shared);
 
     // DECLARE OVERRIDES

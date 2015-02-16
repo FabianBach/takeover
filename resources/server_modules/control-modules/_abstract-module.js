@@ -66,7 +66,7 @@ var abstractModule = function(config, shared){
     function applyConfig (config){
 
         // id
-        id = config._id;
+        id = config.id;
 
         // name
         name = config.name;
@@ -522,7 +522,7 @@ function validateConfig(config){
     if (!config.io){ error.push('No io in config')}
 
     // id, create if missing
-    if (!config._id){ config._id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase(); }
+    if (!config.id){ config.id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase(); }
 
     // name
     if (!config.name){ config.name = 'unnamed' }
