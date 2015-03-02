@@ -1,5 +1,13 @@
 TODOS
 
+    add server config
+        ip, port, and domain of server
+        dmx on/off and universe and device
+        midi on/off
+        osc on/off, domain, port
+        maybe even colors and pictures?
+
+
     error pattern could be made different
         look at node.js error pattern in callback style
         first argument is error, then stuff

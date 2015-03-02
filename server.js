@@ -12,8 +12,8 @@ var express = require('express'),
     io = require('socket.io'),
     http = require('http'),
 
-    controlModules = require('./resources/server_modules/control-module.js'),
-    viewModules = require('./resources/server_modules/view-module.js'),
+    controlModules = require('./resources/server/control-module.js'),
+    viewModules = require('./resources/server/view-module.js'),
 
     server,
 

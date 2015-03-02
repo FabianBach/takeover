@@ -4,7 +4,7 @@
  * requires sockets to be ready
  */
 
-var moduleBuilder = (function(){
+var controlModule = (function(){
 
     var $templates;
 

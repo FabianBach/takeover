@@ -1,7 +1,7 @@
 // Testing the abstract control module
 // just fuzzing around with config and stuff
 
-var controlModules = require('./resources/server_modules/control-module.js'),
+var controlModules = require('./resources/server/control-module.js'),
     io,
     modules = [];
 
@@ -49,7 +49,7 @@ module.exports.setIo = setIo;
 
 // Testing event handler
 // everything is working just perfectly fine
-//var eventHandler = require('./resources/server_modules/event-part.js');
+//var eventHandler = require('./resources/server/event-part.js');
 //eventHandler = eventHandler();
 //
 //var obj = {hell : 'yeah!'};
