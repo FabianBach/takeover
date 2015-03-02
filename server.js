@@ -1,4 +1,7 @@
 
+
+//TODO: read a config file and set up server by that file
+
 // standard port if no port comes in arguments
 var port = 8080;
 
@@ -12,6 +15,7 @@ var express = require('express'),
     io = require('socket.io'),
     http = require('http'),
 
+    //TODO: config that controlModule
     controlModules = require('./resources/server/control-module.js'),
     viewModules = require('./resources/server/view-module.js'),
 
@@ -23,6 +27,8 @@ function init(){
 
     takeover = express();
     takeover.use(express.static(__dirname + '/public'));
+
+    //TODO: set routes for view list and views
 
     server = takeover.listen(port, onServerReady);
 
