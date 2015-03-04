@@ -28,7 +28,15 @@ function init(){
     takeover = express();
     takeover.use(express.static(__dirname + '/public'));
 
-    //TODO: set routes for view list and views
+    takeover.get('/tkvr-view-list', function(req, res){
+        var list = viewModules.getViews();
+        res.json(list);
+    });
+
+    takeover.get('/tkvr-view/:id', function(req, res){
+        var view = viewModules.getViewById(req.params.id);
+        res.json(view);
+    });
 
     server = takeover.listen(port, onServerReady);
 

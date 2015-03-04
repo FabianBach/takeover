@@ -59,8 +59,8 @@ function getConfigsFromPath(configsPath, callback) {
 }
 
 // TODO: for Backend:
-// TODO: generate config file
-// TODO: edit config file
+// generate config file
+// edit config file
 
 
 var that = {};

@@ -24,11 +24,13 @@ var controlModules = {};
 
 var createdModules = {};
 
+//TODO: use promises?
 function init (callback){
-    callback = callback || function(){console.log('Finished creating control-modules.'.cyan)};
+    callback = callback || function(){};
 
     createFromFiles(function(){
         doStartupMapping();
+        console.log('Finished creating control-modules.'.cyan);
         callback();
     });
 }
@@ -65,6 +67,7 @@ function createModule (config){
     return module;
 }
 
+//TODO: use promises?
 function createFromFiles(configsPath, callback){
 
     if (typeof(configsPath) === 'function'){ callback = configsPath }

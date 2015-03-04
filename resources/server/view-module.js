@@ -52,14 +52,19 @@ function createView(config){
         }
     }
     createdViews[newView.id] = newView;
-    console.log('view-factory'.grey + ' created: '.green + newView.name +' '+ newView.id.grey);
+    console.log('view-factory'.grey + ' created: '.green + newView.title +' '+ newView.id.grey);
     return newView;
 }
 
 function getViews(){
-    var list = {};
+    var list = [];
     for( var view in createdViews){
-        list[view] = createdViews[view].name;
+        var viewItem = createdViews[view];
+        var listItem = {
+            id: viewItem.id,
+            title: viewItem.title
+        };
+        list.push(listItem);
     }
     return list;
 }
