@@ -1,3 +1,8 @@
-<div id="tkvr-list">
-    <span>View {{view.id}}</span>
+<div id="tkvr-view">
+    <span>View: {{::view.title}}</span>
+    <div class="view-module controls-wrapper" id="{{view.id}}" grid-x="{{view.grid.x}} grid-y={{view.grid.y}}">
+        <section ng-repeat="control in view.controls">
+            <div tkvr-control="control"></div>
+        </section>
+    </div>
 </div>

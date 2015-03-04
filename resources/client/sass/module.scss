@@ -31,7 +31,7 @@ $input-color-active: #98c0dd;
 }
 
 
-[disable-holder][disabled]{
+[disabled="true"]{
   opacity: 0.6;
   background-color: $input-color-3;
   cursor: default;
