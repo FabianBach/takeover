@@ -10,14 +10,14 @@
     top: 100%;
     bottom: 0;
 
-    background-color: $input-color-2;
+    background-color: $input-color-light;
   }
 
   .active {
 
     .indicator{
       background-color: $input-color-active;
-      color: $input-color-3;
+      color: $input-color-highlight;
     }
   }
 }

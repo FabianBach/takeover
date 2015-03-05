@@ -1,7 +1,7 @@
-$input-color-1: #666;
-$input-color-2: #aaa;
-$input-color-3: #ddd;
-$input-color-active: #98c0dd;
+$input-color-dark: $tkvr-dark;
+$input-color-light: $tkvr-light;
+$input-color-highlight: $tkvr-highlight;
+$input-color-active: $tkvr-active;
 
 .input-container{
   position: absolute;
@@ -20,7 +20,8 @@ $input-color-active: #98c0dd;
   text-align: center;
   cursor: crosshair;
 
-  border: 2px solid $input-color-1;
+  box-sizing: border-box;
+  border: 2px solid $input-color-light;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -33,7 +34,7 @@ $input-color-active: #98c0dd;
 
 [disabled="true"]{
   opacity: 0.6;
-  background-color: $input-color-3;
+  background-color: $input-color-light;
   cursor: default;
 }
 

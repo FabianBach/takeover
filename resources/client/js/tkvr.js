@@ -25,7 +25,6 @@ tkvr.controller('tkvrListCtrl', function($scope, $http){
 
     $http.get('/tkvr-view-list/').
         success(function(data, status, headers, config) {
-            console.log('tkvr-view-list', data);
             $scope.viewList = data
         }).
         error(function(data, status, headers, config) {
@@ -48,13 +47,15 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
 });
 
 
-//Magic with $compile
 
+// C O N T R O L - V I E W S
+// Magic with $compile
 tkvr.directive('tkvrControl', function($compile){
 
     return tkvrControl = {
         restrict: 'EA',
         compile: compile
+        //TODO: set some lower prio than repeat
     };
 
     function compile(element, attrs){
@@ -63,34 +64,8 @@ tkvr.directive('tkvrControl', function($compile){
     }
 
     function link(scope, element, attrs){
-        var template = '<div tkvr-'+ scope.control.type +'>{{control.title}}</div>';
 
-        var newElement = $compile(template)(scope);
-
-        //TODO: replace this element
-        element.append(newElement);
-    }
-
-});
-
-
-// C O N T R O L S
-
-tkvr.directive('tkvrButton', function(){
-
-    return tkvrButton = {
-        restrict: 'EA',
-        templateUrl: 'tkvr-button.tmpl.html',
-        //template: 'tkvr button digga!',
-        link: link
-    };
-
-    function link(scope, element, attrs){
-
-        console.log('SCOPE', scope);
-
-        //TODO: position this thing
-        //TODO: somehow let a service do that!?
+        // position the wrapper
         var width = scope.view.grid.x;
         var height = scope.view.grid.y;
 
@@ -101,33 +76,47 @@ tkvr.directive('tkvrButton', function(){
         element.css('top', (scope.control.position.y / height * 100) +'%');
         element.css('left', (scope.control.position.x / width * 100) +'%');
 
-        //TODO: these nodes are needed for classes and attrs only and should be removed!
-        element.inputNode = element.find('[value-holder]');
-        element.disableNode = element.find('[disable-holder]');
+        // Build child Element and $compile it to make it work
+        var template = '<div tkvr-'+ scope.control.type +'>{{control.title}}</div>';
+        var newElement = $compile(template)(scope);
+        element.append(newElement);
+    }
+});
 
-        //TODO: set up sockets on this thing
-        console.log(window.location.origin + scope.control.namespace);
+
+// C O N T R O L S
+tkvr.directive('tkvrButton', function(){
+
+    return tkvrButton = {
+        restrict: 'EA',
+        templateUrl: 'tkvr-button.tmpl.html',
+        replace: true,
+        link: link
+        //TODO: scope?
+    };
+
+    function link(scope, element, attrs){
+
+        //set up sockets for this element
+        //TODO: directive for that (?)
         scope.control.socket = io.connect(window.location.origin + scope.control.namespace)
             .on('disable', function(){
-                //TODO: set attr via angular binding
-                element.disableNode.attr('disabled', true);
                 scope.control.isDisabled = true;
                 scope.control.isEnabled = false;
             })
             .on('enable', function(){
-                //TODO: set attr via angular binding
-                element.disableNode.removeAttr('disabled');
                 scope.control.isDisabled = false;
                 scope.control.isEnabled = true;
             });
 
-        //TODO: set events on this thing
-        element.inputNode.on('pointerdown', function(){
+        // set events on this element
+        // link is the right place to do this
+        element.on('pointerdown', function(){
             if(scope.control.isEnabled){
                 scope.control.socket.emit('value_change', scope.control.maxValue);
                 scope.control.isActive = true;
                 //TODO: do via angluar class directive
-                element.inputNode.addClass('active');
+                element.addClass('active');
             }
         });
         $('html').on('pointerup pointercancel', function(){
@@ -135,16 +124,99 @@ tkvr.directive('tkvrButton', function(){
                 scope.control.socket.emit('value_change', scope.control.minValue);
                 scope.control.isActive = false;
                 //TODO: do via angluar class directive
-                element.inputNode.removeClass('active');
+                element.removeClass('active');
             }
         });
-
-
     }
 });
 
 
-tkvr.service('viewList', function(){
 
 
+tkvr.directive('tkvrSlider', function(){
+
+    return tkvrButton = {
+        restrict: 'EA',
+        templateUrl: 'tkvr-slider.tmpl.html',
+        replace: true,
+        link: link
+        //TODO: scope?
+    };
+
+    function link(scope, element, attrs){
+
+        //set up sockets for this element
+        //TODO: directive for that (?)
+        scope.control.socket = io.connect(window.location.origin + scope.control.namespace)
+            .on('disable', function(){
+                scope.control.isDisabled = true;
+                scope.control.isEnabled = false;
+            })
+            .on('enable', function(){
+                scope.control.isDisabled = false;
+                scope.control.isEnabled = true;
+            });
+
+        // set events on this element
+        // link is the right place to do this
+        element.on('pointerenter', function(event){
+            if (scope.control.isEnabled){ scope.control.hasFocus = true; }
+        });
+
+        element.on('pointerleave', function(event){
+            scope.control.hasFocus = false;
+            //scope.control.active = false;
+        });
+
+        element.on('pointerdown', function(event){
+            if (scope.control.isEnabled){
+                scope.control.isActive = true;
+                element.addClass('active');
+            }
+        });
+
+        $('html').on('pointerup pointercancel', function(event){
+            scope.control.isActive = false;
+            element.removeClass('active');
+        });
+
+        element.on('pointermove pointerdown', function(event){
+            if(scope.control.hasFocus && scope.control.isActive){
+
+                //TODO: if vertical use y
+
+                var xZero = element.offset().left;
+                //var yZero = element.offset().top;
+
+                var xMax = element.width();
+                //var yMax = element.height();
+
+                var deltaX = event.pageX - xZero;
+                //var deltaY = event.pageY - yZero;
+
+                var progressX = deltaX / xMax;
+                //var progressY = deltaY / yMax;
+
+                var maxValX = parseInt(element.attr('max-value'));
+                //var maxValY = parseInt(element.attr('y-max-value'));
+
+                var minValX = parseInt(element.attr('min-value'));
+                //var minValY = parseInt(element.attr('min-value'));
+
+                var value = progressX * maxValX;
+
+                if(value < minValX){value = minValX}
+                if(value > maxValX){value = maxValX}
+
+                if(scope.control.value !== parseInt(value)){
+                    scope.control.socket.emit('value_change', value);
+                    scope.control.value = value;
+                }
+
+                //TODO: anglular way?
+                element.find('.indicator').css('right', (1-progressX)*100 +'%');
+
+            }
+        });
+    }
 });

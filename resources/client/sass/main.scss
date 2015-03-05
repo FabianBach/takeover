@@ -1,18 +1,14 @@
 @import "normalize";
-/**
- * End of normalize.css
- */
 
-/**
- * Start of jQuery Mobile
- */
 
-//@import "jquery.mobile-1.4.5.min";
-//@import "jquery.mobile.theme-1.4.5.min";
+//Colors
+//TODO: colors.scss
 
-/**
- * End of jQuery Mobile
- */
+$tkvr-dark: #444;
+$tkvr-light: #999;
+$tkvr-highlight: #dca40e;
+$tkvr-active: #ffd500;
+
 
 /**
  * START OF INDIVIDUAL STYLES
