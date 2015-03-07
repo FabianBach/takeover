@@ -1,11 +1,11 @@
 <div class="input"
+     ng-class="{enabled: control.isEnabled, disabled: control.isDisabled, active: control.isActive}"
      touch-action="none"
      min-value="{{::control.minValue}}"
      max-value="{{::control.maxValue}}"
      value="{{control.value}}"
-     disabled="{{control.isDisabled}}"
      value-holder>
 
     <span class="indicator">&nbsp;</span>
-    <span class="label">{{::control.title}}</span>
+    <span class="label">{{::control.title | uppercase}}</span>
 </div>

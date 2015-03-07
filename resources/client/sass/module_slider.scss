@@ -1,7 +1,7 @@
 .slider{
 
   .input{
-
+    box-shadow: 0 0 0 3px $tkvr-light inset;
   }
 
   .indicator{
@@ -10,14 +10,19 @@
     top: 0;
     bottom: 0;
     right: 100%;
-
-    background-color: $input-color-highlight;
+    background-color: $tkvr-light;
   }
 
   .active {
-
     .indicator{
-      background-color: $input-color-active;
+      background-color: $tkvr-highlight;
     }
   }
+  .enabled{
+    background-color: $tkvr-enabled;
+  }
+  .disabled{
+    background-color: $tkvr-disabled;
+  }
 }
+

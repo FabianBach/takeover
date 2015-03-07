@@ -1,10 +1,17 @@
 .button{
-  background-color: $input-color-highlight;
-
-  .active{
-    background-color: $input-color-active;
-  }
+  background-color: $tkvr-light;
 
   .input{
   }
+
+  .enabled{
+    background-color: $tkvr-enabled;
+  }
+  .disabled{
+    background-color: $tkvr-disabled;
+  }
+  .active{
+    background-color: $tkvr-highlight;
+  }
+
 }

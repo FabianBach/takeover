@@ -1,18 +1,8 @@
 @import "normalize";
 
+@import "colors";
+@import "layout";
 
-//Colors
-//TODO: colors.scss
-
-$tkvr-dark: #444;
-$tkvr-light: #999;
-$tkvr-highlight: #dca40e;
-$tkvr-active: #ffd500;
-
-
-/**
- * START OF INDIVIDUAL STYLES
- */
 @import "index";
 @import "view-module";
-@import "module";
+@import "module"; //imports all modules

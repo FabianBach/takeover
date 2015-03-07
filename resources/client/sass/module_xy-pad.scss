@@ -1,6 +1,7 @@
 .xy-pad{
 
   .input{
+    box-shadow: 0 0 0 3px $tkvr-light inset;
   }
 
   .indicator{
@@ -9,15 +10,18 @@
     right: 100%;
     top: 100%;
     bottom: 0;
-
-    background-color: $input-color-light;
+    background-color: $tkvr-light;
   }
 
   .active {
-
     .indicator{
-      background-color: $input-color-active;
-      color: $input-color-highlight;
+      background-color: $tkvr-highlight;
     }
+  }
+  .enabled{
+    background-color: $tkvr-enabled;
+  }
+  .disabled{
+    background-color: $tkvr-disabled;
   }
 }

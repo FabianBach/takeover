@@ -1,14 +1,6 @@
-$input-color-dark: $tkvr-dark;
-$input-color-light: $tkvr-light;
-$input-color-highlight: $tkvr-highlight;
-$input-color-active: $tkvr-active;
 
 .input-container{
   position: absolute;
-
-  //TODO: borderbox
-//  margin: 0.2em;
-//  padding: 1em;
 }
 
 .input{
@@ -21,7 +13,7 @@ $input-color-active: $tkvr-active;
   cursor: crosshair;
 
   box-sizing: border-box;
-  border: 2px solid $input-color-light;
+  border: 10px solid $tkvr-light;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -29,13 +21,29 @@ $input-color-active: $tkvr-active;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
 
+  &.enabled{
+    border-color: $tkvr-enabled;
+  }
+  &.disabled{
+    border-color: $tkvr-disabled;
+    cursor: default;
+  }
+  &.active{
+    border-color: $tkvr-highlight;
+  }
 
-[disabled="true"]{
-  opacity: 0.6;
-  background-color: $input-color-light;
-  cursor: default;
+  .label{
+    font-size: 15em;
+    color: $tkvr-dark;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
 }
 
 

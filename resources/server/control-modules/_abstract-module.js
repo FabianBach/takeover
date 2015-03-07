@@ -148,6 +148,7 @@ var abstractModule = function(config, shared){
 
         socket.on('value_change', fireValueChange);
 
+        //TODO: send actual value on enable
         socket.emit('enable');
         setSocketTimeout(socket);
 
