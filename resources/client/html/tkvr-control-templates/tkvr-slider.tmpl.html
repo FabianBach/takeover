@@ -1,5 +1,10 @@
 <div class="input"
-     ng-class="{enabled: control.isEnabled, disabled: control.isDisabled, active: control.isActive}"
+     ng-class="{
+        enabled: control.isEnabled,
+        disabled: control.isDisabled,
+        active: control.isActive,
+        vertical: control.isVertical
+        }"
      touch-action="none"
      min-value="{{::control.minValue}}"
      max-value="{{::control.maxValue}}"

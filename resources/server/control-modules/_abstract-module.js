@@ -112,6 +112,7 @@ var abstractModule = function(config, shared){
 
             socket.on('disconnect', function(){
                 disableSocket(socket);
+                socket.disconnect();
             });
 
             // if the max number of users is not reached yet set socket active

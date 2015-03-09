@@ -19,6 +19,9 @@ tkvr.config(function($routeProvider){
         .otherwise({
             redirectTo: '/list'
         })
+
+    //TODO: somehow connect to main socket here or in some main controller
+    // and disconnect on destroy or on timeout
 });
 
 
@@ -33,6 +36,12 @@ tkvr.controller('tkvrListCtrl', function($scope, $http){
             $scope.viewList = [];
             // log error
         });
+
+    //connect to main socket to establish namespace connections faster
+    //TODO: do that in some main controller or something
+    //$scope.socket = io.connect(window.location.origin);
+    $scope.socket = io.connect(window.location.origin);
+
 });
 
 
@@ -46,6 +55,8 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
             $scope.view = [];
             // log error
         });
+
+    //TODO: connect so main websocket to react on disconnect events and so on
 });
 
 
@@ -86,22 +97,9 @@ tkvr.directive('tkvrControl', function($compile){
 });
 
 
-// C O N T R O L S
-tkvr.directive('tkvrButton', function(){
-
-    return tkvrButton = {
-        restrict: 'EA',
-        templateUrl: 'tkvr-button.tmpl.html',
-        replace: true,
-        link: link
-        //TODO: scope?
-    };
-
-    function link(scope, element, attrs){
-
-        //set up sockets for this element
-        //TODO: directive for that (?)
-        scope.control.socket = io.connect(window.location.origin + scope.control.namespace)
+tkvr.service('tkvrSocketIoSetup', function(){
+    return function socketSetup(namespace, scope){
+        var socket = io.connect(window.location.origin + namespace,{'forceNew': false })
             .on('disable', function(){
                 console.log('Disable:', scope.control.title);
                 scope.control.isDisabled = true;
@@ -114,7 +112,44 @@ tkvr.directive('tkvrButton', function(){
                 scope.control.isDisabled = false;
                 scope.control.isEnabled = true;
                 scope.$digest();
+            })
+            .on('connect', function(){
+                console.log('Connected', scope.control.title);
+            })
+            .on('disconnect', function(){
+                console.log('Disconnected', scope.control.title);
             });
+
+        if(!socket.connected){
+            socket.connect();
+            console.log('Reconnected', scope.control.title);
+        }
+
+        scope.$on("$destroy", function(){
+            socket.removeAllListeners();
+            socket.disconnect(); // or end(), is the same?
+            //socket.destroy(); // not good
+        });
+        return socket;
+    };
+});
+
+
+// C O N T R O L S
+tkvr.directive('tkvrButton', function(tkvrSocketIoSetup){
+
+    return tkvrButton = {
+        restrict: 'EA',
+        templateUrl: 'tkvr-button.tmpl.html',
+        replace: true,
+        link: link
+        //TODO: scope?
+    };
+
+    function link(scope, element, attrs){
+
+        //set up sockets for this element
+        scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
         // set events on this element
         // link is the right place to do this
@@ -138,7 +173,7 @@ tkvr.directive('tkvrButton', function(){
 
 
 
-tkvr.directive('tkvrSlider', function(){
+tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
 
     return tkvrSlider = {
         restrict: 'EA',
@@ -151,21 +186,7 @@ tkvr.directive('tkvrSlider', function(){
     function link(scope, element, attrs){
 
         //set up sockets for this element
-        //TODO: directive for that (?)
-        scope.control.socket = io.connect(window.location.origin + scope.control.namespace)
-            .on('disable', function(){
-                console.log('Disable:', scope.control.title);
-                scope.control.isDisabled = true;
-                scope.control.isEnabled = false;
-                scope.control.isActive = false;
-                scope.$digest();
-            })
-            .on('enable', function(){
-                console.log('Enable:', scope.control.title);
-                scope.control.isDisabled = false;
-                scope.control.isEnabled = true;
-                scope.$digest();
-            });
+        scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
         // set events on this element
         // link is the right place to do this
@@ -201,41 +222,48 @@ tkvr.directive('tkvrSlider', function(){
                 && scope.control.isEnabled
                 && scope.control.isActive){
 
-                //TODO: if vertical use y
+                scope.control.isVertical = scope.control.isVertical
+                    || (scope.control.orientation && scope.control.orientation.toLowerCase() === 'vertical')
+                    || scope.control.heigth > scope.control.width;
 
-                var xZero = element.offset().left;
-                //var yZero = element.offset().top;
+                var elementMin,
+                    elementMax,
+                    delta;
 
-                var xMax = element.width();
-                //var yMax = element.height();
+                if (scope.control.isVertical){
+                    elementMin = element.offset().top + element.height();
+                    elementMax = element.height();
+                    delta = -1 * (event.pageY - elementMin);
 
-                var deltaX = event.pageX - xZero;
-                //var deltaY = event.pageY - yZero;
+                } else {
+                    elementMin = element.offset().left;
+                    elementMax = element.width();
+                    delta = event.pageX - elementMin;
+                }
 
-                var progressX = deltaX / xMax;
-                //var progressY = deltaY / yMax;
+                var progress = delta / elementMax;
 
-                if(progressX < 0){progressX = 0}
-                if(progressX > 1){progressX = 1}
-                //if(progressY < 0){progressY = 0}
-                //if(progressY > 1){progressY = 1}
+                if (progress < 0){progress = 0}
+                if (progress > 1){progress = 1}
 
-                var maxValX = scope.control.maxValue;
-                //var maxValY = parseInt(element.attr('y-max-value'));
+                var maxVal = scope.control.maxValue;
+                var minVal = scope.control.minValue;
 
-                var minValX = scope.control.minValue;
-                //var minValY = parseInt(element.attr('min-value'));
+                var value = parseInt(progress * maxVal);
 
-                var value = progressX * maxValX;
+                if(value < minVal){value = minVal}
+                if(value > maxVal){value = maxVal}
 
-                if(value < minValX){value = minValX}
-                if(value > maxValX){value = maxValX}
-
-                if(scope.control.value !== parseInt(value)){
+                if(scope.control.value !== value){
                     scope.control.socket.emit('value_change', value);
                     scope.control.value = value;
                     //TODO: angular way?
-                    element.find('.indicator').css('right', (1-progressX)*100 +'%');
+                    if (scope.control.isVertical){
+                        element.find('.indicator').css('top', (1-progress)*100 +'%');
+                    } else {
+                        element.find('.indicator').css('right', (1-progress)*100 +'%');
+                    }
+
                     //TODO: digest on every pointermove?
                     //scope.$digest();
                 }
@@ -246,11 +274,11 @@ tkvr.directive('tkvrSlider', function(){
 
 
 
-tkvr.directive('tkvrXyPad', function(){
+tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
 
     return tkvrXyPad = {
         restrict: 'EA',
-        templateUrl: 'tkvr-slider.tmpl.html',
+        templateUrl: 'tkvr-xy-pad.tmpl.html',
         replace: true,
         link: link
         //TODO: scope?
@@ -260,27 +288,9 @@ tkvr.directive('tkvrXyPad', function(){
 
         //set up sockets for this element
         //TODO: directive for that (?)
-        scope.control.xSocket = io.connect(window.location.origin + scope.control.namespace.x)
-            .on('disable', disable)
-            .on('enable', enable);
 
-        scope.control.ySocket = io.connect(window.location.origin + scope.control.namespace.y)
-            .on('disable', disable)
-            .on('enable', enable);
-
-        function enable(){
-            console.log('Enable:', scope.control.title);
-            scope.control.isDisabled = false;
-            scope.control.isEnabled = true;
-            scope.$digest();
-        }
-        function disable(){
-            console.log('Disable:', scope.control.title);
-            scope.control.isDisabled = true;
-            scope.control.isEnabled = false;
-            scope.control.isActive = false;
-            scope.$digest();
-        }
+        scope.control.xSocket = tkvrSocketIoSetup(scope.control.namespace.x, scope);
+        scope.control.ySocket = tkvrSocketIoSetup(scope.control.namespace.y, scope);
 
         // set events on this element
         // link is the right place to do this
@@ -337,20 +347,20 @@ tkvr.directive('tkvrXyPad', function(){
                 var minValX = scope.control.minValue.x;
                 var minValY = scope.control.minValue.y;
 
-                var xValue = progressX * maxValX;
-                var yValue = progressY * maxValY;
+                var xValue = parseInt(progressX * maxValX);
+                var yValue = parseInt(progressY * maxValY);
 
                 if(xValue < minValX){xValue = minValX}
                 if(xValue > maxValX){xValue = maxValX}
                 if(yValue < minValY){yValue = minValY}
                 if(yValue > maxValY){yValue = maxValY}
 
-                if(scope.control.value.x !== parseInt(xValue)){
+                if(scope.control.value.x !== xValue){
                     scope.control.xSocket.emit('value_change', xValue);
                     scope.control.value.x = xValue;
                 }
 
-                if(scope.control.value.y !== parseInt(yValue)){
+                if(scope.control.value.y !== yValue){
                     scope.control.ySocket.emit('value_change', yValue);
                     scope.control.value.y = yValue;
                 }

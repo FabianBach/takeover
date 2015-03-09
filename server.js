@@ -42,6 +42,10 @@ function init(){
 
     io = io.listen(server);
 
+    //TODO: okay? change?
+    io.set('close timeout', .2);
+    io.set('client store expiration', .2);
+
 }
 init();
 
@@ -65,7 +69,7 @@ function onServerReady(){
 function openWebSockets(){
 
     io.sockets.on('connection', function(socket){
-        console.log('Yeay, client connected!'.rainbow);
+        console.log('Yeay, client connected!'.rainbow + socket.id.grey);
 
         setSocketListeners(socket);
     });
@@ -74,7 +78,7 @@ function openWebSockets(){
 function setSocketListeners(socket){
 
     socket.on('disconnect', function(data){
-        console.log('Oh, client disconnected...');
+        console.log('Oh, client disconnected...' + socket.id.grey);
     });
 
     socket.on('get_module_list', function(data){
