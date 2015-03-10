@@ -7,6 +7,8 @@
 var tkvr = angular.module('tkvr', ['ngRoute']);
 
 tkvr.config(function($routeProvider){
+
+    //Set up the routes
     $routeProvider
         .when('/list', {
             controller: 'tkvrListCtrl',
@@ -18,7 +20,7 @@ tkvr.config(function($routeProvider){
         })
         .otherwise({
             redirectTo: '/list'
-        })
+        });
 
     //TODO: somehow connect to main socket here or in some main controller
     // and disconnect on destroy or on timeout
@@ -59,7 +61,28 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
     //TODO: connect so main websocket to react on disconnect events and so on
 });
 
+tkvr.directive('tkvrFullscreen', function($compile){
 
+    return tkvrControl = {
+        restrict: 'A',
+        compile: compile
+    };
+
+    function compile(element, attrs){
+        //nothing to do I guess...
+        return link;
+    }
+
+    function link(scope, element, attrs){
+
+        //make the page fullscreen
+        if (screenfull && screenfull.enabled) {
+            element.on('pointerdown', function(){
+                screenfull.request();
+            });
+        }
+    }
+});
 
 // C O N T R O L - V I E W S
 // Magic with $compile
@@ -188,6 +211,8 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
         //set up sockets for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
+        scope.control.isVertical = scope.control.heigth > scope.control.width;
+
         // set events on this element
         // link is the right place to do this
         element.on('pointerenter pointerdown', function(event){
@@ -218,55 +243,50 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
         });
 
         $('html').on('pointermove pointerdown', function(event){
-            if(scope.control.hasFocus
+            if(!(scope.control.hasFocus
                 && scope.control.isEnabled
-                && scope.control.isActive){
+                && scope.control.isActive)){ return }
 
-                scope.control.isVertical = scope.control.isVertical
-                    || (scope.control.orientation && scope.control.orientation.toLowerCase() === 'vertical')
-                    || scope.control.heigth > scope.control.width;
+            var elementMin,
+                elementMax,
+                delta;
 
-                var elementMin,
-                    elementMax,
-                    delta;
+            if (scope.control.isVertical){
+                elementMin = element.offset().top + element.height();
+                elementMax = element.height();
+                delta = -1 * (event.pageY - elementMin);
 
+            } else {
+                elementMin = element.offset().left;
+                elementMax = element.width();
+                delta = event.pageX - elementMin;
+            }
+
+            var progress = delta / elementMax;
+
+            if (progress < 0){progress = 0}
+            if (progress > 1){progress = 1}
+
+            var maxVal = scope.control.maxValue;
+            var minVal = scope.control.minValue;
+
+            var value = parseInt(progress * maxVal);
+
+            if(value < minVal){value = minVal}
+            if(value > maxVal){value = maxVal}
+
+            if(scope.control.value !== value){
+                scope.control.socket.emit('value_change', value);
+                scope.control.value = value;
+                //TODO: angular way?
                 if (scope.control.isVertical){
-                    elementMin = element.offset().top + element.height();
-                    elementMax = element.height();
-                    delta = -1 * (event.pageY - elementMin);
-
+                    element.find('.indicator').css('top', (1-progress)*100 +'%');
                 } else {
-                    elementMin = element.offset().left;
-                    elementMax = element.width();
-                    delta = event.pageX - elementMin;
+                    element.find('.indicator').css('right', (1-progress)*100 +'%');
                 }
 
-                var progress = delta / elementMax;
-
-                if (progress < 0){progress = 0}
-                if (progress > 1){progress = 1}
-
-                var maxVal = scope.control.maxValue;
-                var minVal = scope.control.minValue;
-
-                var value = parseInt(progress * maxVal);
-
-                if(value < minVal){value = minVal}
-                if(value > maxVal){value = maxVal}
-
-                if(scope.control.value !== value){
-                    scope.control.socket.emit('value_change', value);
-                    scope.control.value = value;
-                    //TODO: angular way?
-                    if (scope.control.isVertical){
-                        element.find('.indicator').css('top', (1-progress)*100 +'%');
-                    } else {
-                        element.find('.indicator').css('right', (1-progress)*100 +'%');
-                    }
-
-                    //TODO: digest on every pointermove?
-                    //scope.$digest();
-                }
+                //TODO: digest on every pointermove?
+                //scope.$digest();
             }
         });
     }
