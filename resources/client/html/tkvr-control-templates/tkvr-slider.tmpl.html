@@ -3,7 +3,8 @@
         enabled: control.isEnabled,
         disabled: control.isDisabled,
         active: control.isActive,
-        vertical: control.isVertical
+        vertical: control.isVertical,
+        horizontal: control.isHorizontal
         }"
      touch-action="none"
      min-value="{{::control.minValue}}"
@@ -11,6 +12,6 @@
      value="{{control.value}}"
      value-holder>
 
-    <span class="indicator">&nbsp;</span>
+    <span class="indicator"></span>
     <span class="label">{{::control.title | uppercase}}</span>
 </div>

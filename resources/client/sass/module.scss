@@ -5,14 +5,17 @@
 
 .input{
   position: relative;
+  overflow: hidden;
 
   height: 100%;
   width: 100%;
 
+//  font-size: 1vw;
+
   cursor: crosshair;
 
   box-sizing: border-box;
-  border: 10px solid $tkvr-light;
+//  border: $tkvr-input-border-width solid $tkvr-light;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;

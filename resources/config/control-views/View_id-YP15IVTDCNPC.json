@@ -3,8 +3,8 @@
   "title": "first view",
   "orientation": "portrait",
   "grid": {
-    "x": 4,
-    "y": 8
+    "x": 10,
+    "y": 10
   },
   "controls": [
     {
@@ -13,8 +13,8 @@
         "x": 0,
         "y": 0
       },
-      "height": 1,
-      "width": 4
+      "width": 9,
+      "height": 1
     },
     {
       "id": "2343CCOLGBE2O",
@@ -22,27 +22,26 @@
         "x": 0,
         "y": 1
       },
-      "height": 4,
-      "width": 4
+      "width": 8,
+      "height": 8
     },
     {
       "id": "WU6NBAMTWKQO",
       "position": {
         "x": 0,
-        "y": 5
+        "y": 9
       },
-      "height": 1,
-      "width": 4
+      "width": 10,
+      "height": 1
     },
     {
       "id": "1G963EZACT8G0",
       "position": {
-        "x": 0,
-        "y": 6
+        "x": 9,
+        "y": 0
       },
-      "height": 1,
-      "width": 4,
-      "orientation": "vertical"
+      "width": 1,
+      "height": 9
     }
   ]
 }

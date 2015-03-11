@@ -6,22 +6,33 @@
 
   .indicator{
     position: absolute;
-    left: 0;
+//    left: 0;
     right: 100%;
     top: 100%;
-    bottom: 0;
+//    bottom: 0;
     background-color: $tkvr-light;
+
+    width: $tkvr-input-indicator-size-enabled;
+    height: $tkvr-input-indicator-size-enabled;
+    margin-right: - $tkvr-input-indicator-size-enabled/2;
+    margin-top: - $tkvr-input-indicator-size-enabled/2;
+
+    border-radius: 50%;
   }
 
+  .enabled{
+    .indicator{
+        background-color: $tkvr-enabled;
+    }
+  }
+  .disabled{
+    .indicator{
+        background-color: $tkvr-disabled;
+    }
+  }
   .active {
     .indicator{
       background-color: $tkvr-highlight;
     }
-  }
-  .enabled{
-//    background-color: $tkvr-enabled;
-  }
-  .disabled{
-//    background-color: $tkvr-disabled;
   }
 }

@@ -42,7 +42,6 @@ tkvr.controller('tkvrListCtrl', function($scope, $http){
     //connect to main socket to establish namespace connections faster
     //TODO: do that in some main controller or something
     //$scope.socket = io.connect(window.location.origin);
-    $scope.socket = io.connect(window.location.origin);
 
 });
 
@@ -59,7 +58,11 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
         });
 
     //TODO: connect so main websocket to react on disconnect events and so on
+    //TODO: somehow react to an orientation change
+    //TODO: get orientation of control grid
 });
+
+
 
 tkvr.directive('tkvrFullscreen', function($compile){
 
@@ -79,6 +82,8 @@ tkvr.directive('tkvrFullscreen', function($compile){
         if (screenfull && screenfull.enabled) {
             element.on('pointerdown', function(){
                 screenfull.request();
+                var lockOrientation = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation || function(){};
+                lockOrientation("portrait-primary");
             });
         }
     }
@@ -101,16 +106,17 @@ tkvr.directive('tkvrControl', function($compile){
 
     function link(scope, element, attrs){
 
-        // position the wrapper
-        var width = scope.view.grid.x;
-        var height = scope.view.grid.y;
+        // this will position absolute the wrapper of the control element
+        // and then append the control element to it as child
+        var gridWidth = scope.view.grid.x;
+        var gridHeight = scope.view.grid.y;
 
         //TODO: if bigger 100% or smaller 0% correct that;
-        element.css('height', (scope.control.height / height * 100) +'%');
-        element.css('width', (scope.control.width / width * 100) +'%');
+        element.css('height', (scope.control.height / gridHeight * 100) +'em');
+        element.css('width', (scope.control.width / gridWidth * 100) +'em');
 
-        element.css('top', (scope.control.position.y / height * 100) +'%');
-        element.css('left', (scope.control.position.x / width * 100) +'%');
+        element.css('top', (scope.control.position.y / gridHeight * 100) +'em');
+        element.css('left', (scope.control.position.x / gridWidth * 100) +'em');
 
         // Build child Element and $compile it to make it work
         var template = '<div tkvr-'+ scope.control.type +'>{{control.title}}</div>';
@@ -120,7 +126,7 @@ tkvr.directive('tkvrControl', function($compile){
 });
 
 
-tkvr.service('tkvrSocketIoSetup', function(){
+tkvr.factory('tkvrSocketIoSetup', function(){
     return function socketSetup(namespace, scope){
         var socket = io.connect(window.location.origin + namespace,{'forceNew': false })
             .on('disable', function(){
@@ -211,7 +217,8 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
         //set up sockets for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
-        scope.control.isVertical = scope.control.heigth > scope.control.width;
+        scope.control.isVertical = scope.control.height > scope.control.width;
+        scope.control.isHorizontal = !scope.control.isVertical;
 
         // set events on this element
         // link is the right place to do this

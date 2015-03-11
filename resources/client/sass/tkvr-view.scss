@@ -1,0 +1,28 @@
+#tkvr-view{
+
+  header{
+    font-size: $tkvr-font-size;
+    line-height: $tkvr-line-height;
+  }
+
+  .view-module{
+    position: relative;
+    //TODO: make a mixin for that!
+    //  position: absolute;
+    //  top: 2em;
+    //  bottom: 0;
+    //  left: 0;
+    //  right: 0;
+    //
+    //  -webkit-transform: translate3d(0,0,0);
+    //  -moz-transform: translate3d(0,0,0);
+    //  -ms-transform: translate3d(0,0,0);
+    //  -o-transform: translate3d(0,0,0);
+    //  transform: translate3d(0,0,0);
+    //
+    //  backface-visibility: hidden;
+    //  perspective: 1000;
+  }
+}
+
+@import "module"; //imports all modules

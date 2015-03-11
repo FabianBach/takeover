@@ -1,8 +1,9 @@
 @import "normalize";
 
 @import "colors";
+@import "sizes";
 @import "layout";
 
 @import "index";
-@import "view-module";
-@import "module"; //imports all modules
+@import "tkvr-list";
+@import "tkvr-view";
