@@ -1,18 +1,33 @@
 #tkvr-view{
 
+  &.portrait{
+    font-size: 1vw;
+  }
+
+  &.landscape{
+    font-size: 1vh;
+//    transform: rotate(90deg); //nice try...
+  }
+
   header{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     font-size: $tkvr-font-size;
     line-height: $tkvr-line-height;
+//    color: $tkvr-background-clr;
+//    background-color: $tkvr-foreground-clr;
   }
 
   .view-module{
-    position: relative;
-    //TODO: make a mixin for that!
-    //  position: absolute;
-    //  top: 2em;
-    //  bottom: 0;
-    //  left: 0;
-    //  right: 0;
+    position: absolute;
+    top: 20em;
+    left: 10em;
+    right: 10em;
+
+    font-size: 0.9em; //90%
+    //      bottom: 0;
     //
     //  -webkit-transform: translate3d(0,0,0);
     //  -moz-transform: translate3d(0,0,0);

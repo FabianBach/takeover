@@ -39,8 +39,8 @@ tkvr.controller('tkvrListCtrl', function($scope, $http){
             // log error
         });
 
-    //connect to main socket to establish namespace connections faster
     //TODO: do that in some main controller or something
+    //connect to main socket to establish namespace connections faster
     //$scope.socket = io.connect(window.location.origin);
 
 });
@@ -58,13 +58,39 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
         });
 
     //TODO: connect so main websocket to react on disconnect events and so on
-    //TODO: somehow react to an orientation change
-    //TODO: get orientation of control grid
 });
 
 
 
-tkvr.directive('tkvrFullscreen', function($compile){
+tkvr.directive('tkvrOrientation', function(){
+
+    return tkvrOrientation = {
+        restrict: 'A',
+        link: link
+    };
+
+    function link (scope, element, attrs){
+        window.addEventListener("resize", checkOrientation, false);
+        scope.user = {};
+
+        function checkOrientation() {
+            scope.user.isPortrait = window.innerWidth < window.innerHeight;
+            scope.user.isLandscape = !scope.user.isPortrait;
+
+            element.removeClass('portrait landscape');
+
+            var newClass = scope.user.isPortrait ? 'portrait' : 'landscape';
+            element.addClass(newClass);
+
+            console.log(newClass);
+
+            //scope.$digest();
+        }
+        checkOrientation();
+    }
+});
+
+tkvr.directive('tkvrFullscreen', function(){
 
     return tkvrControl = {
         restrict: 'A',
@@ -289,7 +315,7 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
                 if (scope.control.isVertical){
                     element.find('.indicator').css('top', (1-progress)*100 +'%');
                 } else {
-                    element.find('.indicator').css('right', (1-progress)*100 +'%');
+                    element.find('.indicator').css('left', (progress)*100 +'%');
                 }
 
                 //TODO: digest on every pointermove?
@@ -392,8 +418,8 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
                     scope.control.value.y = yValue;
                 }
 
-                element.find('.indicator').css('right', (1-progressX)*100 +'%');
                 element.find('.indicator').css('top', (1-progressY)*100 +'%');
+                element.find('.indicator').css('left', (progressX)*100 +'%');
 
                 //TODO: need to digest on every mouse move?
                 //scope.$digest();

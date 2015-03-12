@@ -2,8 +2,16 @@
 $tkvr-font-size: 5em;
 $tkvr-line-height : 2;
 
-//$tkvr-input-border-width: 0.2em;
+$tkvr-input-border-width: 1em;
+
 $tkvr-input-indicator-size-disabled: 5em;
 $tkvr-input-indicator-size-enabled: 10em;
 $tkvr-input-indicator-size-active: 15em;
 
+
+@mixin tkvr-indicator-size($size){
+  width: $size;
+  height: $size;
+  margin-left: - $size/2;
+  margin-top: - $size/2;
+}

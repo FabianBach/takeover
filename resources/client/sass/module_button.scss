@@ -2,7 +2,8 @@
   background-color: $tkvr-dark;
 
   .input{
-    box-shadow: 0 0 0 3px $tkvr-light inset;
+    height: 80%;
+    @include tkvr-shadow;
   }
 
   .enabled{

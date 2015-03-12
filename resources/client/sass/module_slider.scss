@@ -1,24 +1,43 @@
 .slider {
 
+  // container styles?
+
   .input {
-    box-shadow: 0 0 0 3px $tkvr-light inset;
+    @include tkvr-stretch-with-padding(5%)
+  }
+
+  .horizontal:before{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: $tkvr-input-border-width;
+    margin-top: - $tkvr-input-border-width/2;
+    background-color: $tkvr-border-clr;
+  }
+
+  .vertical:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    bottom: 0;
+    width: $tkvr-input-border-width;
+    margin-left: - $tkvr-input-border-width/2;
+    background-color: $tkvr-border-clr;
   }
 
   .indicator {
     position: absolute;
     background-color: $tkvr-light;
-
-    // do mixin
-    width: $tkvr-input-indicator-size-enabled;
-    height: $tkvr-input-indicator-size-enabled;
-    margin-right: - $tkvr-input-indicator-size-enabled/2;
-    margin-top: - $tkvr-input-indicator-size-enabled/2;
-
     border-radius: 50%;
+    @include tkvr-shadow;
+    @include tkvr-indicator-transition;
   }
 
   .horizontal .indicator{
-    right: 100%;
+    left: 0;
     top: 50%;
     margin-top: - $tkvr-input-indicator-size-enabled/2;
   }
@@ -32,16 +51,19 @@
   .enabled {
     .indicator{
       background-color: $tkvr-enabled;
+      @include tkvr-indicator-size($tkvr-input-indicator-size-enabled);
     }
   }
   .disabled {
     .indicator{
       background-color: $tkvr-disabled;
+      @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
     }
   }
   .active {
     .indicator{
       background-color: $tkvr-highlight;
+      @include tkvr-indicator-size($tkvr-input-indicator-size-active);
     }
   }
 }

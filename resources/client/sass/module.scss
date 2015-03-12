@@ -1,21 +1,11 @@
-
 .input-container{
   position: absolute;
 }
 
 .input{
-  position: relative;
-  overflow: hidden;
-
-  height: 100%;
-  width: 100%;
-
-//  font-size: 1vw;
-
+  @include tkvr-stretch-full;
   cursor: crosshair;
-
-  box-sizing: border-box;
-//  border: $tkvr-input-border-width solid $tkvr-light;
+//  box-sizing: border-box;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -25,31 +15,18 @@
   user-select: none;
 
   &.enabled{
-    border-color: $tkvr-enabled;
+//    border-color: $tkvr-enabled;
   }
   &.disabled{
-    border-color: $tkvr-disabled;
+//    border-color: $tkvr-disabled;
     cursor: default;
   }
   &.active{
-    border-color: $tkvr-highlight;
+//    border-color: $tkvr-highlight;
   }
 
   .label{
     display: none;
-
-    font-size: 3em;
-    color: $tkvr-dark;
-
-    text-align: center;
-//    display: table-cell;
-    vertical-align: middle;
-
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
   }
 
 }

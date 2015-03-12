@@ -1,3 +1,12 @@
 #tkvr-list{
-  font-size: $tkvr-font-size;
+
+  &.portrait{
+    font-size: 1vw;
+  }
+
+  &.landscape{
+    font-size: 1vh;
+  }
+
+//  font-size: $tkvr-font-size;
 }

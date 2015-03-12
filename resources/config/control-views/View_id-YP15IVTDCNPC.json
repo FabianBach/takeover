@@ -13,7 +13,7 @@
         "x": 0,
         "y": 0
       },
-      "width": 9,
+      "width": 8,
       "height": 1
     },
     {
@@ -31,17 +31,17 @@
         "x": 0,
         "y": 9
       },
-      "width": 10,
-      "height": 1
+      "width": 8,
+      "height": 2
     },
     {
       "id": "1G963EZACT8G0",
       "position": {
-        "x": 9,
-        "y": 0
+        "x": 8,
+        "y": 1
       },
-      "width": 1,
-      "height": 9
+      "width": 2,
+      "height": 8
     }
   ]
 }

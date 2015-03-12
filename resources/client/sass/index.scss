@@ -6,8 +6,17 @@
   right: 0;
   overflow: hidden;
 
-  line-height: 1;
+
   font-size: 1vw;
+
+//  @media screen and (orientation:portrait) {
+//    font-size: 1vw;
+//  }
+//  @media screen and (orientation:landscape) {
+//    font-size: 1vh;
+//  }
+
+  line-height: 1;
 
   font-family: "Comic Sans MS", cursive, sans-serif;
 
@@ -17,4 +26,5 @@
   a{
     color: $tkvr-highlight;
   }
+
 }

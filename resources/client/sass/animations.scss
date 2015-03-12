@@ -1,0 +1,5 @@
+@mixin tkvr-indicator-transition(){
+  transition-property: width, height, margin;
+  transition-duration: 0.1s;
+  transition-timing-function: ease-out;
+}
