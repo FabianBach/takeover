@@ -1,5 +1,7 @@
 #tkvr-view{
 
+  font-size: 1vw;
+
   &.portrait{
     font-size: 1vw;
   }
@@ -11,21 +13,29 @@
 
   header{
     position: absolute;
-    bottom: 0;
     left: 0;
-    right: 0;
+    bottom: 0;
+
     font-size: $tkvr-font-size;
     line-height: $tkvr-line-height;
 //    color: $tkvr-background-clr;
 //    background-color: $tkvr-foreground-clr;
   }
 
+  &.portrait header{
+//    bottom: 0;
+  }
+  &.landscape header{
+//    bottom: 0;
+  }
+
+
   .view-module{
     position: absolute;
-    top: 20em;
+    top: 10em;
     left: 10em;
     right: 10em;
-
+//    bottom: 10em; //landscape
     font-size: 0.9em; //90%
     //      bottom: 0;
     //

@@ -2,7 +2,7 @@
   background-color: $tkvr-dark;
 
   .input{
-    height: 80%;
+    @include tkvr-stretch-with-padding(1em);
     @include tkvr-shadow;
   }
 

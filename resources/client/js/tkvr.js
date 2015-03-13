@@ -46,7 +46,7 @@ tkvr.controller('tkvrListCtrl', function($scope, $http){
 });
 
 
-tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
+tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrientation){
 
     $http.get('/tkvr-view/' + $routeParams.id).
         success(function(data, status, headers, config) {
@@ -57,34 +57,46 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams){
             // log error
         });
 
+    if(!$scope.orientation){
+        var noDigest = true;
+        tkvrOrientation.watch(function(orientation){
+            $scope.orientation = orientation;
+            $scope.$broadcast('orientationchange', orientation);
+
+            //FIXME: workaround
+            if (noDigest){
+                noDigest = false;
+            }else{
+                $scope.$digest();
+            }
+        });
+    }
+
     //TODO: connect so main websocket to react on disconnect events and so on
 });
 
 
 
-tkvr.directive('tkvrOrientation', function(){
+tkvr.service('tkvrOrientation', function(){
 
-    return tkvrOrientation = {
-        restrict: 'A',
-        link: link
+    return {
+        watch: watchOrientation
     };
 
-    function link (scope, element, attrs){
+    function watchOrientation(callback){
+        var orientation = {};
         window.addEventListener("resize", checkOrientation, false);
-        scope.user = {};
 
         function checkOrientation() {
-            scope.user.isPortrait = window.innerWidth < window.innerHeight;
-            scope.user.isLandscape = !scope.user.isPortrait;
+            var oldValue = orientation.name;
 
-            element.removeClass('portrait landscape');
+            orientation.isPortrait = window.innerWidth < window.innerHeight;
+            orientation.isLandscape = !orientation.isPortrait;
+            orientation.name = orientation.isPortrait ? 'portrait' : 'landscape';
 
-            var newClass = scope.user.isPortrait ? 'portrait' : 'landscape';
-            element.addClass(newClass);
-
-            console.log(newClass);
-
-            //scope.$digest();
+            if(orientation.name != oldValue){
+                callback(orientation);
+            }
         }
         checkOrientation();
     }
@@ -108,8 +120,6 @@ tkvr.directive('tkvrFullscreen', function(){
         if (screenfull && screenfull.enabled) {
             element.on('pointerdown', function(){
                 screenfull.request();
-                var lockOrientation = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation || function(){};
-                lockOrientation("portrait-primary");
             });
         }
     }
@@ -117,37 +127,61 @@ tkvr.directive('tkvrFullscreen', function(){
 
 // C O N T R O L - V I E W S
 // Magic with $compile
-tkvr.directive('tkvrControl', function($compile){
+tkvr.directive('tkvrControl', function($compile, tkvrOrientation){
 
     return tkvrControl = {
         restrict: 'EA',
         compile: compile
-        //TODO: set some lower prio than repeat
     };
 
     function compile(element, attrs){
         //nothing to do I guess...
-        return link;
+        return {
+            pre: preLink,
+            post: postLink
+        }
     }
 
-    function link(scope, element, attrs){
+    function preLink(scope, element, attrs){
+        //controlContainer = applyViewGrid(scope, element);
+        controlElement = appendControlElement(scope, element);
+    }
 
+    function postLink(scope, element, attrs){
+        scope.$on('orientationchange', function(event, orientation){
+            applyViewGrid(scope, element, orientation);
+        });
+    }
+
+    function applyViewGrid(scope, element, orientation){
         // this will position absolute the wrapper of the control element
         // and then append the control element to it as child
-        var gridWidth = scope.view.grid.x;
-        var gridHeight = scope.view.grid.y;
+        var gridWidth = orientation.isPortrait ? scope.view.grid.x : scope.view.grid.y;
+        var gridHeight = orientation.isPortrait ? scope.view.grid.y : scope.view.grid.x;
+
+        var elementWidth = orientation.isPortrait ? scope.control.width : scope.control.height;
+        var elementHeight = orientation.isPortrait ? scope.control.height : scope.control.width;
+
+        var elementPosX = orientation.isPortrait ? scope.control.position.x : scope.control.position.y;
+        var elementPosY = orientation.isPortrait ? scope.control.position.y : scope.control.position.x;
 
         //TODO: if bigger 100% or smaller 0% correct that;
-        element.css('height', (scope.control.height / gridHeight * 100) +'em');
-        element.css('width', (scope.control.width / gridWidth * 100) +'em');
+        element.css('width', (elementWidth / gridWidth * 100) +'em');
+        element.css('height', (elementHeight / gridHeight * 100) +'em');
 
-        element.css('top', (scope.control.position.y / gridHeight * 100) +'em');
-        element.css('left', (scope.control.position.x / gridWidth * 100) +'em');
+        element.css('left', (elementPosX / gridWidth * 100) +'em');
+        element.css('top', (elementPosY / gridHeight * 100) +'em');
 
+        return element;
+    }
+
+    function appendControlElement(scope, element){
         // Build child Element and $compile it to make it work
         var template = '<div tkvr-'+ scope.control.type +'>{{control.title}}</div>';
         var newElement = $compile(template)(scope);
         element.append(newElement);
+
+        return newElement;
     }
 });
 
@@ -243,8 +277,19 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
         //set up sockets for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
-        scope.control.isVertical = scope.control.height > scope.control.width;
-        scope.control.isHorizontal = !scope.control.isVertical;
+        scope.$on('orientationchange', function(event, orientation){
+
+            console.log(orientation.name);
+            scope.control.isVertical = scope.control.height > scope.control.width;
+            scope.control.isHorizontal = !scope.control.isVertical;
+
+            if (orientation.isLandscape){
+                scope.control.isVertical = !scope.control.isVertical;
+                scope.control.isHorizontal = !scope.control.isHorizontal;
+            }
+
+            scope.$digest();
+        });
 
         // set events on this element
         // link is the right place to do this

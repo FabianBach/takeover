@@ -1,4 +1,4 @@
-<section id="tkvr-view" tkvr-orientation>
+<section id="tkvr-view" class="{{orientation.name}}">
     <header>
         <a class="back" href="#/list">&blacktriangleleft; go back</a>
         <span class="title">View: {{::view.title}}</span>
@@ -9,7 +9,7 @@
 
         <section ng-repeat="control in view.controls"
                  tkvr-control="control"
-                 class="input-container {{::control.type}}"
+                 class="input-container {{::control.type}} {{orientation.name}}"
                  id="{{::control.id}}">
         </section>
     </div>
