@@ -59,17 +59,17 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrient
 
     if(!$scope.orientation){
         var noDigest = true;
-        tkvrOrientation.watch(function(orientation){
-            $scope.orientation = orientation;
-            $scope.$broadcast('orientationchange', orientation);
+        $scope.orientation = tkvrOrientation.watch(onOrientationChange);
+    }
 
-            //FIXME: workaround
-            if (noDigest){
-                noDigest = false;
-            }else{
-                $scope.$digest();
-            }
-        });
+    function onOrientationChange(orientation){
+        $scope.$broadcast('orientationchange', orientation);
+        //FIXME: workaround
+        //if (noDigest){
+        //    noDigest = false;
+        //}else{
+            $scope.$digest();
+        //}
     }
 
     //TODO: connect so main websocket to react on disconnect events and so on
@@ -77,29 +77,56 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrient
 
 
 
-tkvr.service('tkvrOrientation', function(){
+tkvr.factory('tkvrOrientation', function(){
+
+    //This will be run only ONCE. Nice!
+    var orientation = {};
+    var watchers = [];
+    window.addEventListener("resize", observeOrientation, false);
+    checkIfOrientationChanged();
 
     return {
-        watch: watchOrientation
+        watch: watchOrientation,
+        get: getOrientation
     };
 
-    function watchOrientation(callback){
-        var orientation = {};
-        window.addEventListener("resize", checkOrientation, false);
-
-        function checkOrientation() {
-            var oldValue = orientation.name;
-
-            orientation.isPortrait = window.innerWidth < window.innerHeight;
-            orientation.isLandscape = !orientation.isPortrait;
-            orientation.name = orientation.isPortrait ? 'portrait' : 'landscape';
-
-            if(orientation.name != oldValue){
-                callback(orientation);
-            }
+    function observeOrientation(){
+        if (checkIfOrientationChanged()){
+            callWatchers();
         }
-        checkOrientation();
     }
+
+    function checkIfOrientationChanged() {
+        var oldValue = orientation.name;
+
+        orientation.isPortrait = window.innerWidth < window.innerHeight;
+        orientation.isLandscape = !orientation.isPortrait;
+        orientation.name = orientation.isPortrait ? 'portrait' : 'landscape';
+
+        return orientation.name != oldValue;
+    }
+
+    function watchOrientation(callback){
+        addWatcher(callback);
+        //callback(orientation);
+        console.log(orientation);
+        return orientation;
+    }
+
+    function addWatcher(callback){
+        watchers.push(callback);
+    }
+
+    function callWatchers(){
+        for (var i=0; i < watchers.length; i++){
+            watchers[i](orientation);
+        }
+    }
+
+    function getOrientation(){
+        return orientation;
+    }
+
 });
 
 tkvr.directive('tkvrFullscreen', function(){
@@ -127,7 +154,7 @@ tkvr.directive('tkvrFullscreen', function(){
 
 // C O N T R O L - V I E W S
 // Magic with $compile
-tkvr.directive('tkvrControl', function($compile, tkvrOrientation){
+tkvr.directive('tkvrControl', function($compile){
 
     return tkvrControl = {
         restrict: 'EA',
@@ -143,27 +170,28 @@ tkvr.directive('tkvrControl', function($compile, tkvrOrientation){
     }
 
     function preLink(scope, element, attrs){
-        //controlContainer = applyViewGrid(scope, element);
+        controlContainer = applyViewGrid(scope, element);
         controlElement = appendControlElement(scope, element);
     }
 
     function postLink(scope, element, attrs){
         scope.$on('orientationchange', function(event, orientation){
-            applyViewGrid(scope, element, orientation);
+            scope.orientation = orientation;
+            applyViewGrid(scope, element);
         });
     }
 
-    function applyViewGrid(scope, element, orientation){
+    function applyViewGrid(scope, element){
         // this will position absolute the wrapper of the control element
         // and then append the control element to it as child
-        var gridWidth = orientation.isPortrait ? scope.view.grid.x : scope.view.grid.y;
-        var gridHeight = orientation.isPortrait ? scope.view.grid.y : scope.view.grid.x;
+        var gridWidth = scope.orientation.isPortrait ? scope.view.grid.x : scope.view.grid.y;
+        var gridHeight = scope.orientation.isPortrait ? scope.view.grid.y : scope.view.grid.x;
 
-        var elementWidth = orientation.isPortrait ? scope.control.width : scope.control.height;
-        var elementHeight = orientation.isPortrait ? scope.control.height : scope.control.width;
+        var elementWidth = scope.orientation.isPortrait ? scope.control.width : scope.control.height;
+        var elementHeight = scope.orientation.isPortrait ? scope.control.height : scope.control.width;
 
-        var elementPosX = orientation.isPortrait ? scope.control.position.x : scope.control.position.y;
-        var elementPosY = orientation.isPortrait ? scope.control.position.y : scope.control.position.x;
+        var elementPosX = scope.orientation.isPortrait ? scope.control.position.x : scope.control.position.y;
+        var elementPosY = scope.orientation.isPortrait ? scope.control.position.y : scope.control.position.x;
 
         //TODO: if bigger 100% or smaller 0% correct that;
         element.css('width', (elementWidth / gridWidth * 100) +'em');
@@ -276,18 +304,20 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
 
         //set up sockets for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
+        applyOrientation();
 
-        scope.$on('orientationchange', function(event, orientation){
-
-            console.log(orientation.name);
+        function applyOrientation(){
             scope.control.isVertical = scope.control.height > scope.control.width;
             scope.control.isHorizontal = !scope.control.isVertical;
 
-            if (orientation.isLandscape){
+            if (scope.orientation.isLandscape){
                 scope.control.isVertical = !scope.control.isVertical;
                 scope.control.isHorizontal = !scope.control.isHorizontal;
             }
+        }
 
+        scope.$on('orientationchange', function(event, orientation){
+            applyOrientation();
             scope.$digest();
         });
 

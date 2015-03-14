@@ -37,14 +37,14 @@
   }
 
   .horizontal .indicator{
+    top: 50% !important; // could be set in element style
     left: 0;
-    top: 50%;
     margin-top: - $tkvr-input-indicator-size-enabled/2;
   }
 
   .vertical .indicator {
     top: 100%;
-    left: 50%;
+    left: 50% !important; // could be set in element style
     margin-left: -$tkvr-input-indicator-size-enabled/2;
   }
 
