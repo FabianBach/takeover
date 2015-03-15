@@ -1,13 +1,20 @@
+// Global
 // Fonts
 $tkvr-font-size: 5em;
 $tkvr-line-height : 2;
 
+
+// control view
+$tkvr-header-size: 25em;
+$tkvr-control-container-padding: 10em;
+
+//inputs
 $tkvr-input-border-width: 1em;
 
 $tkvr-input-indicator-size-disabled: 5em;
 $tkvr-input-indicator-size-enabled: 10em;
 $tkvr-input-indicator-size-active: 15em;
-
+$tkvr-input-indicator-size-holo: 25em;
 
 @mixin tkvr-indicator-size($size){
   width: $size;

@@ -129,6 +129,34 @@ tkvr.factory('tkvrOrientation', function(){
 
 });
 
+
+tkvr.factory('tkvrControlPointerCoords', function(){
+
+    return function(element, event){
+        var xZero = element.offset().left;
+        var yZero = element.offset().top;
+
+        var xMax = element.width();
+        var yMax = element.height();
+
+        var deltaX = event.pageX - xZero;
+        var deltaY = event.pageY - yZero;
+
+        var progressX = deltaX / xMax;      // from left to right
+        var progressY = 1 - deltaY / yMax;  // from bottom to top
+
+        if(progressX < 0){progressX = 0}
+        if(progressX > 1){progressX = 1}
+        if(progressY < 0){progressY = 0}
+        if(progressY > 1){progressY = 1}
+
+        return {
+            x : progressX,
+            y: progressY
+        };
+    }
+});
+
 tkvr.directive('tkvrFullscreen', function(){
 
     return tkvrControl = {
@@ -172,26 +200,43 @@ tkvr.directive('tkvrControl', function($compile){
     function preLink(scope, element, attrs){
         controlContainer = applyViewGrid(scope, element);
         controlElement = appendControlElement(scope, element);
+        checkControlOrientation(scope);
     }
 
     function postLink(scope, element, attrs){
         scope.$on('orientationchange', function(event, orientation){
             scope.orientation = orientation;
             applyViewGrid(scope, element);
+            checkControlOrientation(scope);
         });
     }
 
     function applyViewGrid(scope, element){
         // this will position absolute the wrapper of the control element
         // and then append the control element to it as child
-        var gridWidth = scope.orientation.isPortrait ? scope.view.grid.x : scope.view.grid.y;
-        var gridHeight = scope.orientation.isPortrait ? scope.view.grid.y : scope.view.grid.x;
+        var gridWidth = scope.orientation.isPortrait
+            ? scope.view.grid.x
+            : scope.view.grid.y;
 
-        var elementWidth = scope.orientation.isPortrait ? scope.control.width : scope.control.height;
-        var elementHeight = scope.orientation.isPortrait ? scope.control.height : scope.control.width;
+        var gridHeight = scope.orientation.isPortrait
+            ? scope.view.grid.y
+            : scope.view.grid.x;
 
-        var elementPosX = scope.orientation.isPortrait ? scope.control.position.x : scope.control.position.y;
-        var elementPosY = scope.orientation.isPortrait ? scope.control.position.y : scope.control.position.x;
+        var elementWidth = scope.orientation.isPortrait
+            ? scope.control.width
+            : scope.control.height;
+
+        var elementHeight = scope.orientation.isPortrait
+            ? scope.control.height
+            : scope.control.width;
+
+        var elementPosX = scope.orientation.isPortrait
+            ? scope.control.position.x
+            : scope.view.grid.y - scope.control.position.y - scope.control.height;
+
+        var elementPosY = scope.orientation.isPortrait
+            ? scope.control.position.y
+            : scope.control.position.x;
 
         //TODO: if bigger 100% or smaller 0% correct that;
         element.css('width', (elementWidth / gridWidth * 100) +'em');
@@ -201,6 +246,16 @@ tkvr.directive('tkvrControl', function($compile){
         element.css('top', (elementPosY / gridHeight * 100) +'em');
 
         return element;
+    }
+
+    function checkControlOrientation(scope){
+        scope.control.isVertical = scope.control.height > scope.control.width;
+        scope.control.isHorizontal = !scope.control.isVertical;
+
+        if (scope.orientation.isLandscape){
+            scope.control.isVertical = !scope.control.isVertical;
+            scope.control.isHorizontal = !scope.control.isHorizontal;
+        }
     }
 
     function appendControlElement(scope, element){
@@ -253,7 +308,7 @@ tkvr.factory('tkvrSocketIoSetup', function(){
 
 
 // C O N T R O L S
-tkvr.directive('tkvrButton', function(tkvrSocketIoSetup){
+tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoords){
 
     return tkvrButton = {
         restrict: 'EA',
@@ -270,13 +325,19 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup){
 
         // set events on this element
         // link is the right place to do this
-        element.on('pointerdown', function(){
+        element.on('pointerdown', function(event){
             if(scope.control.isEnabled){
                 scope.control.socket.emit('value_change', scope.control.maxValue);
                 scope.control.isActive = true;
                 scope.$digest();
+
+                var progress = tkvrControlPointerCoords(element, event);
+
+                element.find('.indicator').css('top', (1-progress.y)*100 +'%');
+                element.find('.indicator').css('left', (progress.x)*100 +'%');
             }
         });
+
         $('html').on('pointerup pointercancel', function(){
             if(scope.control.isActive){
                 scope.control.socket.emit('value_change', scope.control.minValue);
@@ -290,7 +351,7 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup){
 
 
 
-tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
+tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoords){
 
     return tkvrSlider = {
         restrict: 'EA',
@@ -304,22 +365,6 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
 
         //set up sockets for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
-        applyOrientation();
-
-        function applyOrientation(){
-            scope.control.isVertical = scope.control.height > scope.control.width;
-            scope.control.isHorizontal = !scope.control.isVertical;
-
-            if (scope.orientation.isLandscape){
-                scope.control.isVertical = !scope.control.isVertical;
-                scope.control.isHorizontal = !scope.control.isHorizontal;
-            }
-        }
-
-        scope.$on('orientationchange', function(event, orientation){
-            applyOrientation();
-            scope.$digest();
-        });
 
         // set events on this element
         // link is the right place to do this
@@ -355,25 +400,13 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
                 && scope.control.isEnabled
                 && scope.control.isActive)){ return }
 
-            var elementMin,
-                elementMax,
-                delta;
 
+            var progress = {};
             if (scope.control.isVertical){
-                elementMin = element.offset().top + element.height();
-                elementMax = element.height();
-                delta = -1 * (event.pageY - elementMin);
-
+                progress = tkvrControlPointerCoords(element, event).y
             } else {
-                elementMin = element.offset().left;
-                elementMax = element.width();
-                delta = event.pageX - elementMin;
+                progress = tkvrControlPointerCoords(element, event).x
             }
-
-            var progress = delta / elementMax;
-
-            if (progress < 0){progress = 0}
-            if (progress > 1){progress = 1}
 
             var maxVal = scope.control.maxValue;
             var minVal = scope.control.minValue;
@@ -402,7 +435,7 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup){
 
 
 
-tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
+tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords){
 
     return tkvrXyPad = {
         restrict: 'EA',
@@ -415,8 +448,6 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
     function link(scope, element, attrs){
 
         //set up sockets for this element
-        //TODO: directive for that (?)
-
         scope.control.xSocket = tkvrSocketIoSetup(scope.control.namespace.x, scope);
         scope.control.ySocket = tkvrSocketIoSetup(scope.control.namespace.y, scope);
 
@@ -452,22 +483,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
         $('html').on('pointermove pointerdown', function(event){
             if(scope.control.hasFocus && scope.control.isActive && scope.control.isEnabled){
 
-                var xZero = element.offset().left;
-                var yZero = element.offset().top;
-
-                var xMax = element.width();
-                var yMax = element.height();
-
-                var deltaX = event.pageX - xZero;
-                var deltaY = event.pageY - yZero;
-
-                var progressX = deltaX / xMax;      // from left to right
-                var progressY = 1 - deltaY / yMax;  // from bottom to top
-
-                if(progressX < 0){progressX = 0}
-                if(progressX > 1){progressX = 1}
-                if(progressY < 0){progressY = 0}
-                if(progressY > 1){progressY = 1}
+                var progress = tkvrControlPointerCoords(element, event);
 
                 var maxValX = scope.control.maxValue.x;
                 var maxValY = scope.control.maxValue.y;
@@ -475,8 +491,8 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
                 var minValX = scope.control.minValue.x;
                 var minValY = scope.control.minValue.y;
 
-                var xValue = parseInt(progressX * maxValX);
-                var yValue = parseInt(progressY * maxValY);
+                var xValue = parseInt(progress.x * maxValX);
+                var yValue = parseInt(progress.y * maxValY);
 
                 if(xValue < minValX){xValue = minValX}
                 if(xValue > maxValX){xValue = maxValX}
@@ -493,8 +509,8 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup){
                     scope.control.value.y = yValue;
                 }
 
-                element.find('.indicator').css('top', (1-progressY)*100 +'%');
-                element.find('.indicator').css('left', (progressX)*100 +'%');
+                element.find('.indicator').css('top', (1-progress.y)*100 +'%');
+                element.find('.indicator').css('left', (progress.x)*100 +'%');
 
                 //TODO: need to digest on every mouse move?
                 //scope.$digest();

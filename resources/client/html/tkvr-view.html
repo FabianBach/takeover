@@ -9,7 +9,11 @@
 
         <section ng-repeat="control in view.controls"
                  tkvr-control="control"
-                 class="input-container {{::control.type}} {{orientation.name}}"
+                 class="input-container {{::control.type}}"
+                 ng-class="{
+                    vertical: control.isVertical,
+                    horizontal: control.isHorizontal
+                 }"
                  id="{{::control.id}}">
         </section>
     </div>

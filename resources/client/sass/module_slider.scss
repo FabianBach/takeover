@@ -64,6 +64,8 @@
     .indicator{
       background-color: $tkvr-highlight;
       @include tkvr-indicator-size($tkvr-input-indicator-size-active);
+      @include tkvr-shadow-active;
+//      @include tkvr-indicator-holo($tkvr-highlight, $tkvr-input-indicator-size-holo);
     }
   }
 }

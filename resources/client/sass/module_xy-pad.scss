@@ -38,6 +38,7 @@
     .indicator{
       background-color: $tkvr-highlight;
       @include tkvr-indicator-size($tkvr-input-indicator-size-active);
+      @include tkvr-shadow-active;
     }
   }
 }
