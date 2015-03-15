@@ -1,6 +1,7 @@
 
 
 //TODO: read a config file and set up server by that file
+//TODO: process.on('exit') or 'beforeExit
 
 // standard port if no port comes in arguments
 var port = 8080;

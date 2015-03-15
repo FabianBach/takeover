@@ -6,8 +6,9 @@
   "main": "server.js",
   "dependencies": {
     "colors": "^1.0.3",
-    "dmx" : "https://github.com/FabianBach/node-dmx/tarball/master",
+    "dmx": "https://github.com/FabianBach/node-dmx/tarball/master",
     "express": "^4.11.0",
+    "midi": "^0.9.2",
     "socket.io": "^1.2.1"
   },
   "devDependencies": {

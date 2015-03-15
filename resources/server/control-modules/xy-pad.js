@@ -6,16 +6,29 @@ var xyPad = function(config, shared){
     // this object inherits from the abstract object
     var abstract = require('./_abstract-module.js');
     var id = config.id || parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
+    var name = config.name;
+    var type = config.type;
 
     // build x-axis
+    config.type = 'slider';
     config.mapping = config.xMapping;
     config.id = id + '-X';
-    var xAxis = abstract(config, shared);
+    config.name = name + ' x-axis';
+    //var xAxis = abstract(config, shared);
+    var xAxis = shared.createModule(config);
 
     //build y-axis
+    config.type = 'slider';
     config.mapping = config.yMapping;
     config.id = id + '-Y';
-    var yAxis = abstract(config, shared);
+    config.name = name + ' y-axis';
+    //var yAxis = abstract(config, shared);
+    var yAxis = shared.createModule(config);
+
+    //FIXME: have to reset config back to normal...
+    //config.type = type;
+    //config.id = id;
+    //config.name = name;
 
     // DECLARE OVERRIDES
     // save the references before we override them
@@ -23,6 +36,18 @@ var xyPad = function(config, shared){
     var getYId = yAxis.getId;
     function getId(){
         return id;
+    }
+
+    var getXName = xAxis.getName;
+    var getYName = yAxis.getName;
+    function getName(){
+        return name;
+    }
+
+    var getXType = xAxis.getType;
+    var getYType = yAxis.getType;
+    function getType(){
+        return type;
     }
 
     var getXValue = xAxis.getValue;
@@ -62,10 +87,19 @@ var xyPad = function(config, shared){
     }
 
     // return one of them, will make no difference
-    var that = xAxis;
+    //var that = xAxis;
+    var that = {};
+
+    // FIXME: this is a risky solution
+    // real cloning would be better...
+    for(var publicMember in xAxis){
+        that[publicMember] = xAxis[publicMember];
+    }
 
     // OVERRIDE
     that.getId = getId;
+    that.getName = getName;
+    that.getType = getType;
     that.getValue = getValue;
     that.getMinValue = getMinValue;
     that.getMaxValue = getMaxValue;

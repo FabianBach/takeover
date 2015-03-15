@@ -13,11 +13,11 @@
     },
     {
       "type": "midi",
-      "msgType": "Note On",
-      "channel": 15,
+      "msgType": "controller change",
+      "channel": 1,
       "byte_1": {
         "doMapping": false,
-        "value": 32
+        "value": 44
       },
       "byte_2": {
         "doMapping": true,
@@ -35,11 +35,11 @@
     },
     {
       "type": "midi",
-      "msgType": "Note On",
-      "channel": 15,
+      "msgType": "controller change",
+      "channel": 1,
       "byte_1": {
         "doMapping": false,
-        "value": 33
+        "value": 53
       },
       "byte_2": {
         "doMapping": true,

@@ -21,10 +21,10 @@
     },
     { "type" : "midi",
       "msgType" : "Note On",
-      "channel" :  15,
+      "channel" :  1,
       "byte_1" : {
         "doMapping" : false,
-        "value" : 32
+        "value" : 127
       },
       "byte_2" : {
         "doMapping" : true,

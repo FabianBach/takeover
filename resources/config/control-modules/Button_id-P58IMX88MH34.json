@@ -9,29 +9,41 @@
   "resolution": 1,
 
   "mapping": [
-    {
-      "type": "dmx",
+    { "type": "dmx",
       "channel": 1,
       "minValue": 10,
       "maxValue": 160
     },
-    {
-      "type": "dmx",
+    { "type": "dmx",
       "channel": 5,
       "minValue": 0,
       "maxValue": 11
     },
-    {
-      "type": "dmx",
+    { "type": "dmx",
       "channel": 16,
       "minValue": 12,
       "maxValue": 130
     },
-    {
-      "type": "dmx",
+    { "type": "dmx",
       "channel": 13,
       "minValue": 120,
       "maxValue": 255
+    },
+    { "type" : "midi",
+      "msgType" : "Note On",
+      "channel" :  1,
+      "byte_1" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 127,
+        "foreignValue": "2343CCOLGBE2O-X"
+
+      },
+      "byte_2" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 127
+      }
     }
   ]
 }

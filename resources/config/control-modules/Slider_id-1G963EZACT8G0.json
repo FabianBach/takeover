@@ -18,6 +18,19 @@
       "channel": 4,
       "minValue": 10,
       "maxValue": 255
+    },
+    { "type" : "midi",
+      "msgType" : "Controller Change",
+      "channel" :  1,
+      "byte_1" : {
+        "doMapping" : false,
+        "value" : 44
+      },
+      "byte_2" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 127
+      }
     }
   ]
 }

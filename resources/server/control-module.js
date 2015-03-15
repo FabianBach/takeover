@@ -14,6 +14,24 @@ var dmx = new DMX();
 //dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
 // TODO: at the moment always the enttec open is selected
 var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);
+//TODO: process.on('exit', dmx.close);
+
+
+// TODO: opens first midi device found
+// TODO: maybe open virtual port, but unix only...
+var midi = require('midi');
+var midiOut = new midi.output();
+console.log('MIDI Port List:');
+var portCount = midiOut.getPortCount();
+for(var i=0; i < portCount; i++){
+    console.log(midiOut.getPortName(i));
+};
+midiOut.openPort(1);
+console.log(midiOut);
+process.on('beforeExit', function(code){
+    midiOut.closePort();
+});
+
 
 // all available modules should be listed here
 var controlModules = {};
@@ -45,9 +63,11 @@ function createModule (config){
     config.io = config.io || io;
     config.dmx = config.dmx || dmx;
     config.universe = config.universe || universe;
+    config.midi = config.midi|| midiOut;
 
     var shared = {
-        'getModuleById': getModuleById
+        'getModuleById': getModuleById,
+        'createModule' : createModule
     };
 
     // create the module
@@ -62,7 +82,7 @@ function createModule (config){
 
     // save the reference to every created module in static array
     createdModules[module.getId()] = module;
-    console.log( 'control-module-factory '.grey + ('created: '.green + module.getName() + ' '+ module.getType()+ ' ' + module.getId().toString().grey));
+    console.log( 'control-module-factory '.grey + ('created: '.green + module.getName() + ' '+ module.getType()+ ' ' + module.getId().grey));
 
     return module;
 }
@@ -97,6 +117,7 @@ function getModuleList(){
 }
 
 function getModuleById(moduleId){
+
     var moduleObj = createdModules[moduleId];
     if(!moduleObj) return null;
     return({

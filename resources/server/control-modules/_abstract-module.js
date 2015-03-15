@@ -19,7 +19,7 @@ var abstractModule = function(config, shared){
     var that = {};
 
     // everything is private and can not be invoked outside of this scope
-    // function will be appended to the returned object
+    // public stuff will be added to the returned object
     var id,
         name,
         type,
@@ -36,7 +36,8 @@ var abstractModule = function(config, shared){
         eventHandler,
         mappings,
         dmx,
-        universe;
+        universe,
+        midi;
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
@@ -93,6 +94,7 @@ var abstractModule = function(config, shared){
 
         dmx = config.dmx;
         universe = config.universe;
+        midi = config.midi;
 
     }
 
@@ -320,8 +322,10 @@ var abstractModule = function(config, shared){
                     var foreignModule = shared.getModuleById(mapping.foreignValue);
                     var foreignValue = foreignModule && foreignModule.value;
                     var foreignMax = foreignModule && foreignModule.maxValue;
+
                     mapData = foreignValue || data;
                     mapMax = foreignMax || getMaxValue();
+
                 }else{
                     mapData = data;
                     mapMax = getMaxValue()
@@ -357,6 +361,42 @@ var abstractModule = function(config, shared){
 
     function sendMidi (midiObj){
         console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
+        if (!midi){ return }
+        var sendObj = {};
+
+        var firstByte = '0000';
+        switch (midiObj.type){
+            case 'note off':
+                firstByte = '1000';
+                break;
+            case 'note on':
+                firstByte = '1001';
+                break;
+            case 'poly key':
+                firstByte = '1010';
+                break;
+            case 'controller change':
+                firstByte = '1011';
+                break;
+            case 'program change':
+                firstByte = '1100';
+                break;
+            case 'channel pressure':
+                firstByte = '1101';
+                break;
+            case 'pitch bend':
+                firstByte = '1110';
+                break;
+        }
+
+        var channel = (midiObj.channel-1).toString(2);
+        while (channel.length < 4){
+            channel = '0'+channel;
+        }
+        firstByte = firstByte + channel;
+        firstByte = parseInt(firstByte, 2);
+        midi.sendMessage([firstByte, midiObj.value1, midiObj.value2]);
+        //midi.sendMessage([144, 25, 64]);
     }
 
     function sendOsc (oscObj){
