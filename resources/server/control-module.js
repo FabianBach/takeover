@@ -160,6 +160,7 @@ function doStartupMapping(startupConfig){
     function doMapping(mapping){
         switch (mapping.type.toLowerCase()){
             case 'dmx':
+                //TODO: somehow make that mapping in _abstract reusable
                 if (!mapping.channel || typeof mapping.value === 'undefined') return console.log('Bad startup mapping: missing information.'.yellow);
                 var sendObj = {};
                 sendObj[parseInt(mapping.channel)-1] = mapping.value;
@@ -167,9 +168,11 @@ function doStartupMapping(startupConfig){
                 break;
 
             case 'midi':
+                //TODO!
                 break;
 
             case 'osc':
+                //TODO!
                 break;
         }
     }

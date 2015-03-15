@@ -44,6 +44,22 @@
         "minValue" : 0,
         "maxValue" : 127
       }
+    },
+    { "type" : "midi",
+      "msgType" : "controller change",
+      "channel" :  1,
+      "byte_1" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 123,
+        "invert": true
+      },
+      "byte_2" : {
+        "doMapping" : true,
+        "minValue" : 0,
+        "maxValue" : 127,
+        "invert": true
+      }
     }
   ]
 }

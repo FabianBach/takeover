@@ -17,7 +17,7 @@
       "channel": 1,
       "byte_1": {
         "doMapping": false,
-        "value": 44
+        "value": 52
       },
       "byte_2": {
         "doMapping": true,

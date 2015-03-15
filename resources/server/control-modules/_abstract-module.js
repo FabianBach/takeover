@@ -282,7 +282,7 @@ var abstractModule = function(config, shared){
         data = parseInt(data);
         var mappedValue;
 
-        mappedValue = getMappedValue(data, getMaxValue(), mappingData.minValue, mappingData.maxValue);
+        mappedValue = getMappedValue(data, getMaxValue(), mappingData.minValue, mappingData.maxValue, mappingData.invert);
         if(mappingData.fine){
             var mappedValueCh1 = mappedValue % 255;
             var mappedValueCh2 = mappedValue / 255;
@@ -330,7 +330,7 @@ var abstractModule = function(config, shared){
                     mapData = data;
                     mapMax = getMaxValue()
                 }
-                mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue);
+                mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue, mapping.invert);
             }else{
                 mappedValue = mapping.value;
             }
@@ -537,9 +537,10 @@ module.exports = abstractModule;
 
 // takes the actual and the maximum value of the module
 // to return the actual value of the mapped min and max
-function getMappedValue (modVal, modMax, mapMin, mapMax){
+function getMappedValue (modVal, modMax, mapMin, mapMax, invert){
 
     var modPercent = modVal / modMax;
+    if (invert){ modPercent = 1 - modPercent }
 
     var mapDelta = mapMax - mapMin;
     var mapValue = mapMin + (mapDelta * modPercent);
@@ -608,6 +609,7 @@ function validateMapping(mappingConfig){
             break
         }
         mapping.type = mapping.type.toLowerCase();
+        mapping.invert = !!mapping.invert;
 
         var log ={};
         switch (mapping.type){

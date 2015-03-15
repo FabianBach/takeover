@@ -20,11 +20,11 @@
       "maxValue": 255
     },
     { "type" : "midi",
-      "msgType" : "Note On",
+      "msgType" : "control change",
       "channel" :  1,
       "byte_1" : {
         "doMapping" : false,
-        "value" : 127
+        "value" : 46
       },
       "byte_2" : {
         "doMapping" : true,
