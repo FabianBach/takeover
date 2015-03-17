@@ -10,18 +10,11 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrient
         });
 
     if(!$scope.orientation){
-        var noDigest = true;
         $scope.orientation = tkvrOrientation.watch(onOrientationChange);
     }
-
     function onOrientationChange(orientation){
         $scope.$broadcast('orientationchange', orientation);
-        //FIXME: workaround
-        //if (noDigest){
-        //    noDigest = false;
-        //}else{
         $scope.$digest();
-        //}
     }
 
     //TODO: connect so main websocket to react on disconnect events and so on

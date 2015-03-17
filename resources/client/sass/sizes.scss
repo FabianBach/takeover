@@ -1,7 +1,20 @@
 // Global
 // Fonts
-$tkvr-font-size: 5em;
-$tkvr-line-height : 2;
+$tkvr-font-size-small: 3em;
+$tkvr-font-size-mid: 5em;
+$tkvr-font-size-big: 7em;
+
+$tkvr-line-height : 1.2;
+
+.text-size-small{
+  font-size: $tkvr-font-size-small;
+}
+.text-size-mid{
+  font-size: $tkvr-font-size-mid;
+}
+.text-size-big{
+  font-size: $tkvr-font-size-big;
+}
 
 
 // control view

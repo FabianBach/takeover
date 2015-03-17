@@ -8,5 +8,35 @@
     font-size: 1vh;
   }
 
-//  font-size: $tkvr-font-size;
+  padding: 10em;
+
+  h1 {
+  }
+
+  ul{
+    margin: 0;
+    padding: 0;
+  }
+
+  li{
+    list-style: none;
+
+    a {
+      text-decoration: none;
+      text-align: center;
+
+      display: block;
+      padding: 2em 3em;
+      margin-bottom: 1em;
+
+      background-color: $tkvr-light;
+      color: $tkvr-dark;
+
+      @include tkvr-shadow;
+
+      &:hover{
+        @include tkvr-shadow-active;
+      }
+    }
+  }
 }

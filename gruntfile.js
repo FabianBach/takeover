@@ -44,7 +44,9 @@ module.exports = function(grunt) {
                         'resources/client/js/tkvr-control.js',
                         'resources/client/js/tkvr-control-button.js',
                         'resources/client/js/tkvr-control-slider.js',
-                        'resources/client/js/tkvr-control-xy-pad.js'
+                        'resources/client/js/tkvr-control-xy-pad.js',
+                        'resources/client/js/tkvr-anim-expand.js'
+
                 ],
                 dest: 'public/js/tkvr.js'
             }

@@ -1,8 +1,8 @@
-<div id="tkvr-list" tkvr-orientation>
-    <span>List</span>
+<div id="tkvr-list" class="tkvr-view-container {{orientation.name}}">
+    <h1><span class="text-size-big">List</span></h1>
     <ul>
         <li ng-repeat="view in viewList">
-            <a href="#/view/{{view.id}}" tkvr-fullscreen>{{view.title}}</a>
+            <a href="#/view/{{view.id}}" tkvr-fullscreen><span class="text-size-mid">{{view.title}}</span></a>
         </li>
     </ul>
 </div>
