@@ -23,7 +23,7 @@
       height: $tkvr-input-indicator-size-enabled;
       border-radius: 50%;
       color: $tkvr-dark;
-      background-color: $tkvr-highlight;
+      background-color: $tkvr-light;
       @include tkvr-shadow;
       @include tkvr-indicator-transition;
     }

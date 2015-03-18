@@ -64,20 +64,51 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
 
                 if(scope.control.value.x !== xValue){
                     scope.control.xSocket.emit('value_change', xValue);
-                    scope.control.value.x = xValue;
+                    onXValueChange(xValue)
                 }
 
                 if(scope.control.value.y !== yValue){
                     scope.control.ySocket.emit('value_change', yValue);
-                    scope.control.value.y = yValue;
+                    onYValueChange(yValue)
                 }
-
-                element.find('.indicator').css('top', (1-progress.y)*100 +'%');
-                element.find('.indicator').css('left', (progress.x)*100 +'%');
-
-                //TODO: need to digest on every mouse move?
-                //scope.$digest();
             }
         });
+
+        scope.control.xSocket.on('value_update', function(newValue){
+            if (scope.control.isActive){ return }
+            scope.control.value.x = newValue;
+            onXValueChange(newValue);
+        });
+
+        scope.control.ySocket.on('value_update', function(newValue){
+            if (scope.control.isActive){ return }
+            scope.control.value.y = newValue;
+            onYValueChange(newValue);
+        });
+
+
+        function onXValueChange(newValue){
+            scope.control.value.x = newValue;
+            moveIndicator();
+            //TODO: digest on every pointermove?
+            //scope.$digest();
+        }
+        function onYValueChange(newValue){
+            scope.control.value.y = newValue;
+            moveIndicator();
+            //TODO: digest on every pointermove?
+            //scope.$digest();
+        }
+
+        function moveIndicator(){
+            //TODO: angular way?
+            var progress = {
+                    x: scope.control.value.x / scope.control.maxValue.x,
+                    y: scope.control.value.y / scope.control.maxValue.y
+                };
+
+            element.find('.indicator').css('top', (1-progress.y)*100 +'%');
+            element.find('.indicator').css('left', (progress.x)*100 +'%');
+        }
     }
 });

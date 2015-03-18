@@ -65,17 +65,32 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
 
             if(scope.control.value !== value){
                 scope.control.socket.emit('value_change', value);
-                scope.control.value = value;
-                //TODO: angular way?
-                if (scope.control.isVertical){
-                    element.find('.indicator').css('top', (1-progress)*100 +'%');
-                } else {
-                    element.find('.indicator').css('left', (progress)*100 +'%');
-                }
-
-                //TODO: digest on every pointermove?
-                //scope.$digest();
+                onValueChange(value);
             }
         });
+
+        scope.control.socket
+            .on('value_update', function(newValue){
+                if (scope.control.isActive){ return }
+                onValueChange(newValue);
+            });
+
+        function onValueChange(newValue){
+            scope.control.value = newValue;
+            moveIndicator();
+            //TODO: digest on every pointermove?
+            //scope.$digest();
+        }
+
+        function moveIndicator(){
+            //TODO: angular way?
+            var progress = scope.control.value / scope.control.maxValue;
+
+            if (scope.control.isVertical){
+                element.find('.indicator').css('top', (1-progress)*100 +'%');
+            } else {
+                element.find('.indicator').css('left', (progress)*100 +'%');
+            }
+        }
     }
 });

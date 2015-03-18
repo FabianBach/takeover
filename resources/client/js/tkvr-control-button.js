@@ -29,11 +29,22 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         });
 
         $('html').on('pointerup pointercancel', function(){
-            if(scope.control.isActive){
+            if(scope.control.isEnabled && scope.control.isActive){
                 scope.control.socket.emit('value_change', scope.control.minValue);
                 scope.control.isActive = false;
                 scope.$digest();
             }
         });
+
+        scope.control.socket
+            .on('value_update', function(newValue){
+                onValueChange(newValue);
+            });
+
+        function onValueChange(newValue){
+            scope.control.value = newValue;
+            scope.control.isActive = !!newValue;
+            scope.$digest();
+        }
     }
 });

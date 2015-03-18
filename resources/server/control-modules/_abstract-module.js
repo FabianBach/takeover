@@ -30,6 +30,7 @@ var abstractModule = function(config, shared){
         value,
         minValue,
         maxValue,
+        ioSocket,
         ioNamespace,
         activeConnections = {},
         waitingConnections = [],
@@ -105,6 +106,7 @@ var abstractModule = function(config, shared){
     function createSocket (io){
         var error = [];
         // creates a new and unique namespace using the id
+        ioSocket = io;
         ioNamespace = io.of("/" + getId());
 
         // will be invoked when a client connects to the namespace
@@ -218,7 +220,7 @@ var abstractModule = function(config, shared){
     // should check if value is a valid one and then call mapping
     function onValueChange (data){
 
-        //FIXME: why??
+        //FIXME: why is that an array??
         data = data[0];
 
         var dataLog = checkData(data);
@@ -229,7 +231,7 @@ var abstractModule = function(config, shared){
         var mappingLog = doMapping(data);
         if (mappingLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map data ', data, mappingLog);
 
-        // ioNamespace.emit('value_update', getValue()); sends the new value out
+        ioSocket.of(getNamespace()).emit('value_update', getValue()); //sends the new value out
     }
 
     // this function is supposed to map the received value to the different protocol values
@@ -459,8 +461,9 @@ var abstractModule = function(config, shared){
 
     function setValue(data, fireEvent){
         value = data;
-        if (fireEvent === false){ return; }
-        fireValueChange(data);
+        if (fireEvent){
+            fireValueChange(data)
+        }
     }
 
     function getMinValue(){
