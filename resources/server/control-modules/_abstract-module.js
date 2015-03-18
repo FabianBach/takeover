@@ -44,7 +44,8 @@ var abstractModule = function(config, shared){
     // it will validate the configuration and set the super object to inherit from
     var init = function(){
 
-        eventHandler = require('./../event-part.js')(); // could be replaced by node event handler
+        //eventHandler = require('./../event-part.js')(); // could be replaced by node event handler
+        eventHandler = new (require('events').EventEmitter); // could be replaced by node event handler
 
         var validationLog = validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
@@ -56,8 +57,6 @@ var abstractModule = function(config, shared){
 
         setEvents();
 
-        //initial mapping to set stuff up
-        //eventHandler.fire('value_change', [value]);
         // TODO: apply special mapping or value when no client is connected initially
         // also, the startup mapping will be applied, so no need to apply min values
 
@@ -148,10 +147,10 @@ var abstractModule = function(config, shared){
     function enableSocket(socket){
         activeConnections[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
-        eventHandler.fire('socket_enabled', socket);
+        eventHandler.emit('socket_enabled', socket);
         // TODO: apply special mapping or value when connected before first input
 
-        socket.on('value_change', fireValueChange);
+        socket.on('value_change', fireValueChange.bind(null, socket));
 
         //TODO: send actual value on enable
         socket.emit('enable');
@@ -165,7 +164,8 @@ var abstractModule = function(config, shared){
 
         // removes the listener
         // function has to be provided to find listener
-        socket.removeListener('value_change', fireValueChange);
+        socket.removeAllListeners('value_change');
+        //socket.removeListener('value_change', fireValueChange.bind(null, socket));
 
         // TODO: reset to min value if flag in config is set to do so
         // TODO: apply special mapping or value when disabled
@@ -173,7 +173,7 @@ var abstractModule = function(config, shared){
         // push it back in waiting line
         if(socket.connected){
             waitingConnections.push(socket);
-            eventHandler.fire('socket_waiting', socket);
+            eventHandler.emit('socket_waiting', socket);
             socket.emit('disable');
         }
 
@@ -181,7 +181,7 @@ var abstractModule = function(config, shared){
         if(activeConnections[socket.id]){
             delete activeConnections[socket.id];
             activeConnections.length = activeConnections.length - 1;
-            eventHandler.fire('socket_disabled', socket);
+            eventHandler.emit('socket_disabled', socket);
         }
     }
 
@@ -206,8 +206,8 @@ var abstractModule = function(config, shared){
 
     // this is put in a seperate function to be able to remove it from the socket listener
     // TODO: could be merged with onValueChange?
-    function fireValueChange(data){
-        eventHandler.fire('value_change', data);
+    function fireValueChange(socket, data){
+        eventHandler.emit('value_change', socket, data);
     }
 
     // sets all the listeners on the shared event handler and appends functions to the events
@@ -218,10 +218,7 @@ var abstractModule = function(config, shared){
 
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
-    function onValueChange (data){
-
-        //FIXME: why is that an array??
-        data = data[0];
+    function onValueChange (socket, data){
 
         var dataLog = checkData(data);
         if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad data: ', data, dataLog);
@@ -231,7 +228,7 @@ var abstractModule = function(config, shared){
         var mappingLog = doMapping(data);
         if (mappingLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map data ', data, mappingLog);
 
-        ioSocket.of(getNamespace()).emit('value_update', getValue()); //sends the new value out
+        socket.broadcast.emit('value_update', data);
     }
 
     // this function is supposed to map the received value to the different protocol values
