@@ -19,8 +19,15 @@ tkvr.factory('tkvrSocketIoSetup', function(){
             })
             .on('disconnect', function(){
                 console.log('Disconnected', scope.control.title);
+                scope.control.isDisabled = true;
+                scope.control.isEnabled = false;
+                scope.control.isActive = false;
+                scope.$digest();
             });
 
+        // fix to reconnect to namespace
+        // if someone comes back to this control module
+        // in same or different view
         if(!socket.connected){
             socket.connect();
             console.log('Reconnected', scope.control.title);
