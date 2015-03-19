@@ -117,12 +117,13 @@ var abstractModule = function(config, shared){
 
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
-            //TODO: if is in use, put in back of line
             if (!inUse || activeConnections.length < maxUsers){
                 enableSocket(socket);
             }else{
                 putSocketBackInLine(socket);
             }
+
+            socket.emit('value_update', getValue());
 
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
 
@@ -167,8 +168,7 @@ var abstractModule = function(config, shared){
         socket.on('value_change', fireValueChange.bind(null, socket));
         socket.on('in_use', fireInUse.bind(null, socket));
 
-        //TODO: send actual value on enable
-        socket.emit('enable');
+        socket.emit('enable', getValue());
         setSocketTimeout(socket);
 
         return socket;
