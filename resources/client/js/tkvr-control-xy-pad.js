@@ -34,12 +34,16 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         element.on('pointerdown', function(event){
             if (scope.control.isEnabled){
                 scope.control.isActive = true;
+                scope.control.xSocket.emit('in_use');
+                scope.control.ySocket.emit('in_use');
                 scope.$digest();
             }
         });
 
         $('html').on('pointerup pointercancel', function(event){
             scope.control.isActive = false;
+            scope.control.xSocket.emit('use_end');
+            scope.control.ySocket.emit('use_end');
             scope.$digest();
         });
 

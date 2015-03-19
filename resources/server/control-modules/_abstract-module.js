@@ -26,6 +26,7 @@ var abstractModule = function(config, shared){
         title,
         maxUsers,
         maxTime,
+        inUse,
         resolution,
         value,
         minValue,
@@ -66,23 +67,17 @@ var abstractModule = function(config, shared){
     // use the information provided in the validated configuration to set and override variables of the object
     function applyConfig (config){
 
-        // id
         id = config.id;
-
-        // name
         name = config.name;
-
-        // type
         type = config.type;
-
-        // title
         title = config.title;
 
         // multiple users
         maxUsers = config.maxUsers;
-
-        // max time to use this before it lets next person
         maxTime = config.maxTime;
+
+        inUse = false;
+        activeConnections.sockets = {};
 
         resolution = config.resolution;
 
@@ -118,12 +113,15 @@ var abstractModule = function(config, shared){
                 socket.disconnect();
             });
 
+            socket.on('use_end', fireUseEnd.bind(null, socket));
+
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
-            if (activeConnections.length < maxUsers){
+            //TODO: if is in use, put in back of line
+            if (!inUse || activeConnections.length < maxUsers){
                 enableSocket(socket);
             }else{
-                disableSocket(socket);
+                putSocketBackInLine(socket);
             }
 
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
@@ -135,22 +133,27 @@ var abstractModule = function(config, shared){
 
     function setSocketTimeout(socket){
         // after a timeout the connection will be disabled and put back in waiting line
-        if(maxTime){
-            setTimeout(function(){
-                waitingConnections.length
-                    ? disableSocket(socket)
-                    : setSocketTimeout(socket)
-            }, maxTime);
-        }
+        if (!maxTime){ return }
+        socket.disableTimeout = setTimeout(function(){
+            waitingConnections.length
+                ? onSocketDisableTimeout(socket)
+                : setSocketTimeout(socket)
+        }, maxTime);
+    }
+
+    function clearSocketTimeout(socket){
+        if (!maxTime){ return }
+        clearTimeout(socket.disableTimeout);
     }
 
     function enableSocket(socket){
-        activeConnections[socket.id] = socket;
+        activeConnections.sockets[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
         eventHandler.emit('socket_enabled', socket);
         // TODO: apply special mapping or value when connected before first input
 
         socket.on('value_change', fireValueChange.bind(null, socket));
+        socket.on('in_use', fireInUse.bind(null, socket));
 
         //TODO: send actual value on enable
         socket.emit('enable');
@@ -159,61 +162,83 @@ var abstractModule = function(config, shared){
         return socket;
     }
 
+    function onSocketDisableTimeout(socket){
+
+        putSocketBackInLine(socket);
+        moveWatingline();
+    }
+
+    function putSocketFrontInLine(socket){
+
+        disableSocket(socket);
+        // push it back in waiting line if still connected
+        if(socket.connected){
+            waitingConnections.unshift(socket);
+        }
+    }
+
+    function putSocketBackInLine(socket){
+
+        disableSocket(socket);
+        // push it back in waiting line if still connected
+        if(socket.connected){
+            waitingConnections.push(socket);
+        }
+    }
+
     // will move the socket back to the waiting list and disable its interface on the client
     function disableSocket(socket){
 
-        // removes the listener
-        // function has to be provided to find listener
         socket.removeAllListeners('value_change');
-        //socket.removeListener('value_change', fireValueChange.bind(null, socket));
+        socket.removeAllListeners('in_use');
+        clearSocketTimeout(socket);
+        socket.emit('disable');
 
         // TODO: reset to min value if flag in config is set to do so
         // TODO: apply special mapping or value when disabled
 
-        // push it back in waiting line
-        if(socket.connected){
-            waitingConnections.push(socket);
-            eventHandler.emit('socket_waiting', socket);
-            socket.emit('disable');
-        }
-
-        // remove from active list
-        if(activeConnections[socket.id]){
-            delete activeConnections[socket.id];
+        // remove from active list if it was active
+        if(activeConnections.sockets[socket.id]){
+            delete activeConnections.sockets[socket.id];
             activeConnections.length = activeConnections.length - 1;
-            eventHandler.emit('socket_disabled', socket);
         }
     }
 
     // this will step trough the waiting list until it finds a connected socket
     // this socket will then be made active
     function moveWatingline(){
-        var newActive;
-        for(var i = 0, l = waitingConnections.length, con; i < l; i++){
-            con = waitingConnections.shift();
-            if (con.connected){
-                newActive = con;
-                break;
+
+        for(var a = activeConnections.length;
+            a < maxUsers && waitingConnections.length > 0;
+            a++){
+
+            var socket = waitingConnections.shift();
+            if (socket.connected){
+                enableSocket(socket);
             }
         }
-        if (newActive){ enableSocket(newActive); }
-        else {
-            if (activeConnections.length) { return }
+
+        if (!activeConnections.length) {
             console.log('No connections to ' + getNameAndId());
             // TODO: apply special mapping on no client connected
         }
     }
 
-    // this is put in a seperate function to be able to remove it from the socket listener
-    // TODO: could be merged with onValueChange?
     function fireValueChange(socket, data){
         eventHandler.emit('value_change', socket, data);
     }
+    function fireInUse(socket){
+        eventHandler.emit('in_use', socket);
+    }
+    function fireUseEnd(socket){
+        eventHandler.emit('use_end', socket);
+    }
 
-    // sets all the listeners on the shared event handler and appends functions to the events
     function setEvents(){
         eventHandler.on('value_change', onValueChange);
-        eventHandler.on('socket_disabled', moveWatingline);
+        eventHandler.on('in_use', onUse);
+        eventHandler.on('use_end', onUseEnd);
+
     }
 
     // gets invoked when a client sends a new value for the module
@@ -229,6 +254,33 @@ var abstractModule = function(config, shared){
         if (mappingLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map data ', data, mappingLog);
 
         socket.broadcast.emit('value_update', data);
+    }
+
+    function onUse(socket){
+        socket.broadcast.emit('foreignUse', true);
+        inUse = true;
+        var disableArray = [];
+
+        for(var someSocketId in activeConnections.sockets){
+            var someSocket = activeConnections.sockets[someSocketId];
+            if (someSocket !== socket){
+                // we have to disable tem after filtering them
+                // because we would manipulate the object while stepping through it
+                disableArray.push(someSocket);
+            }
+        }
+        // now step through cache and disable
+        for(var i=0; i < disableArray.length; i++){
+            var disableSocket = disableArray[i];
+            putSocketFrontInLine(disableSocket);
+            console.log(disableSocket.id.redBG)
+        }
+    }
+
+    function onUseEnd(socket){
+        socket.broadcast.emit('foreignUse', false);
+        moveWatingline();
+        inUse = false;
     }
 
     // this function is supposed to map the received value to the different protocol values
@@ -579,7 +631,7 @@ function validateConfig(config){
     if (!config.title){ config.title = ''}
 
     // multiple users
-    config.maxUsers = parseInt(config.maxUsers) || 1;
+    config.maxUsers = parseInt(config.maxUsers) || Infinity;
 
     // max use time
     config.maxTime = parseInt(config.maxTime) * 1000 || 0;

@@ -3,6 +3,9 @@
   "type": "xy-pad",
   "name": "debug pad",
   "title": "Position",
+
+  "maxUsers": 3,
+
   "resolution": 255,
   "xMapping": [
     {

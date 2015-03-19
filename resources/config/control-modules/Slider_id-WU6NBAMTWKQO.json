@@ -5,6 +5,7 @@
   "title": "Color",
 
   "maxTime" : 5,
+  "maxUsers": 3,
 
   "resolution": 255,
 

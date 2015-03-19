@@ -10,8 +10,15 @@ tkvr.factory('tkvrSocketIoSetup', function(){
             })
             .on('enable', function(){
                 console.log('Enable:', scope.control.title);
-                scope.control.isDisabled = false;
                 scope.control.isEnabled = true;
+                scope.control.isDisabled = false;
+                scope.control.inForeignUse = false;
+                scope.$digest();
+            })
+            .on('foreignUse', function(flag){
+
+                console.log('Foreign use:', flag, scope.control.title);
+                scope.control.inForeignUse = flag;
                 scope.$digest();
             })
             .on('connect', function(){

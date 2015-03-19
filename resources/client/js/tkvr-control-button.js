@@ -18,6 +18,7 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         element.on('pointerdown', function(event){
             if(scope.control.isEnabled){
                 scope.control.socket.emit('value_change', scope.control.maxValue);
+                scope.control.socket.emit('in_use');
                 scope.control.isActive = true;
                 scope.$digest();
 
@@ -31,6 +32,7 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         $('html').on('pointerup pointercancel', function(){
             if(scope.control.isEnabled && scope.control.isActive){
                 scope.control.socket.emit('value_change', scope.control.minValue);
+                scope.control.socket.emit('use_end');
                 scope.control.isActive = false;
                 scope.$digest();
             }

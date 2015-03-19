@@ -5,6 +5,7 @@
   "title": "Gobo",
 
   "maxTime": 7,
+  "maxUsers": 3,
 
   "resolution": 255,
 
