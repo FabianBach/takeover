@@ -146,6 +146,18 @@ var abstractModule = function(config, shared){
         clearTimeout(socket.disableTimeout);
     }
 
+    function onSocketDisableTimeout(socket){
+        //reactivate waiting crowd
+        moveWatingline();
+
+        socket.on('use_end', disable);
+
+        function disable(){
+            socket.removeListener('use_end', disable);
+            putSocketBackInLine(socket);
+        }
+    }
+
     function enableSocket(socket){
         activeConnections.sockets[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
@@ -160,12 +172,6 @@ var abstractModule = function(config, shared){
         setSocketTimeout(socket);
 
         return socket;
-    }
-
-    function onSocketDisableTimeout(socket){
-
-        putSocketBackInLine(socket);
-        moveWatingline();
     }
 
     function putSocketFrontInLine(socket){
@@ -184,6 +190,8 @@ var abstractModule = function(config, shared){
         if(socket.connected){
             waitingConnections.push(socket);
         }
+
+        moveWatingline();
     }
 
     // will move the socket back to the waiting list and disable its interface on the client
@@ -273,7 +281,6 @@ var abstractModule = function(config, shared){
         for(var i=0; i < disableArray.length; i++){
             var disableSocket = disableArray[i];
             putSocketFrontInLine(disableSocket);
-            console.log(disableSocket.id.redBG)
         }
     }
 
