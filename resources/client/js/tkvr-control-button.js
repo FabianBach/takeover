@@ -45,7 +45,6 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
 
         function onValueChange(newValue){
             scope.control.value = newValue;
-            scope.control.isActive = !!newValue;
             scope.$digest();
         }
     }

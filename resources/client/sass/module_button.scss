@@ -13,6 +13,9 @@
   .disabled{
     background-color: $tkvr-disabled;
   }
+  .foreign-used{
+    background-color: $tkvr-light;
+  }
   .active{
     background-color: $tkvr-highlight;
     @include tkvr-shadow-active;
@@ -27,6 +30,8 @@
 //    @include tkvr-indicator-holo($tkvr-light, 0);
     background-color: tkvr-holo-color($tkvr-light);
     @include tkvr-indicator-transition;
+    //TODO: some css animation letting it grow and grow and grow...
+    //TODO: some css animation letting it fade out...
   }
 
   .active .indicator{

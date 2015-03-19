@@ -21,6 +21,9 @@
 //    border-color: $tkvr-disabled;
     cursor: default;
   }
+  &.foreign-used{
+    //    border-color: $tkvr-highlight;
+  }
   &.active{
 //    border-color: $tkvr-highlight;
   }

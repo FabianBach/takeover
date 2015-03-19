@@ -2,17 +2,11 @@
      ng-class="{
         enabled: control.isEnabled,
         disabled: control.isDisabled,
-        active: control.isActive
+        active: control.isActive,
+        'foreign-used': control.inForeignUse,
         }"
      touch-action="none"
-     x-min-value="{{::control.minValueX}}"
-     y-min-value="{{::control.minValueY}}"
-     x-max-value="{{::control.maxValueX}}"
-     y-max-value="{{::control.maxValueY}}"
-     x-value="{{::control.valueX}}"
-     y-value="{{::control.valueY}}"
-     value-holder
-     disable-holder>
+     >
 
     <span class="border"></span>
     <span class="indicator">&nbsp;</span>

@@ -3,14 +3,12 @@
         enabled: control.isEnabled,
         disabled: control.isDisabled,
         active: control.isActive,
+        'foreign-used': control.inForeignUse,
         vertical: control.isVertical,
         horizontal: control.isHorizontal
         }"
      touch-action="none"
-     min-value="{{::control.minValue}}"
-     max-value="{{::control.maxValue}}"
-     value="{{control.value}}"
-     value-holder>
+     >
 
     <span class="indicator"></span>
     <span class="label">{{::control.title | uppercase}}</span>
