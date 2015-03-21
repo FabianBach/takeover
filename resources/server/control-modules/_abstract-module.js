@@ -205,13 +205,11 @@ var abstractModule = function(config, shared){
 
         eventHandler.emit('socket_disabled', socket);
 
-        // TODO: reset to min value if flag in config is set to do so
-        // Problem: any socket disable would set minValue
-
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
             delete activeConnections.sockets[socket.id];
             activeConnections.length = activeConnections.length - 1;
+            eventHandler.emit('socket_in_use_disabled', socket);
         }
     }
 
@@ -341,7 +339,7 @@ var abstractModule = function(config, shared){
             mapData,
             mapMax;
 
-        if(mapping.doMapping){
+        if(mapping.doMapping !== false){
             // get foreign value and map that
             if (mapping.foreignValue){
                 var foreignModule = shared.getModuleById(mapping.foreignValue);
@@ -366,6 +364,7 @@ var abstractModule = function(config, shared){
     function useDmx (value, mapping){
         value = parseInt(value);
         var mappedValue = doMapping(mapping, value);
+
         if(mapping.fine){
             var mappedValueCh1 = mappedValue % 255;
             var mappedValueCh2 = mappedValue / 255;

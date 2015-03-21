@@ -8,17 +8,11 @@ var button = function(config, shared){
     that = that(config, shared);
 
     var eventHandler = shared.getEventHandler();
-    eventHandler.on('socket_disabled', onSocketDisable);
+    eventHandler.on('socket_in_use_disabled', onSocketInUseDisable);
 
-    function onSocketDisable(socket){
-
-        var inUse = shared.getInUse();
-        if (inUse.status !== true){ return }
-
-        if (inUse.socket.id === socket.id){
-            var minValue = shared.getMinValue();
-            shared.setValue(minValue);
-        }
+    function onSocketInUseDisable(socket){
+        var minValue = shared.getMinValue();
+        shared.setValue(minValue);
     }
 
     return that;
