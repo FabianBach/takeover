@@ -4,8 +4,8 @@
   "name": "Color slider",
   "title": "Color",
 
-  "maxTime" : 5,
-  "maxUsers": 3,
+  "maxTime" : 30,
+  "maxUsers": 2,
 
   "resolution": 255,
 

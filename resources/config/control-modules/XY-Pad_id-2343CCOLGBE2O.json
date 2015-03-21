@@ -5,6 +5,7 @@
   "title": "Position",
 
   "maxUsers": 3,
+  "maxTime" : 15,
 
   "resolution": 255,
   "xMapping": [
@@ -25,7 +26,8 @@
       "byte_2": {
         "doMapping": true,
         "minValue": 0,
-        "maxValue": 127
+        "maxValue": 127,
+        "invert": true
       }
     }
   ],

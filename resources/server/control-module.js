@@ -26,13 +26,14 @@ var portCount = midiOut.getPortCount();
 for(var i=0; i < portCount; i++){
     console.log(midiOut.getPortName(i));
     //TODO: get port name from config
-    if(midiOut.getPortName(i) === 'MIDIMateII'){
+    //if(midiOut.getPortName(i) === 'MIDIMateII'){
         //TODO: save new port in object
-        midiOut.openPort(i);
-        process.on('beforeExit', function(code){
-            midiOut.closePort();
-        });
-    }
+        //midiOut.openPort(i);
+    midiOut.openPort(1);
+    process.on('beforeExit', function(code){
+        midiOut.closePort();
+    });
+    //}
 };
 
 

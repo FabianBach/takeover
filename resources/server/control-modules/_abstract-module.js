@@ -134,7 +134,7 @@ var abstractModule = function(config, shared){
 
     function setSocketTimeout(socket){
         // after a timeout the connection will be disabled and put back in waiting line
-        if (!maxTime){ return }
+        if (maxTime === Infinity){ return }
         socket.disableTimeout = setTimeout(function(){
             waitingConnections.length
                 ? onSocketDisableTimeout(socket)
@@ -143,7 +143,7 @@ var abstractModule = function(config, shared){
     }
 
     function clearSocketTimeout(socket){
-        if (!maxTime){ return }
+        if (maxTime === Infinity){ return }
         clearTimeout(socket.disableTimeout);
     }
 
@@ -202,8 +202,9 @@ var abstractModule = function(config, shared){
         clearSocketTimeout(socket);
         socket.emit('disable');
 
+        eventHandler.emit('socket_disabled', socket);
+
         // TODO: reset to min value if flag in config is set to do so
-        // TODO: apply special mapping or value when disabled
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
@@ -251,17 +252,17 @@ var abstractModule = function(config, shared){
 
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
-    function onValueChange (socket, data){
+    function onValueChange (socket, value){
 
-        var dataLog = checkData(data);
-        if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad data: ', data, dataLog);
+        var dataLog = checkData(value);
+        if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad value: ', value, dataLog);
 
-        setValue(data, false);
+        setValue(value, false);
 
-        var mappingLog = doMapping(data);
-        if (mappingLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map data ', data, mappingLog);
+        var processLog = processValue(value);
+        if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
 
-        socket.broadcast.emit('value_update', data);
+        socket.broadcast.emit('value_update', value);
     }
 
     function onUse(socket){
@@ -272,7 +273,7 @@ var abstractModule = function(config, shared){
         for(var someSocketId in activeConnections.sockets){
             var someSocket = activeConnections.sockets[someSocketId];
             if (someSocket !== socket){
-                // we have to disable tem after filtering them
+                // we have to disable them after filtering them
                 // because we would manipulate the object while stepping through it
                 disableArray.push(someSocket);
             }
@@ -294,8 +295,8 @@ var abstractModule = function(config, shared){
     // according to the mapping object defined in the config
     // this method has to be defined by each specific module itself
     // there is no general way to do this in this abstract object
-    function doMapping (data){
-        console.log('Module ' + getNameAndId() + ' value: ', data);
+    function processValue (value){
+        console.log('Module ' + getNameAndId() + ' value: ', value);
         var error = [];
 
         for(var i = 0; i < mappings.length; i++){
@@ -304,15 +305,15 @@ var abstractModule = function(config, shared){
             switch (mapping.type){
 
                 case 'dmx':
-                    useDmx(data, mapping);
+                    useDmx(value, mapping);
                     break;
 
                 case 'midi':
-                    useMidi(data, mapping);
+                    useMidi(value, mapping);
                     break;
 
                 case 'osc':
-                    useOsc(data, mapping);
+                    useOsc(value, mapping);
                     break;
 
                 default :
@@ -326,74 +327,66 @@ var abstractModule = function(config, shared){
     // this function is supposed to check if the data is okay or if something messed up
     // it could also correct the data in the object if an minor error is found and log a warning
     function checkData (data){
-        // TODO
+        // TODO: check recieved data
+        // probably best to use same validation as on init
         return {error: []}
     }
 
-    // MIDI, DMX and OSC
+    function doMapping(mapping, data){
+        var mappedValue,
+            mapData,
+            mapMax;
 
-    // DMX
-    function useDmx (data, mappingData){
+        if(mapping.doMapping){
+            // get foreign value and map that
+            if (mapping.foreignValue){
+                var foreignModule = shared.getModuleById(mapping.foreignValue);
+                var foreignValue = foreignModule && foreignModule.value;
+                var foreignMax = foreignModule && foreignModule.maxValue;
 
-        //TODO: foreign value?
+                mapData = foreignValue || data;
+                mapMax = foreignMax || getMaxValue();
 
-        data = parseInt(data);
-        var mappedValue;
+            }else{
+                mapData = data;
+                mapMax = getMaxValue()
+            }
+            mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue, mapping.invert);
 
-        mappedValue = getMappedValue(data, getMaxValue(), mappingData.minValue, mappingData.maxValue, mappingData.invert);
-        if(mappingData.fine){
+        }else{
+            mappedValue = mapping.value;
+        }
+        return mappedValue;
+    }
+
+    function useDmx (value, mapping){
+        value = parseInt(value);
+        var mappedValue = doMapping(mapping, value);
+        if(mapping.fine){
             var mappedValueCh1 = mappedValue % 255;
             var mappedValueCh2 = mappedValue / 255;
             sendDmx({
-                channel: mappingData.channel,
+                channel: mapping.channel,
                 value: mappedValueCh1
             });
             sendDmx({
-                channel: mappingData.channel+1,
+                channel: mapping.channel+1,
                 value: mappedValueCh2
             });
         }else{
             sendDmx({
-                channel: mappingData.channel,
+                channel: mapping.channel,
                 value: mappedValue
             });
         }
     }
 
-    // MIDI
     function useMidi (data, mappingData){
-
         data = parseInt(data);
         var type = mappingData.msgType;
         var channel = mappingData.channel;
-        var mappedValue1 = getMappedMidiValue(mappingData.byte_1, data);
-        var mappedValue2 = getMappedMidiValue(mappingData.byte_2, data);
-
-        function getMappedMidiValue(mapping, data){
-            var mappedValue,
-                mapData,
-                mapMax;
-
-            if(mapping.doMapping){
-                // get foreign value and map that
-                if (mapping.foreignValue){
-                    var foreignModule = shared.getModuleById(mapping.foreignValue);
-                    var foreignValue = foreignModule && foreignModule.value;
-                    var foreignMax = foreignModule && foreignModule.maxValue;
-
-                    mapData = foreignValue || data;
-                    mapMax = foreignMax || getMaxValue();
-
-                }else{
-                    mapData = data;
-                    mapMax = getMaxValue()
-                }
-                mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue, mapping.invert);
-            }else{
-                mappedValue = mapping.value;
-            }
-            return mappedValue;
-        }
+        var mappedValue1 = doMapping(mappingData.byte_1, data);
+        var mappedValue2 = doMapping(mappingData.byte_2, data);
 
         sendMidi({
             type: type,
@@ -403,7 +396,6 @@ var abstractModule = function(config, shared){
         });
     }
 
-    // OSC
     function useOsc (data, mappingData){
         console.log('OSC not implemented yet!'.red, data);
         sendOsc(data);
@@ -641,7 +633,7 @@ function validateConfig(config){
     config.maxUsers = parseInt(config.maxUsers) || Infinity;
 
     // max use time
-    config.maxTime = parseInt(config.maxTime) * 1000 || 0;
+    config.maxTime = parseInt(config.maxTime) * 1000 || Infinity;
 
     // resolution
     config.resolution = parseInt(config.resolution || 100);
