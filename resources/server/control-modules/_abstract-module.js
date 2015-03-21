@@ -27,6 +27,7 @@ var abstractModule = function(config, shared){
         maxUsers,
         maxTime,
         inUse,
+        inUseSocket,
         resolution,
         value,
         minValue,
@@ -205,6 +206,7 @@ var abstractModule = function(config, shared){
         eventHandler.emit('socket_disabled', socket);
 
         // TODO: reset to min value if flag in config is set to do so
+        // Problem: any socket disable would set minValue
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
@@ -268,6 +270,7 @@ var abstractModule = function(config, shared){
     function onUse(socket){
         socket.broadcast.emit('foreignUse', true);
         inUse = true;
+        inUseSocket = socket;
         var disableArray = [];
 
         for(var someSocketId in activeConnections.sockets){
@@ -289,6 +292,7 @@ var abstractModule = function(config, shared){
         socket.broadcast.emit('foreignUse', false);
         moveWatingline();
         inUse = false;
+        inUseSocket = null;
     }
 
     // this function is supposed to map the received value to the different protocol values
@@ -526,6 +530,13 @@ var abstractModule = function(config, shared){
         return ioNamespace.name;
     }
 
+    function getInUse(){
+        return {
+            status: inUse,
+            socket: inUseSocket
+        }
+    }
+
     /*
      * ** PUBLIC STUFF **
      */
@@ -559,6 +570,7 @@ var abstractModule = function(config, shared){
     shared.setName = setName;
     shared.getNameAndId = getNameAndId;
     shared.getEventHandler = getEventHandler;
+    shared.getInUse = getInUse;
 
     // funcs
     // none
