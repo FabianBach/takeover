@@ -6,8 +6,8 @@ var express = require('express');
 var io = require('socket.io');
 var http = require('http');
 
-var controlModules = require('../server/control-module.js');
-var viewModules = require('../server/view-module.js');
+var controlModules = require(global.tkvrBasePath + '/resources/server/control-module.js');
+var viewModules = require(global.tkvrBasePath + '/resources/server/view-module.js');
 
 var tkvrServer;
 var tkvr = {};
@@ -16,7 +16,7 @@ function init(config, callback){
     var port = config.port || 8080;
     tkvr = express();
     //tkvr.use(express.static(__dirname + '/public'));
-    tkvr.use(express.static('/public'));
+    tkvr.use(express.static(global.tkvrBasePath + '/public'));
 
     tkvr.get('/tkvr-view-list', function(req, res){
         var list = viewModules.getViews();

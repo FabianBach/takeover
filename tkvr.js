@@ -3,6 +3,8 @@
 // it should set up all the stuff
 // at the moment there is quiet a mess in server.js
 
+global.tkvrBasePath = __dirname;
+
 var server = require('./resources/server/server.js');
 var controlModules = require('./resources/server/control-module.js');
 var viewModules = require('./resources/server/view-module.js');

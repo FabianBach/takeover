@@ -252,7 +252,6 @@ var abstractModule = function(config, shared){
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (socket, value){
-
         var dataLog = checkData(value);
         if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad value: ', value, dataLog);
 
@@ -272,7 +271,7 @@ var abstractModule = function(config, shared){
 
         for(var someSocketId in activeConnections.sockets){
             var someSocket = activeConnections.sockets[someSocketId];
-            if (someSocket !== socket){
+            if (someSocket.id !== socket.id){
                 // we have to disable them after filtering them
                 // because we would manipulate the object while stepping through it
                 disableArray.push(someSocket);
@@ -283,8 +282,6 @@ var abstractModule = function(config, shared){
             var disableSocket = disableArray[i];
             putSocketFrontInLine(disableSocket);
         }
-
-        eventHandler.emit('in_use', socket);
     }
 
     function onUseEnd(socket){
@@ -419,7 +416,7 @@ var abstractModule = function(config, shared){
         var sendObj = {};
         sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
         for(var universeName in dmx.universes){
-            if( (mapping.universe === universeName) || (typeof mapping.universe !== 'string')){
+            if( (dmxObj.universe === universeName) || (typeof dmxObj.universe !== 'string')){
                 dmx.update(universeName, sendObj);
             }
         }
