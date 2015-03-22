@@ -6,10 +6,11 @@ var controlModuleFactory = require('./control-module.js');
 
 var createdViews = {};
 
-function init (callback){
-    callback = callback || function(){console.log('Finished creating views.'.cyan)};
+function init (config, callback){
+    callback = callback || function(){};
 
     createFromFiles(function(){
+        //TODO: give back error if something goes wrong
         callback();
     });
 }

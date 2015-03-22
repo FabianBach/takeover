@@ -1,0 +1,23 @@
+{
+  "server": {
+    "port": 8080,
+    "url": "not implemented yet"
+  },
+
+  "midi": {
+    "Number 1": "MIDIMATE II",
+    "Number 2": "MIDIOUT (MIDIMATE II)"
+  },
+
+  "dmx": {
+    "enttec" : "enttec-open-usb-dmx"
+  },
+
+  "osc": {
+    "OSC 1":{
+      "url": "some osc url",
+      "port": "1234",
+      "prefix": "needed?"
+    }
+  }
+}

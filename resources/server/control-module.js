@@ -3,39 +3,10 @@
 // it will create and return a control module object
 // this will be the only control module needed to require
 
-// save the socket.io reference and share it with control modules created
-var io = undefined;
-
-// save the dmx reference and share it with control modules created
-// TODO: there could be multiple DMX devices connected
-var DMX = require('dmx');
-var dmx = new DMX();
-//var enttecOpenDriver = require('./dmx-drivers/enttec-open-usb-dmx.js');
-//dmx.registerDriver('enttec-open-usb-dmx', enttecOpenDriver);
-// TODO: at the moment always the enttec open is selected
-var universe = dmx.addUniverse('takeover', 'enttec-open-usb-dmx', 0);
-//TODO: process.on('exit', dmx.close);
-
-
-// TODO: opens first midi device found
-// TODO: maybe open virtual port, but unix only...
-var midi = require('midi');
-var midiOut = new midi.output();
-console.log('MIDI Port List:');
-var portCount = midiOut.getPortCount();
-for(var i=0; i < portCount; i++){
-    console.log(midiOut.getPortName(i));
-    //TODO: get port name from config
-    //if(midiOut.getPortName(i) === 'MIDIMateII'){
-        //TODO: save new port in object
-        //midiOut.openPort(i);
-    midiOut.openPort(1);
-    process.on('beforeExit', function(code){
-        midiOut.closePort();
-    });
-    //}
-};
-
+var io,
+    dmx,
+    midi,
+    osc;
 
 // all available modules should be listed here
 var controlModules = {};
@@ -46,15 +17,64 @@ var controlModules = {};
 
 var createdModules = {};
 
-//TODO: use promises?
-function init (callback){
+function init (config, callback){
     callback = callback || function(){};
+
+    setUpMidi(config.midi);
+    setUpDmx(config.dmx);
+    setUpOsc(config.osc);
 
     createFromFiles(function(){
         doStartupMapping();
-        console.log('Finished creating control-modules.'.cyan);
+        //TODO: give back error if something goes wrong
         callback();
     });
+}
+
+function setUpMidi(config){
+    var midiModule = require('midi');
+    printMidiList();
+    midi = {};
+    for(var midiName in config){
+        var midiOut = new midiModule.output();
+        var portCount = midiOut.getPortCount();
+        for (var i = 0; i < portCount; i++) {
+            if(midiOut.getPortName(i) === config[midiName]){
+                midiOut.openPort(i);
+                process.on('beforeExit', function(code){
+                    midiOut.closePort();
+                });
+                midi[midiName] = midiOut;
+            }
+        }
+    }
+
+    function printMidiList() {
+        console.log('MIDI Port List:');
+        var midiOut = new midiModule.output();
+        var portCount = midiOut.getPortCount();
+        for (var i = 0; i < portCount; i++) {
+            console.log(midiOut.getPortName(i));
+        }
+    }
+}
+
+function setUpDmx(config){
+// TODO: there could be multiple DMX devices of same type connected
+    var DMX = require('dmx');
+    dmx = new DMX();
+
+    for (var dmxName in config){
+        var universe = dmx.addUniverse(dmxName, config[dmxName], 0);
+        process.on('beforeExit', function(code){
+            //TODO: is this working?
+            universe.close();
+        });
+    }
+}
+
+function setUpOsc(config){
+    //TODO: setUpOsc
 }
 
 function createModule (config){
@@ -65,8 +85,7 @@ function createModule (config){
     // set io in config
     config.io = config.io || io;
     config.dmx = config.dmx || dmx;
-    config.universe = config.universe || universe;
-    config.midi = config.midi|| midiOut;
+    config.midi = config.midi|| midi;
 
     var shared = {
         'getModuleById': getModuleById,
@@ -168,7 +187,12 @@ function doStartupMapping(startupConfig){
                 if (!mapping.channel || typeof mapping.value === 'undefined') return console.log('Bad startup mapping: missing information.'.yellow);
                 var sendObj = {};
                 sendObj[parseInt(mapping.channel)-1] = mapping.value;
-                universe.update(sendObj);
+
+                for(var universeName in dmx.universes){
+                    if( (mapping.universe === universeName) || (typeof mapping.universe !== 'string')){
+                        dmx.update(universeName, sendObj);
+                    }
+                }
                 break;
 
             case 'midi':

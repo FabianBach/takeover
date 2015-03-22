@@ -39,7 +39,6 @@ var abstractModule = function(config, shared){
         eventHandler,
         mappings,
         dmx,
-        universe,
         midi;
 
     // this function will be called at first
@@ -89,7 +88,6 @@ var abstractModule = function(config, shared){
         mappings = config.mapping;
 
         dmx = config.dmx;
-        universe = config.universe;
         midi = config.midi;
 
     }
@@ -377,16 +375,19 @@ var abstractModule = function(config, shared){
             var mappedValueCh2 = mappedValue / 255;
             sendDmx({
                 channel: mapping.channel,
-                value: mappedValueCh1
+                value: mappedValueCh1,
+                universe: mapping.universe
             });
             sendDmx({
                 channel: mapping.channel+1,
-                value: mappedValueCh2
+                value: mappedValueCh2,
+                universe: mapping.universe
             });
         }else{
             sendDmx({
                 channel: mapping.channel,
-                value: mappedValue
+                value: mappedValue,
+                universe: mapping.universe
             });
         }
     }
@@ -402,7 +403,8 @@ var abstractModule = function(config, shared){
             type: type,
             channel: channel,
             value1: mappedValue1,
-            value2: mappedValue2
+            value2: mappedValue2,
+            midiOut: mappingData.midiOut
         });
     }
 
@@ -416,7 +418,11 @@ var abstractModule = function(config, shared){
         if (!dmx){ return }
         var sendObj = {};
         sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
-        universe.update(sendObj);
+        for(var universeName in dmx.universes){
+            if( (mapping.universe === universeName) || (typeof mapping.universe !== 'string')){
+                dmx.update(universeName, sendObj);
+            }
+        }
     }
 
     function sendMidi (midiObj){
@@ -455,8 +461,12 @@ var abstractModule = function(config, shared){
         }
         firstByte = firstByte + channel;
         firstByte = parseInt(firstByte, 2);
-        midi.sendMessage([firstByte, midiObj.value1, midiObj.value2]);
-        //midi.sendMessage([144, 25, 64]);
+
+        for(var midiOut in midi){
+            if((midiOut === midiObj.midiOut) || (typeof midiObj.midiOut !== 'string')){
+                midi[midiOut].sendMessage([firstByte, midiObj.value1, midiObj.value2]);
+            }
+        }
     }
 
     function sendOsc (oscObj){
