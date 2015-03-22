@@ -60,7 +60,7 @@ var abstractModule = function(config, shared){
         setEvents();
 
         // TODO: apply special mapping or value when no client is connected initially
-        // also, the startup mapping will be applied, so no need to apply min values
+        // also, the startup mapping will be applied, so this has to be done afterwards
 
         return {error: []};
     };
@@ -114,8 +114,6 @@ var abstractModule = function(config, shared){
                 socket.disconnect();
             });
 
-            socket.on('use_end', fireUseEnd.bind(null, socket));
-
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
             if (!inUse || activeConnections.length < maxUsers){
@@ -168,6 +166,7 @@ var abstractModule = function(config, shared){
 
         socket.on('value_change', fireValueChange.bind(null, socket));
         socket.on('in_use', fireInUse.bind(null, socket));
+        socket.on('use_end', fireUseEnd.bind(null, socket));
 
         socket.emit('enable', getValue());
         setSocketTimeout(socket);
@@ -200,6 +199,7 @@ var abstractModule = function(config, shared){
 
         socket.removeAllListeners('value_change');
         socket.removeAllListeners('in_use');
+        socket.removeAllListeners('use_end');
         clearSocketTimeout(socket);
         socket.emit('disable');
 
@@ -229,7 +229,7 @@ var abstractModule = function(config, shared){
 
         if (!activeConnections.length) {
             console.log('No connections to ' + getNameAndId());
-            // TODO: apply special mapping on no client connected
+            eventHandler.emit('no_connections');
         }
     }
 
@@ -247,6 +247,7 @@ var abstractModule = function(config, shared){
         eventHandler.on('value_change', onValueChange);
         eventHandler.on('in_use', onUse);
         eventHandler.on('use_end', onUseEnd);
+        eventHandler.on('no_connections', onNoConnections);
 
     }
 
@@ -284,6 +285,8 @@ var abstractModule = function(config, shared){
             var disableSocket = disableArray[i];
             putSocketFrontInLine(disableSocket);
         }
+
+        eventHandler.emit('in_use', socket);
     }
 
     function onUseEnd(socket){
@@ -291,6 +294,10 @@ var abstractModule = function(config, shared){
         moveWatingline();
         inUse = false;
         inUseSocket = null;
+    }
+
+    function onNoConnections(){
+        // TODO: apply special mapping on no client connected
     }
 
     // this function is supposed to map the received value to the different protocol values

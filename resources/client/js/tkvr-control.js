@@ -55,7 +55,7 @@ tkvr.directive('tkvrControl', function($compile){
             ? scope.control.position.y
             : scope.control.position.x;
 
-        //TODO: if bigger 100% or smaller 0% correct that;
+        //TODO: if reaching out of grid correct that;
         element.css('width', (elementWidth / gridWidth * 100) +'em');
         element.css('height', (elementHeight / gridHeight * 100) +'em');
 

@@ -16,6 +16,4 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrient
         $scope.$broadcast('orientationchange', orientation);
         $scope.$digest();
     }
-
-    //TODO: connect so main websocket to react on disconnect events and so on
 });

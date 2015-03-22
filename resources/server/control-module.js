@@ -59,7 +59,6 @@ function init (callback){
 
 function createModule (config){
 
-    // FIXME: has io really to be set when creating stuff?
     if (!io){ return console.log( 'control-module-factory '.grey + 'No io set, do that first!'.red )}
     if (!config || !config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
 
@@ -161,10 +160,11 @@ function doStartupMapping(startupConfig){
         }
     }
 
+    //TODO: totally re-use the mapping built in abstract
+    // somehow put that mapping in extra module
     function doMapping(mapping){
         switch (mapping.type.toLowerCase()){
             case 'dmx':
-                //TODO: somehow make that mapping in _abstract reusable
                 if (!mapping.channel || typeof mapping.value === 'undefined') return console.log('Bad startup mapping: missing information.'.yellow);
                 var sendObj = {};
                 sendObj[parseInt(mapping.channel)-1] = mapping.value;
@@ -172,11 +172,11 @@ function doStartupMapping(startupConfig){
                 break;
 
             case 'midi':
-                //TODO!
+                //this is a TODO, but should be solved by reusing the mapping
                 break;
 
             case 'osc':
-                //TODO!
+                //this is a TODO, but should be solved by reusing the mapping
                 break;
         }
     }

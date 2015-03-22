@@ -17,9 +17,4 @@ tkvr.controller('tkvrListCtrl', function($scope, $http, tkvrOrientation){
         $scope.$broadcast('orientationchange', orientation);
         $scope.$digest();
     }
-
-    //TODO: do that in some main controller or something
-    //connect to main socket to establish namespace connections faster
-    //$scope.socket = io.connect(window.location.origin);
-
 });

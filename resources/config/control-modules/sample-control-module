@@ -2,14 +2,20 @@
  * such as buttons, slider, and touch-areas.
  * This file is used for development and documentation
  */
-
-        // TODO: flag to reverse / invert single mapping from min-max to max-min
-        // TODO: Mapping or values to use when no client is connected
-        // TODO: Mapping or values to use when active client disconnects
         // TODO: Mapping or values to use on connection before first input
-        // TODO: Animations from valueX to valueY, especially cool for buttons
-        // TODO: Delay for mappings, to make things happen one after another
-
+        // TODO: Mapping or values to use when no client is connected
+        // TODO: Mapping or values to use when active client disconnects, such as turn light back on for example
+        // TODO: Animations:
+        //        mapping: { minValue: 0, maxValue: 255, animation: {
+        //          {repeat: true}, //reverse, fromStart (== true), false
+        //          {reverse: true},
+        //          frames:[
+        //            {wait: 1000},
+        //            {goto: 128, time: 250, curve: 'linear'},
+        //            {goto: 0, time: 500},
+        //            {wait: 1000},
+        //            {goto: 0, time: 500},
+        //          ]}}
 {
 
   "id": "A1B2C3D4E5F6", // has to be unique

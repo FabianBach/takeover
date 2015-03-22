@@ -16,6 +16,11 @@ tkvr.config(function($routeProvider){
             redirectTo: '/list'
         });
 
-    //TODO: somehow connect to main socket here or in some main controller
-    // and disconnect on destroy or on timeout
+    // TODO: do that in some main controller or something
+    // connect to main socket to establish namespace connections faster
+    // check if connected regulary
+    // and broadcast some disconnect event in rootScope on timeout
+    //$scope.socket = io.connect(window.location.origin);
+
+    // TODO: also disconnect the client on destroy event of angular
 });
