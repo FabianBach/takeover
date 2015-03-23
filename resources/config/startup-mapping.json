@@ -39,17 +39,6 @@
       "type": "dmx",
       "channel": 17,
       "value": 255
-    },
-    {
-      "type" : "midi",
-      "msgType" : "Note On",
-      "channel" :  9,
-      "byte_1" : {
-        "value" : 100
-      },
-      "byte_2" : {
-        "value" : 127
-      }
     }
   ]
 }

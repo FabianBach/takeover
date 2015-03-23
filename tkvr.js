@@ -5,9 +5,10 @@
 
 global.tkvrBasePath = __dirname;
 
-var server = require('./resources/server/server.js');
-var controlModules = require('./resources/server/control-module.js');
-var viewModules = require('./resources/server/view-module.js');
+var server = require(global.tkvrBasePath + '/resources/server/server.js');
+var controlModules = require(global.tkvrBasePath + '/resources/server/control-module.js');
+var viewModules = require(global.tkvrBasePath + '/resources/server/view-module.js');
+var mapper = require(global.tkvrBasePath + '/resources/server/mapping-module.js');
 
 
 var tkvrConfigPath = './resources/config/main-config.json';
@@ -21,6 +22,7 @@ function onFileRead (error, buffer){
 
     config = JSON.parse(jsonConfig);
     initServer(config, onServerInit);
+    initMapper(config);
 }
 
 function initServer(config, callback){
@@ -45,6 +47,12 @@ function initViews(callback){
 }
 function onViewsInit(error){
     console.log('Finished creating views.'.cyan);
+    mapper.doStartupMapping();
+}
+
+function initMapper(config){
+    mapper.init(config);
+    mapper.doStartupMapping();
 }
 
 // beautiful loggin

@@ -24,6 +24,7 @@ var abstractModule = function(config, shared){
         name,
         type,
         title,
+        mappings,
         maxUsers,
         maxTime,
         inUse,
@@ -35,20 +36,23 @@ var abstractModule = function(config, shared){
         ioSocket,
         ioNamespace,
         activeConnections = {},
-        waitingConnections = [],
-        eventHandler,
-        mappings,
-        dmx,
-        midi;
+        waitingConnections = [];
+
+    var eventHandler,
+        validator,
+        mapper;
+
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
     var init = function(){
 
         //eventHandler = require('./../event-part.js')(); // could be replaced by node event handler
-        eventHandler = new (require('events').EventEmitter); // could be replaced by node event handler
+        eventHandler = new (require('events').EventEmitter);
+        validator = require(global.tkvrBasePath + '/resources/server/validation-module');
+        mapper = require(global.tkvrBasePath + '/resources/server/mapping-module');
 
-        var validationLog = validateConfig(config);
+        var validationLog = validator.validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
 
         applyConfig(config);
@@ -86,10 +90,6 @@ var abstractModule = function(config, shared){
         value = minValue;
 
         mappings = config.mapping;
-
-        dmx = config.dmx;
-        midi = config.midi;
-
     }
 
 
@@ -263,6 +263,14 @@ var abstractModule = function(config, shared){
         socket.broadcast.emit('value_update', value);
     }
 
+    // this function is supposed to check if the data is okay or if something messed up
+    // it could also correct the data in the object if an minor error is found and log a warning
+    function checkData (data){
+        // TODO: check recieved data
+        // probably best to use same validation as on init
+        return {error: []}
+    }
+
     function onUse(socket){
         socket.broadcast.emit('foreignUse', true);
         inUse = true;
@@ -295,180 +303,12 @@ var abstractModule = function(config, shared){
         // TODO: apply special mapping on no client connected
     }
 
-    // this function is supposed to map the received value to the different protocol values
-    // according to the mapping object defined in the config
-    // this method has to be defined by each specific module itself
-    // there is no general way to do this in this abstract object
     function processValue (value){
         console.log('Module ' + getNameAndId() + ' value: ', value);
-        var error = [];
-
-        for(var i = 0; i < mappings.length; i++){
-            var mapping = mappings[i];
-
-            switch (mapping.type){
-
-                case 'dmx':
-                    useDmx(value, mapping);
-                    break;
-
-                case 'midi':
-                    useMidi(value, mapping);
-                    break;
-
-                case 'osc':
-                    useOsc(value, mapping);
-                    break;
-
-                default :
-                    error.push('Can not map to: '+ mapping.type);
-            }
-        }
-
-        return {error: error}
+        var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
+        return mapLog;
     }
 
-    // this function is supposed to check if the data is okay or if something messed up
-    // it could also correct the data in the object if an minor error is found and log a warning
-    function checkData (data){
-        // TODO: check recieved data
-        // probably best to use same validation as on init
-        return {error: []}
-    }
-
-    function doMapping(mapping, data){
-        var mappedValue,
-            mapData,
-            mapMax;
-
-        if(mapping.doMapping !== false){
-            // get foreign value and map that
-            if (mapping.foreignValue){
-                var foreignModule = shared.getModuleById(mapping.foreignValue);
-                var foreignValue = foreignModule && foreignModule.value;
-                var foreignMax = foreignModule && foreignModule.maxValue;
-
-                mapData = foreignValue || data;
-                mapMax = foreignMax || getMaxValue();
-
-            }else{
-                mapData = data;
-                mapMax = getMaxValue()
-            }
-            mappedValue = getMappedValue(mapData, mapMax, mapping.minValue, mapping.maxValue, mapping.invert);
-
-        }else{
-            mappedValue = mapping.value;
-        }
-        return mappedValue;
-    }
-
-    function useDmx (value, mapping){
-        value = parseInt(value);
-        var mappedValue = doMapping(mapping, value);
-
-        if(mapping.fine){
-            var mappedValueCh1 = mappedValue % 255;
-            var mappedValueCh2 = mappedValue / 255;
-            sendDmx({
-                channel: mapping.channel,
-                value: mappedValueCh1,
-                universe: mapping.universe
-            });
-            sendDmx({
-                channel: mapping.channel+1,
-                value: mappedValueCh2,
-                universe: mapping.universe
-            });
-        }else{
-            sendDmx({
-                channel: mapping.channel,
-                value: mappedValue,
-                universe: mapping.universe
-            });
-        }
-    }
-
-    function useMidi (data, mappingData){
-        data = parseInt(data);
-        var type = mappingData.msgType;
-        var channel = mappingData.channel;
-        var mappedValue1 = doMapping(mappingData.byte_1, data);
-        var mappedValue2 = doMapping(mappingData.byte_2, data);
-
-        sendMidi({
-            type: type,
-            channel: channel,
-            value1: mappedValue1,
-            value2: mappedValue2,
-            midiOut: mappingData.midiOut
-        });
-    }
-
-    function useOsc (data, mappingData){
-        console.log('OSC not implemented yet!'.red, data);
-        sendOsc(data);
-    }
-
-    function sendDmx (dmxObj){
-        console.log('DMX: channel: ' + dmxObj.channel + ' value: '+ dmxObj.value);
-        if (!dmx){ return }
-        var sendObj = {};
-        sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
-        for(var universeName in dmx.universes){
-            if( (dmxObj.universe === universeName) || (typeof dmxObj.universe !== 'string')){
-                dmx.update(universeName, sendObj);
-            }
-        }
-    }
-
-    function sendMidi (midiObj){
-        console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
-        if (!midi){ return }
-        var sendObj = {};
-
-        var firstByte = '0000';
-        switch (midiObj.type){
-            case 'note off':
-                firstByte = '1000';
-                break;
-            case 'note on':
-                firstByte = '1001';
-                break;
-            case 'poly key':
-                firstByte = '1010';
-                break;
-            case 'controller change':
-                firstByte = '1011';
-                break;
-            case 'program change':
-                firstByte = '1100';
-                break;
-            case 'channel pressure':
-                firstByte = '1101';
-                break;
-            case 'pitch bend':
-                firstByte = '1110';
-                break;
-        }
-
-        var channel = (midiObj.channel-1).toString(2);
-        while (channel.length < 4){
-            channel = '0'+channel;
-        }
-        firstByte = firstByte + channel;
-        firstByte = parseInt(firstByte, 2);
-
-        for(var midiOut in midi){
-            if((midiOut === midiObj.midiOut) || (typeof midiObj.midiOut !== 'string')){
-                midi[midiOut].sendMessage([firstByte, midiObj.value1, midiObj.value2]);
-            }
-        }
-    }
-
-    function sendOsc (oscObj){
-        console.log('OSC: ' + oscObj);
-    }
 
     // getters and setters
 
@@ -524,6 +364,7 @@ var abstractModule = function(config, shared){
         return value;
     }
 
+    //FIXME: this should not need a flag
     function setValue(data, fireEvent){
         value = data;
         if (fireEvent){
@@ -607,196 +448,6 @@ module.exports = abstractModule;
  * somehow like writing it to the prototype object, but not public
  * this can not be invoked by an inheriting object, except by reference
  */
-
-// these functions will send the mapped data to the external devices
-// or if no device is available they will just log it or do something else... like nothing
-
-// takes the actual and the maximum value of the module
-// to return the actual value of the mapped min and max
-function getMappedValue (modVal, modMax, mapMin, mapMax, invert){
-
-    var modPercent = modVal / modMax;
-    if (invert){ modPercent = 1 - modPercent }
-
-    var mapDelta = mapMax - mapMin;
-    var mapValue = mapMin + (mapDelta * modPercent);
-
-    return parseInt(mapValue);
-}
-
-// this function will check for errors in the config object
-// this will only check values which all modules have in common
-// every module will have to check for its specific config values
-function validateConfig(config){
-
-    var error = [];
-
-    // config itself
-    if (!config){
-        error.push('No config found!');
-        config = {};
-    }
-
-    // socket instance
-    if (!config.io){ error.push('No io in config')}
-
-    // id, create if missing
-    if (!config.id){ config.id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase(); }
-
-    // name
-    if (!config.name){ config.name = 'unnamed' }
-    else {config.name = String(config.name)}
-
-    // type
-    if (!config.type){ error.push('No type in config') }
-    config.type = config.type.toLowerCase();
-
-    // title
-    if (!config.title){ config.title = ''}
-
-    // multiple users
-    config.maxUsers = parseInt(config.maxUsers) || Infinity;
-
-    // max use time
-    config.maxTime = parseInt(config.maxTime) * 1000 || Infinity;
-
-    // resolution
-    config.resolution = parseInt(config.resolution || 100);
-
-    // MAPPING
-    if (config.mapping){
-        var mappingLog = validateMapping(config.mapping);
-        if (mappingLog.error.length){ error.push({'mappingError': mappingLog.error});}
-    } else {
-        config.mapping = [];
-    }
-
-    return {error: error};
-}
-
-function validateMapping(mappingConfig){
-
-    var error = [];
-
-    for(var i = 0; i < mappingConfig.length; i++){
-        var mapping = mappingConfig[i];
-        if (!mapping.type){
-            error.push('No mapping type defined');
-            break
-        }
-        mapping.type = mapping.type.toLowerCase();
-        mapping.invert = !!mapping.invert;
-
-        var log ={};
-        switch (mapping.type){
-            case 'midi':
-                log = validateMidiMapping(mapping);
-                break;
-
-            case 'dmx':
-                log = validateDmxMapping(mapping);
-                break;
-
-            case 'osc':
-                log = validateOscMapping(mapping);
-                break;
-
-            default :
-                error.push('Unknown mapping type: ' + mapping.type);
-        }
-        error = log.error;
-    }
-
-    return {error: error};
-}
-
-function validateMidiMapping(mapping){
-    var error = [];
-
-    // message type
-    mapping.msgType = mapping.msgType && mapping.msgType.toLowerCase() || 'note on';
-
-    // channel
-    if (!mapping.channel) {error.push('No MIDI channel defined in mapping.')}
-    else{
-        mapping.channel = parseInt(mapping.channel);
-        if (mapping.channel < 1){ mapping.channel = 1}
-        if (mapping.channel > 16){ mapping.channel = 16}
-    }
-
-    // byte_1
-    mapping.byte_1 = mapping.byte_1 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
-    mapping.byte_1.doMapping = mapping.byte_1.doMapping || false;
-    if (mapping.byte_1.doMapping){
-        //minimum value
-        mapping.byte_1.minValue = parseInt(mapping.byte_1.minValue) || 0;
-        if (mapping.byte_1.minValue < 0){ mapping.byte_1.minValue = 0 }
-        if (mapping.byte_1.minValue > 127){ mapping.byte_1.minValue = 127 }
-        //maximum value
-        mapping.byte_1.maxValue = parseInt(mapping.byte_1.maxValue) || 0;
-        if (mapping.byte_1.maxValue < 0){ mapping.byte_1.maxValue = 0 }
-        if (mapping.byte_1.maxValue > 127){ mapping.byte_1.maxValue = 127 }
-
-        if (mapping.byte_1.minValue === mapping.byte_1.maxValue){error.push("minValue and maxValue are the same")}
-    }else{
-        mapping.byte_1.value = parseInt(mapping.byte_1.value || mapping.byte_1.maxValue || mapping.byte_1.minValue || 0);
-        if (mapping.byte_1.value < 0){ mapping.byte_1.value = 0 }
-        if (mapping.byte_1.value > 127){ mapping.byte_1.value = 127 }
-    }
-    // byte_2
-    mapping.byte_2 = mapping.byte_2 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
-    mapping.byte_2.doMapping = mapping.byte_2.doMapping || false;
-    if (mapping.byte_2.doMapping){
-        //minimum value
-        mapping.byte_2.minValue = parseInt(mapping.byte_2.minValue) || 0;
-        if (mapping.byte_2.minValue < 0){ mapping.byte_2.minValue = 0 }
-        if (mapping.byte_2.minValue > 127){ mapping.byte_2.minValue = 127 }
-        //maximum value
-        mapping.byte_2.maxValue = parseInt(mapping.byte_2.maxValue) || 0;
-        if (mapping.byte_2.maxValue < 0){ mapping.byte_2.maxValue = 0 }
-        if (mapping.byte_2.maxValue > 127){ mapping.byte_2.maxValue = 127 }
-
-        if (mapping.byte_2.minValue === mapping.byte_2.maxValue){error.push("minValue and maxValue are the same")}
-    }else{
-        mapping.byte_2.value = parseInt(mapping.byte_2.value || mapping.byte_2.maxValue || mapping.byte_2.minValue || 0);
-        if (mapping.byte_2.value < 0){ mapping.byte_2.value = 0 }
-        if (mapping.byte_2.value > 127){ mapping.byte_2.value = 127 }
-    }
-
-    return {error: error};
-}
-
-function validateDmxMapping(mapping){
-    var error = [];
-
-    if (!mapping.channel){ error.push('No DMX channel defined')}
-    else{
-        mapping.channel = parseInt(mapping.channel);
-        if (mapping.channel < 1){ mapping.channel = 1}
-        if (mapping.channel > 512){ mapping.channel = 512}
-    }
-    mapping.minValue = parseInt(mapping.minValue  || 0);
-    if(mapping.fine){
-        mapping.maxValue = parseInt(mapping.maxValue  || 255*255);
-    }else{
-        mapping.maxValue = parseInt(mapping.maxValue  || 255);
-    }
-
-    if (mapping.minValue === mapping.maxValue){error.push("minValue and maxValue are the same")}
-
-    return {error: error};
-}
-
-function validateOscMapping(mapping){
-    var error = [];
-
-    if (!mapping.channel){error.push('No OSC channel defined')}
-    if (!mapping.datatype){error.push('No OSC data-type defined')}
-    mapping.minValue = mapping.minValue  || 0;
-    mapping.maxValue = mapping.maxValue  || 255;
-
-    return {error: error};
-}
 
 
 // nice logging
