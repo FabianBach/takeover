@@ -34,6 +34,7 @@
     border-radius: 50%;
     @include tkvr-shadow;
     @include tkvr-indicator-transition;
+    @include tkvr-hardware-acc;
   }
 
   .horizontal .indicator{
@@ -52,18 +53,21 @@
     .indicator{
       background-color: $tkvr-enabled;
       @include tkvr-indicator-size($tkvr-input-indicator-size-enabled);
+      @include tkvr-indicator-foreign-transition;
     }
   }
   .disabled {
     .indicator{
       background-color: $tkvr-disabled;
       @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
+      @include tkvr-indicator-foreign-transition;
     }
   }
   .foreign-used{
     .indicator {
       background-color: $tkvr-light;
       @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
+      @include tkvr-indicator-foreign-transition;
     }
   }
   .active {
@@ -71,7 +75,8 @@
       background-color: $tkvr-highlight;
       @include tkvr-indicator-size($tkvr-input-indicator-size-active);
       @include tkvr-shadow-active;
-//      @include tkvr-indicator-holo($tkvr-highlight, $tkvr-input-indicator-size-holo);
+      @include tkvr-indicator-transition; //override the foreign transition
+      //      @include tkvr-indicator-holo($tkvr-highlight, $tkvr-input-indicator-size-holo);
     }
   }
 }

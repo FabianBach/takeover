@@ -1,5 +1,15 @@
+$tkvr-transition-duration: 0.125s;
+$tkvr-transition-easing: ease-out;
+
 @mixin tkvr-indicator-transition(){
   transition-property: width, height, margin, box-shadow, background-color;
-  transition-duration: 0.125s;
-  transition-timing-function: ease-out;
+  transition-duration: $tkvr-transition-duration;
+  transition-timing-function: $tkvr-transition-easing;
+}
+@mixin tkvr-indicator-foreign-transition(){
+  // same as in indicator-transition but including absolute positions
+  // TODO: get a function to concat this string or something similar
+  transition-property: left, top, right, bottom, width, height, margin, box-shadow, background-color;
+  transition-duration: $tkvr-transition-duration;
+  transition-timing-function: $tkvr-transition-easing;
 }
