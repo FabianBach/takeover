@@ -7,10 +7,14 @@ var dmx,
 
 var controlModule = require(global.tkvrBasePath + '/resources/server/control-module.js');
 
-function init (config){
+function init (config, callback){
+    callback = callback || function(){};
+
     setUpMidi(config.midi);
     setUpDmx(config.dmx);
     setUpOsc(config.osc);
+
+    callback();
 }
 
 function setUpMidi(config){
@@ -116,7 +120,7 @@ function useDmx (value, maxValue, mapping){
 }
 
 function sendDmx (dmxObj){
-    console.log('DMX: channel: ' + dmxObj.channel + ' value: '+ dmxObj.value);
+    //console.log('DMX: channel: ' + dmxObj.channel + ' value: '+ dmxObj.value);
     if (!dmx){ return }
     var sendObj = {};
     sendObj[parseInt(dmxObj.channel)-1] = dmxObj.value;
@@ -144,7 +148,7 @@ function useMidi (value, maxValue, mappingData){
 }
 
 function sendMidi (midiObj){
-    console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
+    //console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
     if (!midi){ return }
     var sendObj = {};
 
@@ -213,15 +217,16 @@ function mapValue(value, maxValue, mapping){
             var foreignValue = foreignModule && foreignModule.value;
             var foreignMax = foreignModule && foreignModule.maxValue;
 
-            mapData = foreignValue || value;
-            mapMax = foreignMax || maxValue;
+            mapData = typeof foreignValue === 'number' ? foreignValue : value;
+            mapMax = typeof foreignMax === 'number' ? foreignMax : maxValue;
 
         }else{
             mapData = value;
             mapMax = maxValue;
         }
-        var minVal = mapping.minValue || mapping.value;
-        var maxVal = mapping.maxValue || mapping.value;
+
+        var minVal = typeof mapping.minValue === 'number' ? mapping.minValue : mapping.value;
+        var maxVal = typeof mapping.maxValue === 'number' ? mapping.maxValue : mapping.value;
         mappedValue = getMappedValue(mapData, mapMax, minVal, maxVal, mapping.invert);
 
     }else{

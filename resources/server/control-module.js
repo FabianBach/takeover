@@ -18,6 +18,7 @@ function init (config, callback){
     callback = callback || function(){};
 
     createFromFiles(function(){
+        setForeignListeners();
         //TODO: give back error if something goes wrong
         callback();
     });
@@ -30,8 +31,9 @@ function createModule (config){
 
     config.io = config.io || io;
 
+    // the shared object is a substitute for protected members in JS
     var shared = {
-        'getModuleById': getModuleById,
+        'setForeignListener': setForeignListener,
         'createModule' : createModule
     };
 
@@ -71,6 +73,24 @@ function createFromFiles(configsPath, callback){
         }
         callback();
     });
+}
+
+// will call the set foreign value listeners function on each created module
+// has to be done when all modules have been created
+// TODO: at the moment the modules get linked together
+// maybe it would be better to make the control module listen for value changes
+// and let other modules register for changes on other module IDs
+function setForeignListeners(){
+    for(var module in createdModules){
+        createdModules[module].setForeignValueListeners();
+    }
+}
+
+function setForeignListener(moduleId, listener){
+    var module = createdModules[moduleId];
+    if(!module){ return };
+    module.onValueChange(listener);
+    console.log('Foreign value listener on:', moduleId.grey);
 }
 
 function getModuleList(){

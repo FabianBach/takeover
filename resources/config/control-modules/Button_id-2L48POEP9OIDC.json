@@ -1,4 +1,7 @@
 {
+
+  "disabled": true,
+
   "id" : "2L48POEP9OIDC",
   "type": "button",
   "name": "5 sec timeout button",

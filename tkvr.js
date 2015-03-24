@@ -22,7 +22,7 @@ function onFileRead (error, buffer){
 
     config = JSON.parse(jsonConfig);
     initServer(config, onServerInit);
-    initMapper(config);
+    initMapper(config, onMapperInit);
 }
 
 function initServer(config, callback){
@@ -47,11 +47,12 @@ function initViews(callback){
 }
 function onViewsInit(error){
     console.log('Finished creating views.'.cyan);
-    mapper.doStartupMapping();
 }
 
-function initMapper(config){
-    mapper.init(config);
+function initMapper(config, callback){
+    mapper.init(config, callback);
+}
+function onMapperInit(){
     mapper.doStartupMapping();
 }
 

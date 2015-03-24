@@ -19,19 +19,6 @@
       "channel": 13,
       "minValue": 0,
       "maxValue": 255
-    },
-    { "type" : "midi",
-      "msgType" : "control change",
-      "channel" :  1,
-      "byte_1" : {
-        "doMapping" : false,
-        "value" : 46
-      },
-      "byte_2" : {
-        "doMapping" : true,
-        "minValue" : 0,
-        "maxValue" : 127
-      }
     }
   ]
 }
