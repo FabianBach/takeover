@@ -3,3 +3,8 @@
   transition-duration: 0.125s;
   transition-timing-function: ease-out;
 }
+@mixin tkvr-indicator-foreign-transition(){
+  transition-property: left, top, right, bottom;
+  transition-duration: 0.125s;
+  transition-timing-function: ease-out;
+}
