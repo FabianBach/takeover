@@ -6,9 +6,10 @@ $tkvr-transition-easing: ease-out;
   transition-duration: $tkvr-transition-duration;
   transition-timing-function: $tkvr-transition-easing;
 }
+
+// same as in indicator-transition but including absolute positions
+// TODO: get a function to concat this string or something similar
 @mixin tkvr-indicator-foreign-transition(){
-  // same as in indicator-transition but including absolute positions
-  // TODO: get a function to concat this string or something similar
   transition-property: left, top, right, bottom, width, height, margin, box-shadow, background-color;
   transition-duration: $tkvr-transition-duration;
   transition-timing-function: $tkvr-transition-easing;

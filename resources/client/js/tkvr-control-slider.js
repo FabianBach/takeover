@@ -33,12 +33,13 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             if (scope.control.isEnabled){
                 scope.control.isActive = true;
                 scope.control.socket.emit('in_use');
+                scope.$digest();
             }
         });
 
         $('html').on('pointerup pointercancel', function(event){
+            if (!scope.control.isActive){ return }
             scope.control.isActive = false;
-            scope.control.hasFocus = false;
             scope.control.socket.emit('use_end');
             scope.$digest();
         });

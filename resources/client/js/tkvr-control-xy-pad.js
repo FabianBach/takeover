@@ -41,6 +41,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         });
 
         $('html').on('pointerup pointercancel', function(event){
+            if (!scope.control.isActive){ return }
             scope.control.isActive = false;
             scope.control.xSocket.emit('use_end');
             scope.control.ySocket.emit('use_end');
