@@ -17,51 +17,6 @@ function init (config, callback){
     callback();
 }
 
-function setUpMidi(config){
-    var midiModule = require('midi');
-    printMidiList();
-    midi = {};
-    for(var midiName in config){
-        var midiOut = new midiModule.output();
-        var portCount = midiOut.getPortCount();
-        for (var i = 0; i < portCount; i++) {
-            if(midiOut.getPortName(i) === config[midiName]){
-                midiOut.openPort(i);
-                process.on('beforeExit', function(code){
-                    midiOut.closePort();
-                });
-                midi[midiName] = midiOut;
-            }
-        }
-    }
-
-    function printMidiList() {
-        console.log('MIDI Port List:');
-        var midiOut = new midiModule.output();
-        var portCount = midiOut.getPortCount();
-        for (var i = 0; i < portCount; i++) {
-            console.log(midiOut.getPortName(i));
-        }
-    }
-}
-
-function setUpDmx(config){
-// TODO: there could be multiple DMX devices of same type connected
-    var DMX = require('dmx');
-    dmx = new DMX();
-
-    for (var dmxName in config){
-        var universe = dmx.addUniverse(dmxName, config[dmxName], 0);
-        process.on('beforeExit', function(code){
-            //TODO: is this working?
-            universe.close();
-        });
-    }
-}
-
-function setUpOsc(config){
-    //TODO: setUpOsc
-}
 
 function doMapping (value, maxValue, mappings){
     var error = [];
@@ -91,8 +46,20 @@ function doMapping (value, maxValue, mappings){
     return {error: error}
 }
 
-// these functions will send the mapped data to the external devices
-// or if no device is available they will just log it or do something else... like nothing
+function setUpDmx(config){
+// TODO: there could be multiple DMX devices of same type connected
+    var DMX = require('dmx');
+    dmx = new DMX();
+
+    for (var dmxName in config){
+        var universe = dmx.addUniverse(dmxName, config[dmxName], 0);
+        process.on('beforeExit', function(code){
+            //TODO: is this working?
+            universe.close();
+        });
+    }
+}
+
 function useDmx (value, maxValue, mapping){
     value = parseInt(value);
     var mappedValue = mapValue(value, maxValue, mapping);
@@ -127,6 +94,34 @@ function sendDmx (dmxObj){
     for(var universeName in dmx.universes){
         if( (dmxObj.universe === universeName) || (typeof dmxObj.universe !== 'string')){
             dmx.update(universeName, sendObj);
+        }
+    }
+}
+
+function setUpMidi(config){
+    var midiModule = require('midi');
+    printMidiList();
+    midi = {};
+    for(var midiName in config){
+        var midiOut = new midiModule.output();
+        var portCount = midiOut.getPortCount();
+        for (var i = 0; i < portCount; i++) {
+            if(midiOut.getPortName(i) === config[midiName]){
+                midiOut.openPort(i);
+                process.on('beforeExit', function(code){
+                    midiOut.closePort();
+                });
+                midi[midiName] = midiOut;
+            }
+        }
+    }
+
+    function printMidiList() {
+        console.log('MIDI Port List:');
+        var midiOut = new midiModule.output();
+        var portCount = midiOut.getPortCount();
+        for (var i = 0; i < portCount; i++) {
+            console.log(midiOut.getPortName(i));
         }
     }
 }
@@ -192,6 +187,10 @@ function sendMidi (midiObj){
     }
 }
 
+function setUpOsc(config){
+    //TODO: setUpOsc
+}
+
 function useOsc (value, maxValue, mappingData){
     sendOsc(value);
 }
@@ -203,8 +202,6 @@ function sendOsc (oscObj){
 
 
 // General mapping helper functions
-
-//
 function mapValue(value, maxValue, mapping){
     var mappedValue,
         mapData,

@@ -2,7 +2,7 @@
 // this function will check for errors in the config object
 // this will only check values which all modules have in common
 // every module will have to check for its specific config values
-function validateConfig(config){
+function validateControlConfig(config){
 
     var error = [];
 
@@ -99,6 +99,7 @@ function validateMidiMapping(mapping){
         if (mapping.channel > 16){ mapping.channel = 16}
     }
 
+    //TODO: same validation for byte_1 and byte_2 in one function!
     // byte_1
     mapping.byte_1 = mapping.byte_1 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
     mapping.byte_1.doMapping = mapping.byte_1.doMapping || false;
@@ -173,9 +174,25 @@ function validateOscMapping(mapping){
     return {error: error};
 }
 
+function validateGeneralMapping(mapping){
+    // TODO: validate mapping stuff like:
+
+    // if minVal === maxVal -> doMapping = false -> value = minVal;
+    // if !minVal -> check if val > minVal -> maxVal = val
+    // if !maxVal -> check if val < maxVal -> minVal = val
+
+    // invert = !!invert
+}
+
+function validateAnimation(animation, outputType){
+    // TODO: check-correct if times and values are integers
+    // check-correct if values are not < 0 or > dmxMax or MidiMax
+    // check-correct if type is defined in each step
+}
+
 var that = {};
 
-that.validateConfig = validateConfig;
+that.validateConfig = validateControlConfig;
 that.validateMapping = validateMapping;
 
 module.exports = that;
