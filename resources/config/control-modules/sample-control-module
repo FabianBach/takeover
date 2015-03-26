@@ -1,87 +1,107 @@
-/* This is a sample config json to configurate the modules
- * such as buttons, slider, and touch-areas.
- * This file is used for development and documentation
+[
+/* This is a sample config json to document the configuration of control modules
+ * e.g. buttons, sliders and xy-pads
  */
-        // TODO: Mapping or values to use on connection before first input
-        // TODO: Mapping or values to use when no client is connected
-        // TODO: Mapping or values to use when active client disconnects, such as turn light back on for example
-        // TODO: Animations:
-        //        mapping: { minValue: 0, maxValue: 255, animation: {
-        //          {repeat: true}, //reverse, fromStart (== true), false
-        //          {reverse: true},
-        //          frames:[
-        //            {wait: 1000},
-        //            {goto: 128, time: 250, curve: 'linear'},
-        //            {goto: 0, time: 500},
-        //            {wait: 1000},
-        //            {goto: 0, time: 500},
-        //          ]}}
+
 {
+  "id": "A1B2C3D4E5F6", // OPTIONAL - STRING - has to be unique
+  "name" : "sample module mapping", // OPTIONAL - STRING
+  "title": "Some label", // OPTIONAL - STRING
+  "type" : "slider", // REQUIRED - STRING - not case sensitive - button, slider, xy-pad etc...
+  "disabled" : true, // OPTIONAL - BOOLEAN - Defaults to false - if true this module will not be loaded
+  "resolution": 100, // ? - NUMBER - e.g. steps of a Slider
+  "maxTime": 60, // OPTIONAL - NUMBER - defaults to infinty - time in seconds a user can use this control
+  "maxUsers": 1, // OPTIONAL - NUMBER - defaults to infinity - number of users that have this control enabled simultaneously
 
-  "id": "A1B2C3D4E5F6", // has to be unique
-  "name" : "sample module mapping",
-  "title": "Some label",
-  "type" : "slider", // this can be any type of module such as button, slider, etc...
-  "disabled" : true,
-  "resolution": 100,
-  "maxTime": 60, // seconds
-  "maxUsers": 1,
-
-  "mapping" : [   // Array containing all the mappings for this module
-
-    { // MIDI
-      "type" : "midi",
-      // the midi protocol is made of 3 byte: status, data1 and data2.
-      // 1000 (Note On) 0101 (Channel 5) 01111111 (Data1 127) 01000001 (Data2 65)
-      // for example: 1: message (4bit) and channel (4bit), 2: key (7bit) and 3: velocity (7bit)
-
-      "msgType" : "Note On", // Controller Change, Programm Change, Note On, Note Off, etc...
-      "channel" :  15, // max value = 4bit (1111) = 15 -> 1 - 16
-      "byte_1" : {
-        "doMapping" : true,
-        "minValue" : 0, // no negative values
-        "maxValue" : 127, // 7 bit == 127 max
-        "foreignValue": "GHIJK19829"
-      },
-      "byte_2" : {
-        "doMapping" : false,
-        "value" : 127 // 7 bit == 127 max
-      }
-    },
-
-    { // DMX
-      "type" : "dmx",
-      "channel" : 127, // 512 max
-      "minValue" : 0, // no negative values
-      "maxValue" : 100, // 8 bit == 255 max
-
-      // this will combine two channels to use 256 * 256 steps
-      // when end of channel 1 is reached channel two will increment by one and set channel 1 back to 0
-      "fine" : true,
-
-      "animation" : {
-        "type" : "linear",
-        "time" : 2000
-      }
-
-    },
-
-    { // OSC
-      "type" : "osc",
-      "channel" : "127.0.0.1:3000/some/channel/",
-      "datatype" : "float", // this will get interesting...
-      "minValue" : "0", // could also be negative
-      "maxValue" : "100" // can get as big as a int or float can cat I guess
-    }
-
+  "mapping" : [   // REQUIRED - ARRAY - Array containing all the mapping objects for this module
+    // see mappings
   ],
   "onDisconnectMapping" : [
-    // TODO
+    // TODO: Mapping or values to use when active client disconnects, such as turn light back on for example
+    // see mappings
   ],
   "onConnectMapping" : [
-    // TODO
+    // TODO: Mapping or values to use on connection before first input
+    // see mappings
   ],
   "noConnectionMapping" : [
-    // TODO
+    // TODO: Mapping or values to use when no client is connected
+    // see mappings
+  ]
+},
+
+
+/**
+  * MAPPINGS
+  **/
+
+  { // MIDI
+    "type" : "midi",
+    // the midi protocol is made of 3 byte: status, data1 and data2.
+    // 1000 (Note On) 0101 (Channel 5) 01111111 (Data1 127) 01000001 (Data2 65)
+    // for example: 1: message (4bit) and channel (4bit), 2: key (7bit) and 3: velocity (7bit)
+
+    "msgType" : "Note On", // Controller Change, Programm Change, Note On, Note Off, etc...
+    "channel" :  15, // max value = 4bit (1111) = 15 -> 1 - 16
+    "byte_1" : {
+      "doMapping" : true,
+      "minValue" : 0, // no negative values
+      "maxValue" : 127, // 7 bit == 127 max
+      "foreignValue": "GHIJK19829",
+      "animation" : {
+        //see animation
+      }
+    },
+    "byte_2" : {
+      "doMapping" : false,
+      "value" : 127 // 7 bit == 127 max
+    }
+  },
+
+  { // DMX
+    "type" : "dmx",
+    "channel" : 127, // 512 max
+    "fine" : true, // this will combine two channels to use 256 * 256 steps, when end of channel 1 is reached channel two will increment by one and set channel 1 back to 0
+
+    "doMapping" : true,
+    "minValue" : 0, // no negative values
+    "maxValue" : 100, // 8 bit == 255 max
+    "foreignValue": "GHIJK19829",
+    "animation" : {
+      //see animation
+    }
+
+  },
+
+  { // TODO: OSC - this mapping will not be used by now
+    "type" : "osc",
+    "channel" : "127.0.0.1:3000/some/channel/",
+    "datatype" : "float", // this will get interesting...
+    "minValue" : "0", // could also be negative
+    "maxValue" : "100" // can get as big as a int or float I guess
+  },
+
+/**
+  * ANIMATIONS
+  **/
+{
+  "loop": "reverse", // OPTIONAL - STRING - defaults to no loop - e.g. reverse, restart
+  "trigger": "pause", // OPTIONAL - STRING - defaults to "restart" - e.g. restart, continue, == ignore, reverse, stop, pause
+  "triggerOnZero": true, // OPTIONAL - BOOLEAN - defaults to false - will trigger when e.g. button is released or switch is turned off
+  "steps": [ // REQUIRED - ARRAY - contains all the steps the animation should do
+    {
+      "type": "animate", // REQUIRED - STRING - has to be "animate" or "wait"
+      "to": 128, // REQUIRED - NUMBER - Value the mapping shuold be animated to
+      "time": 250, // REQUIRED - NUMBER - Animation-time in milliseconds
+      "curve": "linear" // OPTIONAL - STRING - defaults to linear - name of easing curves can be found and testet at greenSock
+    },
+
+    {
+      "type": "wait", // REQUIRED - STRING - has to be "animate" or "wait"
+      "time": 1000 // REQUIRED - NUMBER - Waiting-time in milliseconds
+    }
   ]
 }
+
+// End of documentation
+]
