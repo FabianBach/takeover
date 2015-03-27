@@ -1,16 +1,16 @@
 var tween = require(global.tkvrBasePath + '/resources/server/tween-module.js');
 var animations = {};
 
-function doAnimation(mapping, objRef, onUpdateCallback, onCompleteCallback){
+function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     onUpdateCallback = onUpdateCallback || function(){};
     onCompleteCallback = onCompleteCallback || function(){};
 
-    var animation = getAnimation(mapping);
+    var animation = getAnimation(config);
 
     // fist check if any animation is running on that channel
     // and what should be done if any other animation comes in
     if (animation) {
-        switch (animation.mapping.animation) {
+        switch (animation.config.trigger) {
             //TODO: implement the cases
             case 'ignore':
             case 'continue':
@@ -44,32 +44,34 @@ function doAnimation(mapping, objRef, onUpdateCallback, onCompleteCallback){
     }
 
     function startNewAnimation(){
-        animation = setUpAnimation(mapping, objRef, onUpdateCallback, onCompleteCallback);
+        animation = setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef);
     }
 }
 
-function setUpAnimation(mapping, objRef, onUpdateCallback, onCompleteCallback){
+function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
+    objRef = objRef || {value : 0};
     var animation = tween;
     animation.tkvrId = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
-    animation.tkvrKey = getAnimationKey(mapping);
-    animation.mapping = mapping;
+    animation.tkvrKey = getAnimationKey(config);
+    animation.config = config;
 
+    var steps = config.steps;
     var actualValue = objRef.value;
-    for(var step in mapping.animation.steps){
-        switch (step.type){
+    for(var step in steps){
+        switch (steps[step].type){
             case 'animate':
-                animation.to(objRef, mapping.time/1000, {value: mapping.to});
-                actualValue = mapping.to;
+                animation.to(objRef, steps[step].time/1000, {value: steps[step].to});
+                actualValue = steps[step].to;
                 break;
 
             case 'wait':
-                animation.to(objRef, mapping.time/1000, {value: actualValue});
+                animation.to(objRef, steps[step].time/1000, {value: actualValue});
                 break;
         }
     }
 
     animation.eventCallback('onComplete', function onComplete(){
-        var repeat = mapping.animation.loop;
+        var repeat = config.loop;
         switch (repeat){
             case 'reverse':
                 // reverse
@@ -90,28 +92,32 @@ function setUpAnimation(mapping, objRef, onUpdateCallback, onCompleteCallback){
         var newValue = parseInt(objRef.value);
         if(oldValue === newValue){ return }
 
-        animation.oldValue = newValue;
         onUpdateCallback(newValue, oldValue);
+        animation.oldValue = newValue;
     });
 
     animations[animation.tkvrKey] = animation;
     return animation;
 }
 
-function getAnimation(mapping){
-    var key = getAnimationKey(mapping);
+function getAnimation(config){
+    var key = getAnimationKey(config);
     return animations[key] || null;
 }
 
-function getAnimationKey(mapping){
+function getAnimationKey(config){
     //TODO: OSC is not in here yet
-    var out = mapping.universe || mapping.midiOut;
+
+    var key = config.key;
+    if (key){ return key }
+
+    var out = config.universe || config.midiOut;
     out = out.toLowerCase();
-    return (mapping.type +'_'+ mapping.channel +'_'+ out);
+    return (config.type +'_'+ config.channel +'_'+ out);
 }
 
-function animationIsRunning(mapping){
-    var animation = getAnimation(mapping);
+function animationIsRunning(config){
+    var animation = getAnimation(config);
     if(animation === null){return false}
     //TODO: not the real interface: running()
     return animation.isActive();
@@ -119,7 +125,7 @@ function animationIsRunning(mapping){
 
 
 var that = {};
-that.doAnimation = doAnimation;
+that.triggerAnimation = triggerAnimation;
 that.isRunning = animationIsRunning;
 that.getAnimationKey = getAnimationKey;
 module.exports = that;

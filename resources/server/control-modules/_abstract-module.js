@@ -25,6 +25,7 @@ var abstractModule = function(config, shared){
         type,
         title,
         mappings,
+        animations,
         maxUsers,
         maxTime,
         inUse,
@@ -93,6 +94,7 @@ var abstractModule = function(config, shared){
         value = minValue;
 
         mappings = config.mapping;
+        animations = config.animation;
     }
 
     function setForeignValueListeners(){
@@ -133,6 +135,11 @@ var abstractModule = function(config, shared){
         // creates a new and unique namespace using the id
         ioSocket = io;
         ioNamespace = io.of("/" + getId());
+
+        // TODO: add socket to all mapping rooms
+        // TODO: mapping room on animation start: disable control?
+        // TODO: mapping room on animation end: enable control?
+        // TODO: control on value change: stop animation?
 
         // will be invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
@@ -297,11 +304,13 @@ var abstractModule = function(config, shared){
         if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad value: ', value, dataLog);
 
         setValue(value);
+        socket.broadcast.emit('value_update', value);
 
         var processLog = processValue(value);
         if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
 
-        socket.broadcast.emit('value_update', value);
+        // TODO: trigger animations here
+        // var animationLog = triggerAnimations(value);
     }
 
     function onForeignValueChange (value){
@@ -355,6 +364,19 @@ var abstractModule = function(config, shared){
 
     function onNoConnections(){
         // TODO: apply special mapping on no client connected
+    }
+
+    function triggerAnimations(){
+        // TODO: for animation in animations
+        // animationConfig['key'] = this.getNamespace;
+        // animationModule.triggerAnimation(animationConfig, onUpdateCallback, onCompleteCallback, animationConfig)
+        // socket animation room emit animation start with disable flag
+        // socket control namespace emit animation start with disable flag
+
+        // onUpdate mapper.doMapping(0, 0, [animationConfig])
+        // onComplete animation room emit animation end
+        // onComplete socket namespace emit animation end
+
     }
 
     // getters and setters

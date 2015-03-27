@@ -6,6 +6,7 @@ var dmx,
     midi;
 
 var controlModule = require(global.tkvrBasePath + '/resources/server/control-module.js');
+var animationModule = require(global.tkvrBasePath + '/resources/server/animation-module.js');
 
 function init (config, callback){
     callback = callback || function(){};
@@ -24,6 +25,9 @@ function doMapping (value, maxValue, mappings){
     for(var i = 0; i < mappings.length; i++){
         var mapping = mappings[i];
 
+        // the animations are done seperate
+        if (mapping.animation){ break; }
+
         switch (mapping.type){
 
             case 'dmx':
@@ -41,6 +45,7 @@ function doMapping (value, maxValue, mappings){
             default :
                 error.push('Can not map to: '+ mapping.type);
         }
+
     }
 
     return {error: error}

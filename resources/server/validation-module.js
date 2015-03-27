@@ -46,6 +46,14 @@ function validateControlConfig(config){
         config.mapping = [];
     }
 
+    // ANIMATION
+    if (config.animation){
+        var animationLog = validateAnimation(config.animation);
+        if (animationLog.error.length){ error.push({'animationError': animationLog.error});}
+    } else {
+        config.animation = [];
+    }
+
     return {error: error};
 }
 
@@ -101,7 +109,7 @@ function validateMidiMapping(mapping){
 
     //TODO: same validation for byte_1 and byte_2 in one function!
     // byte_1
-    mapping.byte_1 = mapping.byte_1 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
+    mapping.byte_1 = mapping.byte_1 || {"doMapping" : false, "value": 0};
     mapping.byte_1.doMapping = mapping.byte_1.doMapping || false;
     if (mapping.byte_1.doMapping){
         //minimum value
@@ -120,7 +128,7 @@ function validateMidiMapping(mapping){
         if (mapping.byte_1.value > 127){ mapping.byte_1.value = 127 }
     }
     // byte_2
-    mapping.byte_2 = mapping.byte_2 || {"doMapping" : true, "minValue": 0, "maxValue": 127};
+    mapping.byte_2 = mapping.byte_2 || {"doMapping" : false, "value": 0};
     mapping.byte_2.doMapping = mapping.byte_2.doMapping || false;
     if (mapping.byte_2.doMapping){
         //minimum value
@@ -184,10 +192,16 @@ function validateGeneralMapping(mapping){
     // invert = !!invert
 }
 
-function validateAnimation(animation, outputType){
+function validateAnimation(animations){
     // TODO: check-correct if times and values are integers
     // check-correct if values are not < 0 or > dmxMax or MidiMax
     // check-correct if type is defined in each step
+    // doMapping = false
+    // startValue == value == maxValue == minValue
+    // value == startValue
+
+    var error = [];
+    return {error: error};
 }
 
 var that = {};

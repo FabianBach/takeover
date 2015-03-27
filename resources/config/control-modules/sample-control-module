@@ -27,6 +27,9 @@
   "noConnectionMapping" : [
     // TODO: Mapping or values to use when no client is connected
     // see mappings
+  ],
+  "animation" : [
+
   ]
 },
 
@@ -47,10 +50,7 @@
       "doMapping" : true,
       "minValue" : 0, // no negative values
       "maxValue" : 127, // 7 bit == 127 max
-      "foreignValue": "GHIJK19829",
-      "animation" : {
-        //see animation
-      }
+      "foreignValue": "GHIJK19829"
     },
     "byte_2" : {
       "doMapping" : false,
@@ -66,11 +66,7 @@
     "doMapping" : true,
     "minValue" : 0, // no negative values
     "maxValue" : 100, // 8 bit == 255 max
-    "foreignValue": "GHIJK19829",
-    "animation" : {
-      //see animation
-    }
-
+    "foreignValue": "GHIJK19829"
   },
 
   { // TODO: OSC - this mapping will not be used by now
@@ -85,6 +81,11 @@
   * ANIMATIONS
   **/
 {
+  "type" : "dmx", // REQUIRED - STRING - can be dmx, midi or osc
+  "channel" : 127, // REQUIRED - NUMBER - 512 max
+
+  "startValue" : 0, // REQUIRED - NUMBER - animation starting point
+
   "loop": "reverse", // OPTIONAL - STRING - defaults to no loop - e.g. reverse, restart
   "trigger": "pause", // OPTIONAL - STRING - defaults to "restart" - e.g. restart, continue, == ignore, reverse, stop, pause
   "triggerOnZero": true, // OPTIONAL - BOOLEAN - defaults to false - will trigger when e.g. button is released or switch is turned off
