@@ -4,6 +4,9 @@
 // this will be the only control module needed to require
 
 var io;
+var controlEventHandler;
+
+var events = require('events');
 
 // all available modules should be listed here
 var controlModules = {};
@@ -22,6 +25,8 @@ function init (config, callback){
         //TODO: give back error if something goes wrong
         callback();
     });
+
+    controlEventHandler = new (events.EventEmitter);
 }
 
 function createModule (config){
@@ -30,6 +35,7 @@ function createModule (config){
     if (!config || !config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
 
     config.io = config.io || io;
+    config.controlEventHandler = controlEventHandler;
 
     // the shared object is a substitute for protected members in JS
     var shared = {

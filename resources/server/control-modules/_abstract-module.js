@@ -37,9 +37,12 @@ var abstractModule = function(config, shared){
         ioSocket,
         ioNamespace,
         activeConnections = {},
-        waitingConnections = [];
+        waitingConnections = [],
+        channelEmitKeys = [],
+        channelListenKeys = [];
 
     var eventHandler,
+        controlEventHandler,
         validator,
         mapper;
 
@@ -61,6 +64,7 @@ var abstractModule = function(config, shared){
         var socketLog = createSocket(config.io);
         if (socketLog.error.length) return {error: socketLog.error};
 
+        setChannelKeys();
         setEvents();
 
         // TODO: apply special mapping or value when no client is connected initially
@@ -95,6 +99,8 @@ var abstractModule = function(config, shared){
 
         mappings = config.mapping;
         animations = config.animation;
+
+        controlEventHandler = config.controlEventHandler;
     }
 
     function setForeignValueListeners(){
@@ -148,7 +154,7 @@ var abstractModule = function(config, shared){
 
             socket.on('disconnect', function(){
                 disableSocket(socket);
-                socket.disconnect();
+                //socket.disconnect();
             });
 
             // if the max number of users is not reached yet set socket active
@@ -231,7 +237,7 @@ var abstractModule = function(config, shared){
         moveWatingline();
     }
 
-    // will move the socket back to the waiting list and disable its interface on the client
+    // will disable its interface on the client
     function disableSocket(socket){
 
         socket.removeAllListeners('value_change');
@@ -290,6 +296,21 @@ var abstractModule = function(config, shared){
         eventHandler.on('in_use', onUse);
         eventHandler.on('use_end', onUseEnd);
         eventHandler.on('no_connections', onNoConnections);
+
+        setChannelEvents();
+    }
+
+    function setChannelEvents(){
+        for(var i = 0; i < channelListenKeys.length; i++){
+            controlEventHandler.on(channelListenKeys[i], onChannelEvent);
+        }
+    }
+
+    function emitChannelEvent(eventName, data){
+        data = data || null;
+        for(var i = 0; i < channelEmitKeys.length; i++){
+            controlEventHandler.emit(channelEmitKeys[i], eventName, data);
+        }
     }
 
     //FIXME: use .bind
@@ -320,6 +341,23 @@ var abstractModule = function(config, shared){
         if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
     }
 
+    function onChannelEvent(eventName, controlId){
+        if(controlId === getId()){ return };
+        console.log(eventName.red, controlId, getId());
+        switch (eventName){
+            case 'channelUse':
+                // stop animations
+                // disable
+                onUse(null);
+                break;
+
+            case 'channelUseEnd':
+                // enable
+                onUseEnd(null);
+                break;
+        }
+    }
+
     function processValue (value){
         console.log('Module ' + getNameAndId() + ' value: ', value);
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
@@ -335,14 +373,22 @@ var abstractModule = function(config, shared){
     }
 
     function onUse(socket){
-        socket.broadcast.emit('foreignUse', true);
         inUse = true;
-        inUseSocket = socket;
-        var disableArray = [];
 
+        if (socket){
+            socket.broadcast.emit('foreignUse', true);
+            emitChannelEvent('channelUse', getId());
+            inUseSocket = socket;
+
+        } else {
+            ioNamespace.emit('foreignUse', true);
+            inUseSocket = null;
+        }
+
+        var disableArray = [];
         for(var someSocketId in activeConnections.sockets){
             var someSocket = activeConnections.sockets[someSocketId];
-            if (someSocket.id !== socket.id){
+            if (inUseSocket && (someSocket.id !== inUseSocket.id)){
                 // we have to disable them after filtering them
                 // because we would manipulate the object while stepping through it
                 disableArray.push(someSocket);
@@ -356,7 +402,16 @@ var abstractModule = function(config, shared){
     }
 
     function onUseEnd(socket){
-        socket.broadcast.emit('foreignUse', false);
+        //TODO if(!animation is running)
+
+        if(socket){
+            socket.broadcast.emit('foreignUse', false);
+            emitChannelEvent('channelUseEnd', getId());
+
+        } else {
+            ioNamespace.emit('foreignUse', false);
+        }
+
         moveWatingline();
         inUse = false;
         inUseSocket = null;
@@ -377,6 +432,45 @@ var abstractModule = function(config, shared){
         // onComplete animation room emit animation end
         // onComplete socket namespace emit animation end
 
+    }
+
+    function setChannelKeys(){
+
+        for(var i = 0; i < mappings.length; i++){
+            addKeys(mappings[i]);
+        }
+        for(var j = 0; j < animations.length; j++){
+            addKeys(animations[j]);
+        }
+
+        function addKeys(mapping){
+            var out = mapping.universe || mapping.midiOut; //TODO: osc
+            var key = getChannelKey(mapping , 'broadcast');
+            channelListenKeys.push(key);
+            if(!out){
+                channelEmitKeys.push(key);
+            }
+
+            if(out){
+                key = getChannelKey(mapping, out);
+                channelListenKeys.push(key);
+                channelEmitKeys.push(key);
+            }
+        }
+
+        function getChannelKey(mapping, out){
+            var type = mapping.type;
+            var channel = mapping.channel;
+            var msg = mapping.msgType || '';
+            out = out.toLowerCase();
+            return (type +'_'+ channel +'_'+ msg +'_'+ out);
+            //TODO: osc
+        }
+
+        console.log('### channel EMIT Keys ###'.grey);
+        console.log(channelEmitKeys);
+        console.log('### channel LISTEN Keys ###'.grey);
+        console.log(channelListenKeys);
     }
 
     // getters and setters

@@ -1,3 +1,4 @@
+// TODO: animations for x and y axis
 
 var xyPad = function(config, shared){
 

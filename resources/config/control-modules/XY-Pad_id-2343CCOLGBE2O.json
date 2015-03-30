@@ -6,8 +6,8 @@
 
   "maxUsers": 3,
   "maxTime" : 15,
-
   "resolution": 255,
+
   "xMapping": [
     {
       "type": "dmx",
@@ -31,6 +31,7 @@
       }
     }
   ],
+
   "yMapping": [
     {
       "type": "dmx",
