@@ -4,7 +4,7 @@
   "name": "Gobo Slider",
   "title": "Gobo",
 
-  "maxTime": 20,
+  "maxTime": 5,
   "maxUsers": 2,
 
   "resolution": 255,

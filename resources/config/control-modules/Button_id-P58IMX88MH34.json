@@ -5,6 +5,7 @@
   "title": "BAM",
 
   "maxUsers": 5,
+  "maxTime" : 3,
 
   "resolution": 1,
 

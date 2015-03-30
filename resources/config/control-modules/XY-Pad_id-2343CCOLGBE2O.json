@@ -5,7 +5,7 @@
   "title": "Position",
 
   "maxUsers": 3,
-  "maxTime" : 15,
+  "maxTime" : 5,
   "resolution": 255,
 
   "xMapping": [

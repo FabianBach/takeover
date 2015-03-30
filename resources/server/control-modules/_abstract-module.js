@@ -39,7 +39,9 @@ var abstractModule = function(config, shared){
         activeConnections = {},
         waitingConnections = [],
         channelEmitKeys = [],
-        channelListenKeys = [];
+        channelListenKeys = [],
+        selfReservedChannels = false,
+        foreignReservedChannels = 0;
 
     var eventHandler,
         controlEventHandler,
@@ -159,7 +161,7 @@ var abstractModule = function(config, shared){
 
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
-            if (!inUse || activeConnections.length < maxUsers){
+            if (!inUse && activeConnections.length < maxUsers){
                 enableSocket(socket);
             }else{
                 putSocketBackInLine(socket);
@@ -178,7 +180,7 @@ var abstractModule = function(config, shared){
         // after a timeout the connection will be disabled and put back in waiting line
         if (maxTime === Infinity){ return }
         socket.disableTimeout = setTimeout(function(){
-            waitingConnections.length
+            waitingConnections.length > 0
                 ? onSocketDisableTimeout(socket)
                 : setSocketTimeout(socket)
         }, maxTime);
@@ -190,14 +192,20 @@ var abstractModule = function(config, shared){
     }
 
     function onSocketDisableTimeout(socket){
-        //reactivate waiting crowd
-        moveWatingline();
+        // enable waiting crowd
+        moveWaitingline();
+        freeChannels();
 
-        socket.on('use_end', disable);
+        if(getInUse().socket === socket){
+            socket.on('use_end', disable);
+        } else {
+            disable()
+        }
 
         function disable(){
             socket.removeListener('use_end', disable);
             putSocketBackInLine(socket);
+            onUseEnd(socket);
         }
     }
 
@@ -234,7 +242,7 @@ var abstractModule = function(config, shared){
             waitingConnections.push(socket);
         }
 
-        moveWatingline();
+        moveWaitingline();
     }
 
     // will disable its interface on the client
@@ -262,7 +270,10 @@ var abstractModule = function(config, shared){
 
     // this will step trough the waiting list until it finds a connected socket
     // this socket will then be made active
-    function moveWatingline(){
+    function moveWaitingline(){
+
+        // fixme: xy-pad buggy: y disables x
+        //if (foreignReservedChannels > 0){ return }
 
         for(var a = activeConnections.length;
             a < maxUsers && waitingConnections.length > 0;
@@ -313,7 +324,6 @@ var abstractModule = function(config, shared){
         }
     }
 
-    //FIXME: use .bind
     function bindForeignValueListener(listener){
         eventHandler.on('value_change', listener);
     }
@@ -342,18 +352,16 @@ var abstractModule = function(config, shared){
     }
 
     function onChannelEvent(eventName, controlId){
-        if(controlId === getId()){ return };
-        console.log(eventName.red, controlId, getId());
+
+        //only trigger foreign use if it is not itself
+        if(controlId === getId()){ return }
         switch (eventName){
-            case 'channelUse':
-                // stop animations
-                // disable
-                onUse(null);
+            case 'channelReserve':
+                onChannelReserve(controlId);
                 break;
 
-            case 'channelUseEnd':
-                // enable
-                onUseEnd(null);
+            case 'channelReserveEnd':
+                onChannelReserveEnd(controlId);
                 break;
         }
     }
@@ -376,12 +384,12 @@ var abstractModule = function(config, shared){
         inUse = true;
 
         if (socket){
-            socket.broadcast.emit('foreignUse', true);
-            emitChannelEvent('channelUse', getId());
+            socket.broadcast.emit('foreignUse', inUse);
             inUseSocket = socket;
+            reserveChannels();
 
         } else {
-            ioNamespace.emit('foreignUse', true);
+            ioNamespace.emit('foreignUse', inUse);
             inUseSocket = null;
         }
 
@@ -403,18 +411,50 @@ var abstractModule = function(config, shared){
 
     function onUseEnd(socket){
         //TODO if(!animation is running)
+        //TODO: if no uncancelable animation is running
+
+        //fixme: xy-pad buggy: y disables x
+        //inUse = !!foreignReservedChannels;
+        inUse = false;
 
         if(socket){
-            socket.broadcast.emit('foreignUse', false);
-            emitChannelEvent('channelUseEnd', getId());
+            // self triggered event
+            socket.broadcast.emit('foreignUse', inUse);
+            freeChannels();
 
         } else {
-            ioNamespace.emit('foreignUse', false);
+            // foreign triggered event
+            ioNamespace.emit('foreignUse', inUse);
         }
 
-        moveWatingline();
-        inUse = false;
         inUseSocket = null;
+        moveWaitingline();
+    }
+
+    function onChannelReserve(controlId){
+        foreignReservedChannels++;
+        //console.log(foreignReservedChannels, getNameAndId());
+        //fixme: xy-pad buggy: y disables x
+        //onUse(null);
+    }
+
+    function onChannelReserveEnd(controlId){
+        foreignReservedChannels--;
+        //console.log(foreignReservedChannels, getNameAndId());
+        //fixme: xy-pad buggy: y disables x
+        //onUseEnd(null);
+    }
+
+    function reserveChannels(){
+        if (selfReservedChannels){ return }
+        emitChannelEvent('channelReserve', getId());
+        selfReservedChannels = true;
+    }
+
+    function freeChannels(){
+        if (!selfReservedChannels){ return }
+        emitChannelEvent('channelReserveEnd', getId());
+        selfReservedChannels = false;
     }
 
     function onNoConnections(){
@@ -425,12 +465,11 @@ var abstractModule = function(config, shared){
         // TODO: for animation in animations
         // animationConfig['key'] = this.getNamespace;
         // animationModule.triggerAnimation(animationConfig, onUpdateCallback, onCompleteCallback, animationConfig)
-        // socket animation room emit animation start with disable flag
-        // socket control namespace emit animation start with disable flag
+        // if animation is not cancelable set some flag
 
         // onUpdate mapper.doMapping(0, 0, [animationConfig])
         // onComplete animation room emit animation end
-        // onComplete socket namespace emit animation end
+        // onComplete onUseEnd
 
     }
 
