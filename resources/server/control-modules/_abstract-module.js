@@ -63,10 +63,14 @@ var abstractModule = function(config, shared){
 
         applyConfig(config);
 
+        //TODO: if !== child
         var socketLog = createSocket(config.io);
         if (socketLog.error.length) return {error: socketLog.error};
 
+        //TODO: if !== parent
         setChannelKeys();
+
+
         setEvents();
 
         // TODO: apply special mapping or value when no client is connected initially
@@ -106,6 +110,7 @@ var abstractModule = function(config, shared){
     }
 
     function setForeignValueListeners(){
+        // TODO: children only
         //step through mappings and set listeners
 
         for(var i=0; i<mappings.length; i++){
@@ -126,7 +131,6 @@ var abstractModule = function(config, shared){
 
             function setListener(mapping){
                 if(mapping.foreignValue){
-                    //FIXME: use .bind
                     shared.setForeignListener(mapping.foreignValue, function(value){
                         eventHandler.emit('foreign_value_change', value);
                     });
@@ -139,6 +143,8 @@ var abstractModule = function(config, shared){
     // it will also handle the connecting sockets and save the references
     // also, the connections will be set active or put in the waiting line
     function createSocket (io){
+        //TODO: parents only
+
         var error = [];
         // creates a new and unique namespace using the id
         ioSocket = io;
@@ -167,7 +173,7 @@ var abstractModule = function(config, shared){
                 putSocketBackInLine(socket);
             }
 
-            socket.emit('value_update', getValue());
+            socket.emit('value_update', getValue()); //TODO: only as parent?
 
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
 
@@ -205,7 +211,8 @@ var abstractModule = function(config, shared){
         function disable(){
             socket.removeListener('use_end', disable);
             putSocketBackInLine(socket);
-            onUseEnd(socket);
+            //eventHandler.emit('use_end', socket);
+            //onUseEnd(socket);
         }
     }
 
@@ -235,7 +242,6 @@ var abstractModule = function(config, shared){
     }
 
     function putSocketBackInLine(socket){
-
         disableSocket(socket);
         // push it back in waiting line if still connected
         if(socket.connected){
@@ -247,7 +253,6 @@ var abstractModule = function(config, shared){
 
     // will disable its interface on the client
     function disableSocket(socket){
-
         socket.removeAllListeners('value_change');
         socket.removeAllListeners('in_use');
         socket.removeAllListeners('use_end');
@@ -255,6 +260,7 @@ var abstractModule = function(config, shared){
         socket.emit('disable');
 
         eventHandler.emit('socket_disabled', socket);
+        fireUseEnd(socket);
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
@@ -294,20 +300,24 @@ var abstractModule = function(config, shared){
     function fireValueChange(socket, data){
         eventHandler.emit('value_change', data, socket);
     }
+
     function fireInUse(socket){
         eventHandler.emit('in_use', socket);
     }
+
     function fireUseEnd(socket){
         eventHandler.emit('use_end', socket);
     }
 
     function setEvents(){
+        //TODO: if !== child
         eventHandler.on('value_change', onValueChange);
         eventHandler.on('foreign_value_change', onForeignValueChange);
         eventHandler.on('in_use', onUse);
         eventHandler.on('use_end', onUseEnd);
         eventHandler.on('no_connections', onNoConnections);
 
+        //TODO: if !== parent
         setChannelEvents();
     }
 
@@ -324,6 +334,8 @@ var abstractModule = function(config, shared){
         }
     }
 
+    // this will notify foreign control modules about any value change
+    // the foreign modules just leaves its callback
     function bindForeignValueListener(listener){
         eventHandler.on('value_change', listener);
     }
@@ -331,20 +343,23 @@ var abstractModule = function(config, shared){
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (value, socket){
-        var dataLog = checkData(value);
+        // TODO: if !== parent
+
+        var dataLog = checkData(value); //TODO: somehow let children check the values before using it
         if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad value: ', value, dataLog);
 
         setValue(value);
-        socket.broadcast.emit('value_update', value);
+        socket.broadcast.emit('value_update', value); //TODO: only as parent?
 
         var processLog = processValue(value);
         if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
 
-        // TODO: trigger animations here
+        // TODO: trigger animations here (child only)
         // var animationLog = triggerAnimations(value);
     }
 
     function onForeignValueChange (value){
+        //TODO: if !== parent
         if(!getInUse().status){ return; }
         // will do mapping with the actual value to update foreign value mappings
         var processLog = processValue(getValue());
@@ -367,6 +382,7 @@ var abstractModule = function(config, shared){
     }
 
     function processValue (value){
+        //TODO: if !== parent - should never be called as parent, but its saver
         console.log('Module ' + getNameAndId() + ' value: ', value);
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
         return mapLog;
@@ -377,12 +393,14 @@ var abstractModule = function(config, shared){
     function checkData (data){
         // TODO: check recieved data
         // probably best to use same validation as on init
+        // parent can not do it, has to be done by children
         return {error: []}
     }
 
     function onUse(socket){
         inUse = true;
 
+        //TODO: socket stuff only if not child
         if (socket){
             socket.broadcast.emit('foreignUse', inUse);
             inUseSocket = socket;
@@ -417,6 +435,7 @@ var abstractModule = function(config, shared){
         //inUse = !!foreignReservedChannels;
         inUse = false;
 
+        //TODO: socket stuff only if not child
         if(socket){
             // self triggered event
             socket.broadcast.emit('foreignUse', inUse);
@@ -442,7 +461,7 @@ var abstractModule = function(config, shared){
         foreignReservedChannels--;
         //console.log(foreignReservedChannels, getNameAndId());
         //fixme: xy-pad buggy: y disables x
-        //onUseEnd(null);
+        //onUseEnd(null); //TODO: eventhandler.emit('use_end', null);
     }
 
     function reserveChannels(){
@@ -469,7 +488,7 @@ var abstractModule = function(config, shared){
 
         // onUpdate mapper.doMapping(0, 0, [animationConfig])
         // onComplete animation room emit animation end
-        // onComplete onUseEnd
+        // onComplete onUseEnd //TODO: eventhandler.emit('use_end', null);
 
     }
 
