@@ -43,18 +43,13 @@ var abstractModule = function(config, prtktd){
         ioSocket,
         ioNamespace,
         activeConnections = {},
-        waitingConnections = [],
-        channelEmitKeys = [],
-        channelListenKeys = [],
-        selfReservedChannels = false,
-        foreignReservedChannels = 0;
+        waitingConnections = [];
 
-    var sharedEventHandler,
-        privateEventHandler,
-        globalEventHandler,
+    var privateEventHandler, // for modules internally
+        sharedEventHandler, // for connnected parent and child modules
+        globalEventHandler, // for all modules created ever
         validator,
         mapper;
-
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
@@ -71,10 +66,6 @@ var abstractModule = function(config, prtktd){
         if (!isChild){
             var socketLog = createSocket(config.io);
             if (socketLog.error.length) return {error: socketLog.error};
-        }
-
-        if (!isParent){
-            setChannelKeys();
         }
 
         setEvents();
@@ -139,7 +130,7 @@ var abstractModule = function(config, prtktd){
                     setListener(mapping.byte_2);
                     break;
                 case 'osc':
-                    //TODO: osc foreign value lsitener
+                    //TODO: osc
                     break;
             }
 
@@ -166,11 +157,6 @@ var abstractModule = function(config, prtktd){
         // creates a new and unique namespace using the id
         ioSocket = io;
         ioNamespace = io.of(getNamespace());
-
-        // TODO: add socket to all mapping rooms
-        // TODO: mapping room on animation start: disable control?
-        // TODO: mapping room on animation end: enable control?
-        // TODO: control on value change: stop animation?
 
         // will be invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
@@ -217,7 +203,6 @@ var abstractModule = function(config, prtktd){
     function onSocketDisableTimeout(socket){
         // enable waiting crowd
         moveWaitingline();
-        freeChannels();
 
         if(getInUse().socket === socket){
             socket.on('use_end', disable);
@@ -295,9 +280,6 @@ var abstractModule = function(config, prtktd){
     // this socket will then be made active
     function moveWaitingline(){
 
-        // fixme: xy-pad buggy: y disables x
-        //if (foreignReservedChannels > 0){ return }
-
         for(var a = activeConnections.length;
             a < (maxUsers + getInUse().status)
             && waitingConnections.length > 0;
@@ -335,21 +317,6 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler.on('use_end', onUseEnd);
         sharedEventHandler.on('no_connections', onNoConnections);
 
-        //TODO: if !== parent
-        setGlobalChannelEvents();
-    }
-
-    function setGlobalChannelEvents(){
-        for(var i = 0; i < channelListenKeys.length; i++){
-            globalEventHandler.on(channelListenKeys[i], onChannelEvent);
-        }
-    }
-
-    function emitChannelEvent(eventName, data){
-        data = data || null;
-        for(var i = 0; i < channelEmitKeys.length; i++){
-            globalEventHandler.emit(channelEmitKeys[i], eventName, data);
-        }
     }
 
     // this will notify foreign control modules about any value change
@@ -402,20 +369,6 @@ var abstractModule = function(config, prtktd){
         if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
     }
 
-    function onChannelEvent(eventName, controlId){
-        //only trigger foreign use if it is not itself
-        if(controlId === getId()){ return }
-        switch (eventName){
-            case 'channelReserve':
-                onChannelReserve(controlId);
-                break;
-
-            case 'channelReserveEnd':
-                onChannelReserveEnd(controlId);
-                break;
-        }
-    }
-
     function processValue (value){
         // only called if it is not a parent
         console.log('Module ' + getNameAndId() + ' value: ', value);
@@ -442,7 +395,6 @@ var abstractModule = function(config, prtktd){
             if (socket){
                 socket.broadcast.emit('foreignUse', inUse);
                 inUseSocket = socket;
-                reserveChannels();
 
             } else {
                 ioNamespace.emit('foreignUse', inUse);
@@ -470,15 +422,12 @@ var abstractModule = function(config, prtktd){
         //TODO if(!animation is running)
         //TODO: if no uncancelable animation is running
 
-        //fixme: xy-pad buggy: y disables x
-        //inUse = !!foreignReservedChannels;
         inUse = false;
 
         if (!isChild){
             if(socket){
                 // self triggered event
                 socket.broadcast.emit('foreignUse', inUse);
-                freeChannels();
 
             } else {
                 // foreign triggered event
@@ -488,32 +437,6 @@ var abstractModule = function(config, prtktd){
             inUseSocket = null;
             moveWaitingline();
         }
-    }
-
-    function onChannelReserve(controlId){
-        foreignReservedChannels++;
-        //console.log(foreignReservedChannels, getNameAndId());
-        //fixme: xy-pad buggy: y disables x
-        //onUse(null);
-    }
-
-    function onChannelReserveEnd(controlId){
-        foreignReservedChannels--;
-        //console.log(foreignReservedChannels, getNameAndId());
-        //fixme: xy-pad buggy: y disables x
-        //onUseEnd(null); //TODO: eventhandler.emit('use_end', null);
-    }
-
-    function reserveChannels(){
-        if (selfReservedChannels){ return }
-        emitChannelEvent('channelReserve', getId());
-        selfReservedChannels = true;
-    }
-
-    function freeChannels(){
-        if (!selfReservedChannels){ return }
-        emitChannelEvent('channelReserveEnd', getId());
-        selfReservedChannels = false;
     }
 
     function onNoConnections(){
@@ -530,45 +453,6 @@ var abstractModule = function(config, prtktd){
         // onComplete animation room emit animation end
         // onComplete onUseEnd //TODO: eventhandler.emit('use_end', null);
 
-    }
-
-    function setChannelKeys(){
-
-        for(var i = 0; i < mappings.length; i++){
-            addKeys(mappings[i]);
-        }
-        for(var j = 0; j < animations.length; j++){
-            addKeys(animations[j]);
-        }
-
-        function addKeys(mapping){
-            var out = mapping.universe || mapping.midiOut; //TODO: osc
-            var key = getChannelKey(mapping , 'broadcast');
-            channelListenKeys.push(key);
-            if(!out){
-                channelEmitKeys.push(key);
-            }
-
-            if(out){
-                key = getChannelKey(mapping, out);
-                channelListenKeys.push(key);
-                channelEmitKeys.push(key);
-            }
-        }
-
-        function getChannelKey(mapping, out){
-            var type = mapping.type;
-            var channel = mapping.channel;
-            var msg = mapping.msgType || '';
-            out = out.toLowerCase();
-            return (type +'_'+ channel +'_'+ msg +'_'+ out);
-            //TODO: osc
-        }
-
-        console.log('### channel EMIT Keys ###'.grey);
-        console.log(channelEmitKeys);
-        console.log('### channel LISTEN Keys ###'.grey);
-        console.log(channelListenKeys);
     }
 
     // getters and setters
