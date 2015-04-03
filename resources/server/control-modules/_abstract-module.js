@@ -2,7 +2,7 @@
 // this function will return a new object with its own private scope and public methods
 // it can be handed a configuration object
 // somehow like a factory
-var abstractModule = function(config, shared){
+var abstractModule = function(config, prtktd){
 
     /*
      * ** PRIVATE STUFF **
@@ -11,15 +11,21 @@ var abstractModule = function(config, shared){
     // this object will be provided by an object that inherits from this object
     // we can add members to it we want to share with it, but we don't want to make public
     // the inheriting object can then use the normally private methods of this object
-    shared = shared || {};
+    prtktd = prtktd || {};
 
     // this class does not inherit from any other class
     // so we start with a new and empty object
     // this object will be returned at the end
-    var that = {};
+    var pblc;
 
     // everything is private and can not be invoked outside of this scope
     // public stuff will be added to the returned object
+    var isParent,
+        isChild;
+
+    var parentObj,
+        childObjs;
+
     var id,
         name,
         type,
@@ -43,8 +49,9 @@ var abstractModule = function(config, shared){
         selfReservedChannels = false,
         foreignReservedChannels = 0;
 
-    var eventHandler,
-        controlEventHandler,
+    var sharedEventHandler,
+        privateEventHandler,
+        globalEventHandler,
         validator,
         mapper;
 
@@ -53,8 +60,6 @@ var abstractModule = function(config, shared){
     // it will validate the configuration and set the super object to inherit from
     var init = function(){
 
-        //eventHandler = require('./../event-part.js')(); // could be replaced by node event handler
-        eventHandler = new (require('events').EventEmitter);
         validator = require(global.tkvrBasePath + '/resources/server/validation-module');
         mapper = require(global.tkvrBasePath + '/resources/server/mapping-module');
 
@@ -63,13 +68,14 @@ var abstractModule = function(config, shared){
 
         applyConfig(config);
 
-        //TODO: if !== child
-        var socketLog = createSocket(config.io);
-        if (socketLog.error.length) return {error: socketLog.error};
+        if (!isChild){
+            var socketLog = createSocket(config.io);
+            if (socketLog.error.length) return {error: socketLog.error};
+        }
 
-        //TODO: if !== parent
-        setChannelKeys();
-
+        if (!isParent){
+            setChannelKeys();
+        }
 
         setEvents();
 
@@ -85,34 +91,42 @@ var abstractModule = function(config, shared){
     // use the information provided in the validated configuration to set and override variables of the object
     function applyConfig (config){
 
+        isParent = !!config.isParent;
+        isChild = !!config.isChild;
+        if (isChild){
+            parentObj = config.parentObj;
+        }
+
+        privateEventHandler = new (require('events').EventEmitter);
+        sharedEventHandler = (prtktd.getEventHandler && prtktd.getEventHandler()) || new (require('events').EventEmitter);
+        globalEventHandler = config.globalEventHandler;
+        inUse = false;
+
         id = config.id;
         name = config.name;
         type = config.type;
         title = config.title;
 
-        // multiple users
+        // multiple users - if isParent && !isChild only but does not matter
         maxUsers = config.maxUsers;
         maxTime = config.maxTime;
-
-        inUse = false;
         activeConnections.sockets = {};
 
         resolution = config.resolution;
-
         maxValue = resolution;
         minValue = 0;
         value = minValue;
 
         mappings = config.mapping;
         animations = config.animation;
-
-        controlEventHandler = config.controlEventHandler;
     }
 
     function setForeignValueListeners(){
-        // TODO: children only
-        //step through mappings and set listeners
+        if(isParent){
+            return;
+        }
 
+        //step through mappings and set listeners
         for(var i=0; i<mappings.length; i++){
             var mapping = mappings[i];
             //FIXME: feels wrong to having a switch case logic here somehow...
@@ -131,8 +145,8 @@ var abstractModule = function(config, shared){
 
             function setListener(mapping){
                 if(mapping.foreignValue){
-                    shared.setForeignListener(mapping.foreignValue, function(value){
-                        eventHandler.emit('foreign_value_change', value);
+                    prtktd.setForeignListener(mapping.foreignValue, function(value){
+                        privateEventHandler.emit('foreign_value_change', value);
                     });
                 }
             }
@@ -143,12 +157,15 @@ var abstractModule = function(config, shared){
     // it will also handle the connecting sockets and save the references
     // also, the connections will be set active or put in the waiting line
     function createSocket (io){
-        //TODO: parents only
-
         var error = [];
+
+        if(isChild){
+            return {error: error};
+        }
+
         // creates a new and unique namespace using the id
         ioSocket = io;
-        ioNamespace = io.of("/" + getId());
+        ioNamespace = io.of(getNamespace());
 
         // TODO: add socket to all mapping rooms
         // TODO: mapping room on animation start: disable control?
@@ -173,7 +190,7 @@ var abstractModule = function(config, shared){
                 putSocketBackInLine(socket);
             }
 
-            socket.emit('value_update', getValue()); //TODO: only as parent?
+            socket.emit('value_update', getValue());
 
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
 
@@ -211,7 +228,7 @@ var abstractModule = function(config, shared){
         function disable(){
             socket.removeListener('use_end', disable);
             putSocketBackInLine(socket);
-            //eventHandler.emit('use_end', socket);
+            //sharedEventHandler.emit('use_end', socket);
             //onUseEnd(socket);
         }
     }
@@ -219,7 +236,7 @@ var abstractModule = function(config, shared){
     function enableSocket(socket){
         activeConnections.sockets[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
-        eventHandler.emit('socket_enabled', socket);
+        privateEventHandler.emit('socket_enabled', socket);
         // TODO: apply special mapping or value when connected before first input
 
         socket.on('value_change', fireValueChange.bind(null, socket));
@@ -259,8 +276,7 @@ var abstractModule = function(config, shared){
         clearSocketTimeout(socket);
         socket.emit('disable');
 
-        eventHandler.emit('socket_disabled', socket);
-        fireUseEnd(socket);
+        privateEventHandler.emit('socket_disabled', socket);
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
@@ -268,7 +284,8 @@ var abstractModule = function(config, shared){
             activeConnections.length = activeConnections.length - 1;
 
             if(inUseSocket && (socket.id === inUseSocket.id)){
-                eventHandler.emit('socket_in_use_disabled', socket);
+                fireUseEnd(socket);
+                sharedEventHandler.emit('socket_in_use_disabled', socket);
                 console.log('socket_in_use_disabled'.red);
             }
         }
@@ -282,7 +299,8 @@ var abstractModule = function(config, shared){
         //if (foreignReservedChannels > 0){ return }
 
         for(var a = activeConnections.length;
-            a < maxUsers && waitingConnections.length > 0;
+            a < (maxUsers + getInUse().status)
+            && waitingConnections.length > 0;
             a++){
 
             var socket = waitingConnections.shift();
@@ -293,81 +311,98 @@ var abstractModule = function(config, shared){
 
         if (!activeConnections.length) {
             console.log('No connections to ' + getNameAndId());
-            eventHandler.emit('no_connections');
+            sharedEventHandler.emit('no_connections');
         }
     }
 
     function fireValueChange(socket, data){
-        eventHandler.emit('value_change', data, socket);
+        privateEventHandler.emit('value_change', data, socket);
     }
 
     function fireInUse(socket){
-        eventHandler.emit('in_use', socket);
+        sharedEventHandler.emit('in_use', socket);
     }
 
     function fireUseEnd(socket){
-        eventHandler.emit('use_end', socket);
+        sharedEventHandler.emit('use_end', socket);
     }
 
     function setEvents(){
-        //TODO: if !== child
-        eventHandler.on('value_change', onValueChange);
-        eventHandler.on('foreign_value_change', onForeignValueChange);
-        eventHandler.on('in_use', onUse);
-        eventHandler.on('use_end', onUseEnd);
-        eventHandler.on('no_connections', onNoConnections);
+        privateEventHandler.on('value_change', onValueChange);
+        privateEventHandler.on('foreign_value_change', onForeignValueChange);
+
+        sharedEventHandler.on('in_use', onUse);
+        sharedEventHandler.on('use_end', onUseEnd);
+        sharedEventHandler.on('no_connections', onNoConnections);
 
         //TODO: if !== parent
-        setChannelEvents();
+        setGlobalChannelEvents();
     }
 
-    function setChannelEvents(){
+    function setGlobalChannelEvents(){
         for(var i = 0; i < channelListenKeys.length; i++){
-            controlEventHandler.on(channelListenKeys[i], onChannelEvent);
+            globalEventHandler.on(channelListenKeys[i], onChannelEvent);
         }
     }
 
     function emitChannelEvent(eventName, data){
         data = data || null;
         for(var i = 0; i < channelEmitKeys.length; i++){
-            controlEventHandler.emit(channelEmitKeys[i], eventName, data);
+            globalEventHandler.emit(channelEmitKeys[i], eventName, data);
         }
     }
 
     // this will notify foreign control modules about any value change
     // the foreign modules just leaves its callback
     function bindForeignValueListener(listener){
-        eventHandler.on('value_change', listener);
+        //TODO: change to shared value-change?
+        privateEventHandler.on('value_change', listener);
     }
 
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (value, socket){
-        // TODO: if !== parent
-
-        var dataLog = checkData(value); //TODO: somehow let children check the values before using it
-        if (dataLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' received bad value: ', value, dataLog);
 
         setValue(value);
-        socket.broadcast.emit('value_update', value); //TODO: only as parent?
 
-        var processLog = processValue(value);
-        if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
+        if (isParent){
+            for(var name in childObjs){
+                var child = childObjs[name];
+                var val = value[name];
 
-        // TODO: trigger animations here (child only)
-        // var animationLog = triggerAnimations(value);
+                if(!child || val === undefined){
+                    console.log('WARNING:'.yellow, 'no child or value with that name:', name);
+                    break;
+                }
+
+                child.setValue(val, true, socket);
+            }
+        }
+
+        if(!isChild){
+            //TODO: get the value of the children after they checked it
+            socket.broadcast.emit('value_update', value); //TODO: only as parent?
+            //console.log('Module ' + getNameAndId() + ' value: ', value);
+        }
+
+        if (!isParent) {
+            var dataLog = checkData(value);
+            if (dataLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog);
+
+            var processLog = processValue(value);
+            if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
+        }
     }
 
     function onForeignValueChange (value){
-        //TODO: if !== parent
-        if(!getInUse().status){ return; }
+        // only set and called if it is not a parent
         // will do mapping with the actual value to update foreign value mappings
+        if(!getInUse().status){ return; }
         var processLog = processValue(getValue());
-        if (processLog.error.length) return console.log('Module ' + shared.getNameAndId() + ' could not map value ', value, processLog);
+        if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
     }
 
     function onChannelEvent(eventName, controlId){
-
         //only trigger foreign use if it is not itself
         if(controlId === getId()){ return }
         switch (eventName){
@@ -382,9 +417,12 @@ var abstractModule = function(config, shared){
     }
 
     function processValue (value){
-        //TODO: if !== parent - should never be called as parent, but its saver
+        // only called if it is not a parent
         console.log('Module ' + getNameAndId() + ' value: ', value);
+
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
+        // TODO: trigger animations here (child only)
+        // var animationLog = triggerAnimations(value);
         return mapLog;
     }
 
@@ -400,30 +438,31 @@ var abstractModule = function(config, shared){
     function onUse(socket){
         inUse = true;
 
-        //TODO: socket stuff only if not child
-        if (socket){
-            socket.broadcast.emit('foreignUse', inUse);
-            inUseSocket = socket;
-            reserveChannels();
+        if (!isChild){
+            if (socket){
+                socket.broadcast.emit('foreignUse', inUse);
+                inUseSocket = socket;
+                reserveChannels();
 
-        } else {
-            ioNamespace.emit('foreignUse', inUse);
-            inUseSocket = null;
-        }
-
-        var disableArray = [];
-        for(var someSocketId in activeConnections.sockets){
-            var someSocket = activeConnections.sockets[someSocketId];
-            if (inUseSocket && (someSocket.id !== inUseSocket.id)){
-                // we have to disable them after filtering them
-                // because we would manipulate the object while stepping through it
-                disableArray.push(someSocket);
+            } else {
+                ioNamespace.emit('foreignUse', inUse);
+                inUseSocket = null;
             }
-        }
-        // now step through cache and disable
-        for(var i=0; i < disableArray.length; i++){
-            var disableSocket = disableArray[i];
-            putSocketFrontInLine(disableSocket);
+
+            var disableArray = [];
+            for(var someSocketId in activeConnections.sockets){
+                var someSocket = activeConnections.sockets[someSocketId];
+                if (inUseSocket && (someSocket.id !== inUseSocket.id)){
+                    // we have to disable them after filtering them
+                    // because we would manipulate the object while stepping through it
+                    disableArray.push(someSocket);
+                }
+            }
+            // now step through cache and disable
+            for(var i=0; i < disableArray.length; i++){
+                var disableSocket = disableArray[i];
+                putSocketFrontInLine(disableSocket);
+            }
         }
     }
 
@@ -435,19 +474,20 @@ var abstractModule = function(config, shared){
         //inUse = !!foreignReservedChannels;
         inUse = false;
 
-        //TODO: socket stuff only if not child
-        if(socket){
-            // self triggered event
-            socket.broadcast.emit('foreignUse', inUse);
-            freeChannels();
+        if (!isChild){
+            if(socket){
+                // self triggered event
+                socket.broadcast.emit('foreignUse', inUse);
+                freeChannels();
 
-        } else {
-            // foreign triggered event
-            ioNamespace.emit('foreignUse', inUse);
+            } else {
+                // foreign triggered event
+                ioNamespace.emit('foreignUse', inUse);
+            }
+
+            inUseSocket = null;
+            moveWaitingline();
         }
-
-        inUseSocket = null;
-        moveWaitingline();
     }
 
     function onChannelReserve(controlId){
@@ -558,7 +598,7 @@ var abstractModule = function(config, shared){
     }
 
     function getEventHandler (){
-        return eventHandler;
+        return sharedEventHandler;
     }
 
     function getMaxUserNumber (){
@@ -602,7 +642,7 @@ var abstractModule = function(config, shared){
     }
 
     function getNamespace(){
-        return ioNamespace.name;
+        return "/" + getId();
     }
 
     function getInUse(){
@@ -612,50 +652,86 @@ var abstractModule = function(config, shared){
         }
     }
 
+    function setInUse(status, socket){
+        inUse = !!status;
+        inUseSocket = socket || null;
+        return getInUse();
+    }
+
+    function addChild(name, config){
+
+        //TODO: this is a little uncool like this
+        var childPrtktd = {};
+        childPrtktd.createModule = prtktd.createModule;
+        childPrtktd.setForeignListener = prtktd.setForeignListener;
+        childPrtktd.getEventHandler = prtktd.getEventHandler;
+
+        var childPblc = prtktd.createModule(config, childPrtktd);
+
+        setChild(name, childPrtktd);
+
+        return childPrtktd;
+    }
+
+    function setChild(name, child){
+        childObjs = childObjs || {};
+        childObjs[name] = child;
+        return child;
+    }
+
+    function getChild(name){
+        var child = childObjs[name];
+        return child || null;
+    }
+
     /*
      * ** PUBLIC STUFF **
      */
     // now add the functions to the returned object, which are supposed to be public in the interface
-    // that.methodName = funcName;
+    // pblc.methodName = funcName;
 
     function setPublicMembers(){
-        that.getId = getId;
-        that.getName = getName;
-        that.getNamespace = getNamespace;
-        that.getType = getType;
-        that.getTitle = getTitle;
-        that.getResolution = getResolution;
-        that.getValue = getValue;
-        that.getMinValue = getMinValue;
-        that.getMaxValue = getMaxValue;
-        that.getMaxUserNumber = getMaxUserNumber;
-        that.getMaxTime = getMaxTime;
-        that.getActiveConnectionsCount = getActiveConnectionsCount;
-        that.getWaitingConnectionsCount = getWaitingConnectionsCount;
-        //that.onValueChange = eventHandler.on.bind(null, 'value_change');
-        that.onValueChange = bindForeignValueListener;
-        that.setForeignValueListeners = setForeignValueListeners;
+        pblc = {};
+        pblc.getId = getId;
+        pblc.getName = getName;
+        pblc.getNamespace = getNamespace;
+        pblc.getType = getType;
+        pblc.getTitle = getTitle;
+        pblc.getInUse = getInUse;
+        pblc.getResolution = getResolution;
+        pblc.getValue = getValue;
+        pblc.getMinValue = getMinValue;
+        pblc.getMaxValue = getMaxValue;
+        pblc.getMaxUserNumber = getMaxUserNumber;
+        pblc.getMaxTime = getMaxTime;
+        pblc.getActiveConnectionsCount = getActiveConnectionsCount;
+        pblc.getWaitingConnectionsCount = getWaitingConnectionsCount;
+        pblc.onValueChange = bindForeignValueListener;
+        pblc.setForeignValueListeners = setForeignValueListeners;
     }
 
     function setProtectedMembers(){
         // inherit from public
-        for(var publicMember in that){
-            shared[publicMember] = that[publicMember];
+        for(var publicMember in pblc){
+            prtktd[publicMember] = pblc[publicMember];
         }
 
-        // vars
-        shared.setValue = setValue;
-        shared.setName = setName;
-        shared.getNameAndId = getNameAndId;
-        shared.getEventHandler = getEventHandler;
-        shared.getInUse = getInUse;
+        prtktd.getEventHandler = prtktd.getEventHandler || getEventHandler;
+
+        prtktd.setValue = setValue;
+        prtktd.setName = setName;
+        prtktd.getNameAndId = getNameAndId;
+        prtktd.setInUse = setInUse;
+        prtktd.addChild = addChild;
+        prtktd.setChild = setChild;
+        prtktd.getChild = getChild;
     }
 
     var initialization = init();
     // if something goes wrong do not return an instance but an object containing information about the error
     if (initialization.error.length) return {error: initialization.error};
     // return the finished object (somewhat an instance of the module object)
-    return that;
+    return pblc;
 };
 
 // return the specified object when using require()

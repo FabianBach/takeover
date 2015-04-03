@@ -11,8 +11,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
     function link(scope, element, attrs){
 
         //set up sockets for this element
-        scope.control.xSocket = tkvrSocketIoSetup(scope.control.namespace.x, scope);
-        scope.control.ySocket = tkvrSocketIoSetup(scope.control.namespace.y, scope);
+        scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
         // set events on this element
         // link is the right place to do this
@@ -34,8 +33,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         element.on('pointerdown', function(event){
             if (scope.control.isEnabled){
                 scope.control.isActive = true;
-                scope.control.xSocket.emit('in_use');
-                scope.control.ySocket.emit('in_use');
+                scope.control.socket.emit('in_use');
                 scope.$digest();
             }
         });
@@ -43,8 +41,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         $('html').on('pointerup pointercancel', function(event){
             if (!scope.control.isActive){ return }
             scope.control.isActive = false;
-            scope.control.xSocket.emit('use_end');
-            scope.control.ySocket.emit('use_end');
+            scope.control.socket.emit('use_end');
             scope.$digest();
         });
 
@@ -53,11 +50,11 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
 
                 var progress = tkvrControlPointerCoords(element, event);
 
-                var maxValX = scope.control.maxValue.x;
-                var maxValY = scope.control.maxValue.y;
+                var maxValX = scope.control.maxValue;
+                var maxValY = scope.control.maxValue;
 
-                var minValX = scope.control.minValue.x;
-                var minValY = scope.control.minValue.y;
+                var minValX = scope.control.minValue;
+                var minValY = scope.control.minValue;
 
                 var xValue = parseInt(progress.x * maxValX);
                 var yValue = parseInt(progress.y * maxValY);
@@ -67,39 +64,24 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
                 if(yValue < minValY){yValue = minValY}
                 if(yValue > maxValY){yValue = maxValY}
 
-                if(scope.control.value.x !== xValue){
-                    scope.control.xSocket.emit('value_change', xValue);
-                    onXValueChange(xValue)
-                }
+                if(scope.control.value.x !== xValue
+                || scope.control.value.y !== yValue){
 
-                if(scope.control.value.y !== yValue){
-                    scope.control.ySocket.emit('value_change', yValue);
-                    onYValueChange(yValue)
+                    var newValue = {x: xValue, y: yValue};
+                    scope.control.socket.emit('value_change', newValue);
+                    onValueChange(newValue);
                 }
             }
         });
 
-        scope.control.xSocket.on('value_update', function(newValue){
+        scope.control.socket.on('value_update', function(newValue){
             if (scope.control.isActive){ return }
-            scope.control.value.x = newValue;
-            onXValueChange(newValue);
+            scope.control.value = newValue;
+            onValueChange(newValue);
         });
 
-        scope.control.ySocket.on('value_update', function(newValue){
-            if (scope.control.isActive){ return }
-            scope.control.value.y = newValue;
-            onYValueChange(newValue);
-        });
-
-
-        function onXValueChange(newValue){
-            scope.control.value.x = newValue;
-            moveIndicator();
-            //TODO: digest on every pointermove?
-            //scope.$digest();
-        }
-        function onYValueChange(newValue){
-            scope.control.value.y = newValue;
+        function onValueChange(newValue){
+            scope.control.value = newValue;
             moveIndicator();
             //TODO: digest on every pointermove?
             //scope.$digest();
@@ -108,8 +90,8 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         function moveIndicator(){
             //TODO: angular way?
             var progress = {
-                    x: scope.control.value.x / scope.control.maxValue.x,
-                    y: scope.control.value.y / scope.control.maxValue.y
+                    x: scope.control.value.x / scope.control.maxValue,
+                    y: scope.control.value.y / scope.control.maxValue
                 };
 
             element.find('.indicator').css('top', (1-progress.y)*100 +'%');

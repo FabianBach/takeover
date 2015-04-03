@@ -4,6 +4,7 @@
 // at the moment there is quiet a mess in server.js
 
 global.tkvrBasePath = __dirname;
+require(global.tkvrBasePath + '/resources/server/tkvr-global-utils.js');
 
 var server = require(global.tkvrBasePath + '/resources/server/server.js');
 var controlModules = require(global.tkvrBasePath + '/resources/server/control-module.js');

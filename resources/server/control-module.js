@@ -4,9 +4,7 @@
 // this will be the only control module needed to require
 
 var io;
-var controlEventHandler;
-
-var events = require('events');
+var globalEventHandler;
 
 // all available modules should be listed here
 var controlModules = {};
@@ -26,19 +24,19 @@ function init (config, callback){
         callback();
     });
 
-    controlEventHandler = new (events.EventEmitter);
+    globalEventHandler = new (require('events').EventEmitter);
 }
 
-function createModule (config){
+function createModule (config, shared){
 
     if (!io){ return console.log( 'control-module-factory '.grey + 'No io set, do that first!'.red )}
     if (!config || !config.type || controlModules[config.type] === undefined){ return console.log( 'control-module-factory '.grey + ('No such control-type: ' + config.type).red )}
 
     config.io = config.io || io;
-    config.controlEventHandler = controlEventHandler;
+    config.globalEventHandler = globalEventHandler;
 
     // the shared object is a substitute for protected members in JS
-    var shared = {
+    shared = shared || {
         'setForeignListener': setForeignListener,
         'createModule' : createModule
     };

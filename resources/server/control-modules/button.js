@@ -1,22 +1,21 @@
 
-var button = function(config, shared){
+var button = function(config, prtktd){
 
-    shared = shared || {};
+    prtktd = prtktd || {};
 
-    // this object inherits from the abstract object
-    var that = require('./_abstract-module.js');
-    that = that(config, shared);
+    var module = require('./_abstract-module.js');
+    var pblc = module(config, prtktd);
 
-    var eventHandler = shared.getEventHandler();
+    var eventHandler = prtktd.getEventHandler();
     eventHandler.on('socket_in_use_disabled', onSocketInUseDisable);
 
     //TODO: test this
     function onSocketInUseDisable(socket){
-        var minValue = shared.getMinValue();
-        shared.setValue(minValue, true, socket);
+        var minValue = prtktd.getMinValue();
+        prtktd.setValue(minValue, true, socket);
     }
 
-    return that;
+    return pblc;
 };
 
 module.exports = button;
