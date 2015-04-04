@@ -82,8 +82,7 @@ function createFromFiles(configsPath, callback){
 // will call the set foreign value listeners function on each created module
 // has to be done when all modules have been created
 // TODO: at the moment the modules get linked together
-// maybe it would be better to make the control module listen for value changes
-// and let other modules register for changes on other module IDs
+// maybe it would be better to use the global event emitter
 function setForeignListeners(){
     for(var module in createdModules){
         createdModules[module].setForeignValueListeners();

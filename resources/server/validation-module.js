@@ -193,12 +193,20 @@ function validateGeneralMapping(mapping){
 }
 
 function validateAnimation(animations){
+
+    for (var animation in animations){
+        var animationConfig = animations[animation];
+
+        animationConfig.doMapping = false;
+        animationConfig.startValue = animationConfig.startValue || 0;
+        animationConfig.value = animationConfig.startValue;
+
+    }
+    // TODO: validate steps
     // TODO: check-correct if times and values are integers
     // check-correct if values are not < 0 or > dmxMax or MidiMax
     // check-correct if type is defined in each step
-    // doMapping = false
-    // startValue == value == maxValue == minValue
-    // value == startValue
+    // check by using general mapping validator
 
     var error = [];
     return {error: error};

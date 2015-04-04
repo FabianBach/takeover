@@ -49,7 +49,8 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler, // for connnected parent and child modules
         globalEventHandler, // for all modules created ever
         validator,
-        mapper;
+        mapper,
+        animator;
 
     // this function will be called at first
     // it will validate the configuration and set the super object to inherit from
@@ -57,6 +58,7 @@ var abstractModule = function(config, prtktd){
 
         validator = require(global.tkvrBasePath + '/resources/server/validation-module');
         mapper = require(global.tkvrBasePath + '/resources/server/mapping-module');
+        animator = require(global.tkvrBasePath + '/resources/server/animation-module');
 
         var validationLog = validator.validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
@@ -348,7 +350,7 @@ var abstractModule = function(config, prtktd){
 
         if(!isChild){
             //TODO: get the value of the children after they checked it
-            socket.broadcast.emit('value_update', value); //TODO: only as parent?
+            socket.broadcast.emit('value_update', value);
             //console.log('Module ' + getNameAndId() + ' value: ', value);
         }
 
@@ -374,8 +376,9 @@ var abstractModule = function(config, prtktd){
         console.log('Module ' + getNameAndId() + ' value: ', value);
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
-        // TODO: trigger animations here (child only)
-        // var animationLog = triggerAnimations(value);
+        var animationLog = triggerAnimations(value);
+
+        //TODO: animationLog is unused
         return mapLog;
     }
 
@@ -419,7 +422,6 @@ var abstractModule = function(config, prtktd){
     }
 
     function onUseEnd(socket){
-        //TODO if(!animation is running)
         //TODO: if no uncancelable animation is running
 
         inUse = false;
@@ -444,15 +446,25 @@ var abstractModule = function(config, prtktd){
     }
 
     function triggerAnimations(){
-        // TODO: for animation in animations
-        // animationConfig['key'] = this.getNamespace;
-        // animationModule.triggerAnimation(animationConfig, onUpdateCallback, onCompleteCallback, animationConfig)
-        // if animation is not cancelable set some flag
+        // TODO: triggerOnZero
+        for (var animation in animations){
 
-        // onUpdate mapper.doMapping(0, 0, [animationConfig])
-        // onComplete animation room emit animation end
-        // onComplete onUseEnd //TODO: eventhandler.emit('use_end', null);
+            var animationConfig = animations[animation];
+            animator.triggerAnimation(animationConfig, onUpdateCallback, onCompleteCallback);
+            // TODO: if animation is not cancelable set in use, disable all sockets
+        }
 
+        function onUpdateCallback(newValue, oldValue){
+            //FIXME: looks tricky...
+            animationConfig.value = newValue;
+            console.log('animation is running', newValue, oldValue);
+            //console.log(animationConfig);
+            mapper.doMapping(0, 0, [animationConfig]);
+        }
+
+        function onCompleteCallback(){
+            //on use end
+        }
     }
 
     // getters and setters
@@ -544,7 +556,7 @@ var abstractModule = function(config, prtktd){
 
     function addChild(name, config){
 
-        //TODO: this is a little uncool like this
+        //TODO: this is a little ugly like this
         var childPrtktd = {};
         childPrtktd.createModule = prtktd.createModule;
         childPrtktd.setForeignListener = prtktd.setForeignListener;

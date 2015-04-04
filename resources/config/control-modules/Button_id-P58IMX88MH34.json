@@ -11,16 +11,6 @@
 
   "mapping": [
     { "type": "dmx",
-      "channel": 1,
-      "minValue": 10,
-      "maxValue": 160
-    },
-    { "type": "dmx",
-      "channel": 5,
-      "minValue": 0,
-      "maxValue": 11
-    },
-    { "type": "dmx",
       "channel": 16,
       "minValue": 12,
       "maxValue": 130
@@ -61,6 +51,26 @@
         "maxValue" : 127,
         "invert": true
       }
+    }
+  ],
+
+  "animation":[
+    { "type": "dmx",
+      "channel": 2,
+      "startValue": 0,
+
+      "loop": "reverse",
+      "trigger": "pause",
+      "triggerOnZero": "false",
+
+      "steps": [
+        {
+          "type" : "animate",
+          "to" : 255,
+          "time" : 250,
+          "curve": "linear"
+        }
+      ]
     }
   ]
 }

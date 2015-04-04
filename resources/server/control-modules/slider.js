@@ -1,13 +1,13 @@
 
-var slider = function(config, shared){
+var slider = function(config, prtktd){
 
-    shared = shared || {};
+    prtktd = prtktd || {};
 
     // this object inherits from the abstract object
-    var that = require('./_abstract-module.js');
-    that = that(config, shared);
+    var module = require('./_abstract-module.js');
+    var pblc = module(config, prtktd);
 
-    return that;
+    return pblc;
 };
 
 module.exports = slider;

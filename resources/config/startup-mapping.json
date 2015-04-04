@@ -2,6 +2,11 @@
   "startupMapping": [
     {
       "type": "dmx",
+      "channel": 1,
+      "value": 0
+    },
+    {
+      "type": "dmx",
       "channel": 2,
       "value": 10
     },

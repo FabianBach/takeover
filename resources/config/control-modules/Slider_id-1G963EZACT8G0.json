@@ -13,7 +13,7 @@
     { "type": "dmx",
       "channel": 14,
       "minValue": 0,
-      "maxValue": 125
+      "maxValue": 60
     },
     { "type": "dmx",
       "channel": 4,

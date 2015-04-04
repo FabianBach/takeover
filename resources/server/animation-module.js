@@ -1,4 +1,6 @@
+// TODO: fix this weird way of getting the TimelineLite
 var tween = require(global.tkvrBasePath + '/resources/server/tween-module.js');
+var TimelineLite = global.com.greensock.TimelineLite;
 var animations = {};
 
 function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
@@ -8,39 +10,44 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     var animation = getAnimation(config);
 
     // fist check if any animation is running on that channel
-    // and what should be done if any other animation comes in
+    // and what should be done if any other animation comes in on same channel
     if (animation) {
         switch (animation.config.trigger) {
-            //TODO: implement the cases
             case 'ignore':
             case 'continue':
-                // if it is running
-                // do nothing... animation is running till end
-                // if not running start new animaton
+                if (!animation.isActive()){
+                    startNewAnimation();
+                }
                 break;
 
             case 'reverse':
-                // reverse if animation.id is the same
-                // else start new animation
+                if(animation.reversed()){
+                    animation.reversed(false);
+                    animation.play();
+                } else {
+                    animation.reverse();
+                }
                 break;
 
-            case 'stop':
-                //.kill()
-                // also start new animation
-                break;
 
             case 'pause':
-                // if animation.id is the same
-                // .pause() or .resume() if .paused()
-
-                //else start new animation
+                animation.paused( !animation.paused() );
                 break;
 
             case 'restart':
+                animation.restart();
+                break;
+
+            case 'stop':
             default:
-                // restart if animation.id is the same
-                // else start new animation
+                if (animation.isActive()){
+                    animation.kill();
+                }else{
+                    startNewAnimation();
+                }
         }
+    } else {
+        startNewAnimation();
     }
 
     function startNewAnimation(){
@@ -49,77 +56,90 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
 }
 
 function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
-    objRef = objRef || {value : 0};
-    var animation = tween;
-    animation.tkvrId = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
-    animation.tkvrKey = getAnimationKey(config);
-    animation.config = config;
+    objRef = objRef || {value : config.startValue};
 
+    //set up start point
+    var animation = new TimelineLite().to(objRef, 0, {value: config.startValue} );
+
+    // set up all the steps
     var steps = config.steps;
     var actualValue = objRef.value;
     for(var step in steps){
         switch (steps[step].type){
             case 'animate':
-                animation.to(objRef, steps[step].time/1000, {value: steps[step].to});
+                animation = animation.to(objRef, steps[step].time/1000, {value: steps[step].to, ease: steps[step].curve});
                 actualValue = steps[step].to;
                 break;
 
             case 'wait':
-                animation.to(objRef, steps[step].time/1000, {value: actualValue});
+                animation = animation.to(objRef, steps[step].time/1000, {value: actualValue});
                 break;
         }
     }
 
-    animation.eventCallback('onComplete', function onComplete(){
+    animation.eventCallback('onComplete', onComplete);
+    animation.eventCallback('onReverseComplete', onComplete);
+
+    function onComplete(){
         var repeat = config.loop;
         switch (repeat){
             case 'reverse':
-                // reverse
-                // if reversed() have to restart()?
+                if(animation.reversed()){
+                    animation.reversed(false);
+                    animation.play();
+                } else {
+                    animation.reverse();
+                }
                 break;
 
             case 'restart':
-                //restart
+                animation.restart();
+                break;
 
+            case 'wait':
+                // nothing to do here
+                break;
+
+            case 'stop':
             default:
-                // .kill()
+                animation.kill();
                 onCompleteCallback();
         }
-    });
+    }
 
-    animation.eventCallback('onUpdate', function onUpdate(){
-        var oldValue = animation.oldValue || objRef.value;
+    animation.eventCallback('onUpdate', onUpdate);
+
+    function onUpdate(){
+        var oldValue = animation.oldValue || config.startValue;
         var newValue = parseInt(objRef.value);
         if(oldValue === newValue){ return }
 
         onUpdateCallback(newValue, oldValue);
         animation.oldValue = newValue;
-    });
+    }
 
-    animations[animation.tkvrKey] = animation;
+    animation.config = config;
+    animations[getAnimationId(config)] = animation;
     return animation;
 }
 
 function getAnimation(config){
-    var key = getAnimationKey(config);
-    return animations[key] || null;
+    var id = getAnimationId(config);
+    return animations[id] || null;
 }
 
-function getAnimationKey(config){
-    //TODO: OSC is not in here yet
-
-    var key = config.key;
-    if (key){ return key }
-
-    var out = config.universe || config.midiOut;
-    out = out.toLowerCase();
-    return (config.type +'_'+ config.channel +'_'+ out);
+function getAnimationId(config){
+    var id = config.tkvrId;
+    if (!id){
+        id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase();
+        config.tkvrId = id;
+    }
+    return id;
 }
 
 function animationIsRunning(config){
     var animation = getAnimation(config);
     if(animation === null){return false}
-    //TODO: not the real interface: running()
     return animation.isActive();
 }
 
@@ -127,5 +147,4 @@ function animationIsRunning(config){
 var that = {};
 that.triggerAnimation = triggerAnimation;
 that.isRunning = animationIsRunning;
-that.getAnimationKey = getAnimationKey;
 module.exports = that;
