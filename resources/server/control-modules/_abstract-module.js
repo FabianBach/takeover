@@ -358,7 +358,7 @@ var abstractModule = function(config, prtktd){
             var dataLog = checkData(value);
             if (dataLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog);
 
-            var processLog = processValue(value);
+            var processLog = processValue(value, true);
             if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
         }
     }
@@ -367,16 +367,18 @@ var abstractModule = function(config, prtktd){
         // only set and called if it is not a parent
         // will do mapping with the actual value to update foreign value mappings
         if(!getInUse().status){ return; }
-        var processLog = processValue(getValue());
+        var processLog = processValue(getValue(), false); //FIXME: hotfix for animaton tirgger bug
         if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
     }
 
-    function processValue (value){
+    function processValue (value, doAnimations){
         // only called if it is not a parent
         console.log('Module ' + getNameAndId() + ' value: ', value);
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
-        var animationLog = triggerAnimations(value);
+        if(doAnimations){
+            var animationLog = triggerAnimations(value);
+        }
 
         //TODO: animationLog is unused
         return mapLog;
