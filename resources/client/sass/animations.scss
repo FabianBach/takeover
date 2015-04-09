@@ -9,7 +9,7 @@ $tkvr-transition-easing: ease-out;
 
 // same as in indicator-transition but including absolute positions
 // TODO: get a function to concat this string or something similar
-@mixin tkvr-indicator-foreign-transition(){
+@mixin tkvr-indicator-occupied-transition(){
   transition-property: left, top, right, bottom, width, height, margin, box-shadow, background-color;
   transition-duration: $tkvr-transition-duration;
   transition-timing-function: $tkvr-transition-easing;

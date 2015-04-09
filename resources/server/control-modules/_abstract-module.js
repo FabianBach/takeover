@@ -36,6 +36,7 @@ var abstractModule = function(config, prtktd){
         maxTime,
         inUse,
         inUseSocket,
+        isOccupied,
         resolution,
         value,
         minValue,
@@ -94,6 +95,7 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler = (prtktd.getEventHandler && prtktd.getEventHandler()) || new (require('events').EventEmitter);
         globalEventHandler = config.globalEventHandler;
         inUse = false;
+        isOccupied = false;
 
         id = config.id;
         name = config.name;
@@ -163,19 +165,19 @@ var abstractModule = function(config, prtktd){
         // will be invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
             activeConnections.length = activeConnections.length || 0;
-            console.log('Connected to module ' + getNameAndId() + socket.id.grey);
+            console.log('Connected to control ' + getNameAndId() +' socket: '+ socket.id.grey);
 
             socket.on('disconnect', function(){
                 disableSocket(socket);
-                //socket.disconnect();
             });
 
             // if the max number of users is not reached yet set socket active
             // else put socket in waiting line
-            if (!inUse && activeConnections.length < maxUsers){
+            if (!isOccupied && activeConnections.length < maxUsers){
                 enableSocket(socket);
             }else{
-                putSocketBackInLine(socket);
+                //putSocketBackInLine(socket);
+                putSocketFrontInLine(socket);
             }
 
             socket.emit('value_update', getValue());
@@ -191,9 +193,7 @@ var abstractModule = function(config, prtktd){
         // after a timeout the connection will be disabled and put back in waiting line
         if (maxTime === Infinity){ return }
         socket.disableTimeout = setTimeout(function(){
-            waitingConnections.length > 0
-                ? onSocketDisableTimeout(socket)
-                : setSocketTimeout(socket)
+            onSocketDisableTimeout(socket);
         }, maxTime);
     }
 
@@ -204,19 +204,25 @@ var abstractModule = function(config, prtktd){
 
     function onSocketDisableTimeout(socket){
         // enable waiting crowd
+        isOccupied = false;
         moveWaitingline();
 
+        // wait until the socket in use stops using the control, then disable it
+        // disable all the sockets which are not using the control immedeately
         if(getInUse().socket === socket){
             socket.on('use_end', disable);
         } else {
             disable()
         }
 
+
         function disable(){
+            // remove the callback to this function
             socket.removeListener('use_end', disable);
+
+            // the following will also disable the socket and fire use end
             putSocketBackInLine(socket);
-            //sharedEventHandler.emit('use_end', socket);
-            //onUseEnd(socket);
+            moveWaitingline();
         }
     }
 
@@ -251,8 +257,6 @@ var abstractModule = function(config, prtktd){
         if(socket.connected){
             waitingConnections.push(socket);
         }
-
-        moveWaitingline();
     }
 
     // will disable its interface on the client
@@ -285,7 +289,7 @@ var abstractModule = function(config, prtktd){
         for(var a = activeConnections.length;
             a < (maxUsers + getInUse().status)
             && waitingConnections.length > 0;
-            a++){
+            a = activeConnections.length){
 
             var socket = waitingConnections.shift();
             if (socket.connected){
@@ -351,29 +355,30 @@ var abstractModule = function(config, prtktd){
         if(!isChild){
             //TODO: get the value of the children after they checked it
             socket.broadcast.emit('value_update', value);
-            //console.log('Module ' + getNameAndId() + ' value: ', value);
+            //console.log('Control ' + getNameAndId() + ' value: ', value);
         }
 
         if (!isParent) {
             var dataLog = checkData(value);
-            if (dataLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog);
+            if (dataLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog);
 
             var processLog = processValue(value, true);
-            if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
+            if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
         }
     }
 
     function onForeignValueChange (value){
         // only set and called if it is not a parent
         // will do mapping with the actual value to update foreign value mappings
+        // TODO: only do foreign value changes, do not repeat complete mapping
         if(!getInUse().status){ return; }
-        var processLog = processValue(getValue(), false); //FIXME: hotfix for animaton tirgger bug
-        if (processLog.error.length) return console.log('Module ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
+        var processLog = processValue(getValue(), false);
+        if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
     }
 
     function processValue (value, doAnimations){
         // only called if it is not a parent
-        console.log('Module ' + getNameAndId() + ' value: ', value);
+        //console.log('Control ' + getNameAndId() + ' value: ', value);
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
         if(doAnimations){
@@ -395,14 +400,15 @@ var abstractModule = function(config, prtktd){
 
     function onUse(socket){
         inUse = true;
+        isOccupied = true;
 
         if (!isChild){
             if (socket){
-                socket.broadcast.emit('foreignUse', inUse);
+                socket.broadcast.emit('occupied', isOccupied);
                 inUseSocket = socket;
 
             } else {
-                ioNamespace.emit('foreignUse', inUse);
+                ioNamespace.emit('occupied', isOccupied);
                 inUseSocket = null;
             }
 
@@ -427,15 +433,16 @@ var abstractModule = function(config, prtktd){
         //TODO: if no uncancelable animation is running
 
         inUse = false;
+        isOccupied = false;
 
         if (!isChild){
             if(socket){
                 // self triggered event
-                socket.broadcast.emit('foreignUse', inUse);
+                socket.broadcast.emit('occupied', isOccupied);
 
             } else {
                 // foreign triggered event
-                ioNamespace.emit('foreignUse', inUse);
+                ioNamespace.emit('occupied', isOccupied);
             }
 
             inUseSocket = null;
@@ -448,24 +455,32 @@ var abstractModule = function(config, prtktd){
     }
 
     function triggerAnimations(){
-        // TODO: triggerOnZero
         for (var animation in animations){
 
+            // FIXME: callbacks are defined each time a animation is triggered
+
             var animationConfig = animations[animation];
-            animator.triggerAnimation(animationConfig, onUpdateCallback, onCompleteCallback);
-            // TODO: if animation is not cancelable set in use, disable all sockets
+
+            if ( (getValue() !== 0) || animationConfig.triggerOnZero){
+
+                animator.triggerAnimation(animationConfig,
+                    onUpdateCallback.bind(null, animationConfig),
+                    onCompleteCallback.bind(null, animationConfig));
+
+                // TODO: if animation is not cancelable set in use / occupied
+                // and disable all sockets
+            }
         }
 
-        function onUpdateCallback(newValue, oldValue){
+        function onUpdateCallback(animationConfig, newValue, oldValue){
             //FIXME: looks tricky...
             animationConfig.value = newValue;
-            console.log('animation is running', newValue, oldValue);
-            //console.log(animationConfig);
+            //console.log('Animation update', animationConfig.channel, newValue, oldValue);
             mapper.doMapping(0, 0, [animationConfig]);
         }
 
-        function onCompleteCallback(){
-            //on use end
+        function onCompleteCallback(animationConfig){
+            // TODO: on use end if animation occupied this control
         }
     }
 

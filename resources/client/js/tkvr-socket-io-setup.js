@@ -12,12 +12,12 @@ tkvr.factory('tkvrSocketIoSetup', function(){
                 console.log('Enable:', scope.control.title, scope.control.id);
                 scope.control.isEnabled = true;
                 scope.control.isDisabled = false;
-                scope.control.inForeignUse = false;
+                scope.control.isOccupied = false;
                 scope.$digest();
             })
-            .on('foreignUse', function(flag){
-                console.log('Foreign use:', flag, scope.control.title, scope.control.id);
-                scope.control.inForeignUse = flag;
+            .on('occupied', function(flag){
+                console.log('Occupied:', flag, scope.control.title, scope.control.id);
+                scope.control.isOccupied = flag;
                 scope.$digest();
             })
             .on('connect', function(){
