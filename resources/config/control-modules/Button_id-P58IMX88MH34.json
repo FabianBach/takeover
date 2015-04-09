@@ -4,7 +4,7 @@
   "name": "up to 5 users button",
   "title": "BAM",
 
-  "maxUsers": 5,
+  "maxUsers": 3,
   "maxTime" : 3,
 
   "resolution": 1,
@@ -56,12 +56,29 @@
 
   "animation":[
     { "type": "dmx",
+      "channel": 3,
+      "startValue": 0,
+
+      "loop": "wait",
+      "trigger": "reverse",
+      "triggerOnZero": false,
+
+      "steps": [
+        {
+          "type" : "animate",
+          "to" : 255,
+          "time" : 1000,
+          "curve": "linear"
+        }
+      ]
+    },
+    { "type": "dmx",
       "channel": 2,
       "startValue": 0,
 
       "loop": "reverse",
       "trigger": "pause",
-      "triggerOnZero": "false",
+      "triggerOnZero": true,
 
       "steps": [
         {
