@@ -216,8 +216,30 @@ var abstractModule = function(config, prtktd){
         // wait until the socket in use stops using the control, then disable it
         // disable all the sockets which are not using the control immedeately
         if(getInUse().socket === socket && !disableOnMaxTime){
-            socket.on('use_end', disable);
+            // if the socket is is use
+            // and the control is not set to disable immediately:
+            if (!waitingConnections.length){
+                // and if nobody else is wating to get enabled
+                // we set a new timeout to check again later
+                // any enabled socket could take over the control by now
+                socket.occupyTimeout = setSocketTimeout(socket);
+
+            } else {
+                // if somebody is waiting to get enabled
+                // we wait till the socket stops using the control
+                socket.on('use_end', disable);
+            }
+
+        } else if (!waitingConnections.length){
+            // if the socket is enabled but not in use
+            // and if nobody else is waiting to get enabled
+            // we just check again later
+            socket.availableTimeout = setSocketTimeout(socket);
+            socket.occupyTimeout = null;
+
         } else {
+            // if somebody is waiting to get enabled
+            // and the socket is not using the control:
             disable()
         }
 
@@ -235,7 +257,7 @@ var abstractModule = function(config, prtktd){
     function enableSocket(socket){
         activeConnections.sockets[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
-        privateEventHandler.emit('socket_enabled', socket);
+        sharedEventHandler.emit('socket_enabled', socket);
         // TODO: apply special mapping or value when connected before first input
 
         socket.on('value_change', fireValueChange.bind(null, socket));
@@ -274,7 +296,7 @@ var abstractModule = function(config, prtktd){
         clearSocketTimeout(socket.occupyTimeout);
         socket.emit('disable');
 
-        privateEventHandler.emit('socket_disabled', socket);
+        sharedEventHandler.emit('socket_disabled', socket);
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
@@ -292,6 +314,11 @@ var abstractModule = function(config, prtktd){
     // this will step trough the waiting list until it finds a connected socket
     // this socket will then be made active
     function moveWaitingline(){
+
+        if (!activeConnections.length && waitingConnections.length === 1) {
+            console.log('First connection to ' + getNameAndId());
+            sharedEventHandler.emit('first_connection');
+        }
 
         for(var a = activeConnections.length;
             a < (maxUsers + getInUse().status)
@@ -329,6 +356,7 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler.on('in_use', onUse);
         sharedEventHandler.on('use_end', onUseEnd);
         sharedEventHandler.on('no_connections', onNoConnections);
+        sharedEventHandler.on('first_connection', onFirstConnection);
 
     }
 
@@ -382,14 +410,14 @@ var abstractModule = function(config, prtktd){
         if (mappingLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, mappingLog);
     }
 
-    function processValue (value, triggerAnimations){
+    function processValue (value, doTriggerAnimations){
         // only called if it is not a parent
 
         //console.log('Control ' + getNameAndId() + ' value: ', value);
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
 
-        if(triggerAnimations){
+        if(doTriggerAnimations){
             var animationLog = triggerAnimations(value);
         }
         //TODO: animationLog is unused
@@ -462,6 +490,10 @@ var abstractModule = function(config, prtktd){
 
     function onNoConnections(){
         // TODO: apply special mapping on no client connected
+    }
+
+    function onFirstConnection(){
+        // TODO: apply special mapping when first client is connected
     }
 
     function triggerAnimations(){
