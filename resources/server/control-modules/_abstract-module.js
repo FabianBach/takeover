@@ -192,19 +192,23 @@ var abstractModule = function(config, prtktd){
     function setSocketTimeout(socket){
         // after a timeout the connection will be disabled and put back in waiting line
         if (maxTime === Infinity){ return }
-        socket.disableTimeout = setTimeout(function(){
-            onSocketDisableTimeout(socket);
+
+        return setTimeout(function(){
+            onSocketTimeout(socket);
         }, maxTime);
     }
 
-    function clearSocketTimeout(socket){
+    function clearSocketTimeout(timeout){
         if (maxTime === Infinity){ return }
-        clearTimeout(socket.disableTimeout);
+        clearTimeout(timeout);
     }
 
-    function onSocketDisableTimeout(socket){
-        // enable waiting crowd
+    function onSocketTimeout(socket){
         isOccupied = false;
+        clearSocketTimeout(socket.occupyTimeout);
+        socket.occupyTimeout = null;
+
+        // enable waiting crowd
         moveWaitingline();
 
         // wait until the socket in use stops using the control, then disable it
@@ -237,7 +241,7 @@ var abstractModule = function(config, prtktd){
         socket.on('use_end', fireUseEnd.bind(null, socket));
 
         socket.emit('enable', getValue());
-        setSocketTimeout(socket);
+        socket.availableTimeout = setSocketTimeout(socket);
 
         return socket;
     }
@@ -264,7 +268,8 @@ var abstractModule = function(config, prtktd){
         socket.removeAllListeners('value_change');
         socket.removeAllListeners('in_use');
         socket.removeAllListeners('use_end');
-        clearSocketTimeout(socket);
+        clearSocketTimeout(socket.availableTimeout);
+        clearSocketTimeout(socket.occupyTimeout);
         socket.emit('disable');
 
         privateEventHandler.emit('socket_disabled', socket);
@@ -401,6 +406,9 @@ var abstractModule = function(config, prtktd){
     function onUse(socket){
         inUse = true;
         isOccupied = true;
+
+        clearSocketTimeout(socket.availableTimeout);
+        socket.occupyTimeout = socket.occupyTimeout || setSocketTimeout(socket);
 
         if (!isChild){
             if (socket){
