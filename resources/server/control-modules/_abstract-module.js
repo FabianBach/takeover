@@ -34,6 +34,7 @@ var abstractModule = function(config, prtktd){
         animations,
         maxUsers,
         maxTime,
+        disableOnMaxTime,
         inUse,
         inUseSocket,
         isOccupied,
@@ -105,6 +106,7 @@ var abstractModule = function(config, prtktd){
         // multiple users - if isParent && !isChild only but does not matter
         maxUsers = config.maxUsers;
         maxTime = config.maxTime;
+        disableOnMaxTime = config.disableOnMaxTime;
         activeConnections.sockets = {};
 
         resolution = config.resolution;
@@ -127,21 +129,21 @@ var abstractModule = function(config, prtktd){
             //FIXME: feels wrong to having a switch case logic here somehow...
             switch(mapping.type){
                 case 'dmx':
-                    setListener(mapping);
+                    setListener(mapping.foreignValue, mapping);
                     break;
                 case 'midi':
-                    setListener(mapping.byte_1);
-                    setListener(mapping.byte_2);
+                    setListener(mapping.byte_1.foreignValue, mapping);
+                    setListener(mapping.byte_2.foreignValue, mapping);
                     break;
                 case 'osc':
                     //TODO: osc
                     break;
             }
 
-            function setListener(mapping){
-                if(mapping.foreignValue){
-                    prtktd.setForeignListener(mapping.foreignValue, function(value){
-                        privateEventHandler.emit('foreign_value_change', value);
+            function setListener(foreignValue, mapping){
+                if(foreignValue){
+                    prtktd.setForeignListener(foreignValue, function(value){
+                        privateEventHandler.emit('foreign_value_change', value, mapping);
                     });
                 }
             }
@@ -213,7 +215,7 @@ var abstractModule = function(config, prtktd){
 
         // wait until the socket in use stops using the control, then disable it
         // disable all the sockets which are not using the control immedeately
-        if(getInUse().socket === socket){
+        if(getInUse().socket === socket && !disableOnMaxTime){
             socket.on('use_end', disable);
         } else {
             disable()
@@ -372,24 +374,24 @@ var abstractModule = function(config, prtktd){
         }
     }
 
-    function onForeignValueChange (value){
-        // only set and called if it is not a parent
+    function onForeignValueChange (value, mapping){
+        // only gets set and called if it is not a parent
         // will do mapping with the actual value to update foreign value mappings
-        // TODO: only do foreign value changes, do not repeat complete mapping
         if(!getInUse().status){ return; }
-        var processLog = processValue(getValue(), false);
-        if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
+        var mappingLog = mapper.doMapping(getValue(), getMaxValue(), [mapping] );
+        if (mappingLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, mappingLog);
     }
 
-    function processValue (value, doAnimations){
+    function processValue (value, triggerAnimations){
         // only called if it is not a parent
+
         //console.log('Control ' + getNameAndId() + ' value: ', value);
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
-        if(doAnimations){
+
+        if(triggerAnimations){
             var animationLog = triggerAnimations(value);
         }
-
         //TODO: animationLog is unused
         return mapLog;
     }

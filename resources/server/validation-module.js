@@ -35,6 +35,9 @@ function validateControlConfig(config){
     // max use time
     config.maxTime = parseInt(config.maxTime) * 1000 || Infinity;
 
+    // disable on max use time
+    config.disableOnMaxTime = !!config.disableOnMaxTime;
+
     // resolution
     config.resolution = parseInt(config.resolution || 100);
 
