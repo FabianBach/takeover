@@ -1,4 +1,6 @@
 {
+  "disabled" : false,
+
   "id": "2343CCOLGBE2O",
   "type": "xy-pad",
   "name": "debug pad",

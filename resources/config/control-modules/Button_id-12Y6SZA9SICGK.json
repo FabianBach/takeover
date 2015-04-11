@@ -10,6 +10,8 @@
 
   "resolution": 1,
 
+  "disableOnAnimation" : true,
+
   "mapping": [
   ],
 

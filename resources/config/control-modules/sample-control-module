@@ -13,6 +13,7 @@
   "maxUsers": 1, // OPTIONAL - NUMBER - defaults to infinity - number of users that have this control enabled simultaneously
   "maxTime": 60, // OPTIONAL - NUMBER - defaults to infinty - time in seconds a user can use this control
   "disableOnMaxTime" : true, // OPTIONAL - BOOLEAN - defaults to false - will disable the control on active user if set to true
+  "disableOnAnimation" : true, // OPTIONAL - BOOLEAN - defaults to false - will disable all controls until all animations have finished if set to true - be careful when using loop
 
   "mapping" : [   // REQUIRED - ARRAY - Array containing all the mapping objects for this module
     // see mappings

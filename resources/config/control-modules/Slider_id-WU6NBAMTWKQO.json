@@ -1,4 +1,6 @@
 {
+  "disabled" : false,
+
   "id" : "WU6NBAMTWKQO",
   "type": "slider",
   "name": "Color slider",

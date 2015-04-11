@@ -224,7 +224,7 @@ var abstractModule = function(config, prtktd){
             // if the socket is is use
             // and the control is not set to disable immediately:
             if (!socket.useEndListenerSet){
-                socket.on('use_end', disable);
+                socket.on('use_end', timeoutMaybeDisable);
                 socket.useEndListenerSet = true;
             }
 
@@ -240,11 +240,21 @@ var abstractModule = function(config, prtktd){
         } else {
             // if somebody is waiting to get enabled
             // and the socket is not using the control:
-            disable()
+            timeoutDisable()
         }
 
 
-        function disable(){
+        function timeoutMaybeDisable(){
+            if (waitingConnections.length){
+                timeoutDisable()
+            } else {
+                socket.availableTimeout = setSocketTimeout(socket);
+                socket.occupyTimeout = null;
+                socket.useEndListenerSet = false;
+            }
+        }
+
+        function timeoutDisable(){
             // remove the callback to this function
             socket.removeListener('use_end', disable);
             socket.useEndListenerSet = false;
