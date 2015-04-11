@@ -46,7 +46,10 @@ function createView(config){
     for(var i = 0; i < newView.controls.length; i++){
         var control = newView.controls[i];
         var controlModule = controlModuleFactory.getModuleById(control.id);
-        if(!controlModule){return console.log('view-factory'.grey + ' error: '.red + 'No control module for this id: ' + control.id)}
+        if(!controlModule){
+            console.log('view-factory'.grey + ' error: '.red + 'No control module for this id: ' + control.id)
+            continue;
+        }
 
         for(var key in controlModule){
             control[key] = controlModule[key];
