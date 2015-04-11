@@ -12,7 +12,7 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     // fist check if any animation is running on that channel
     // and what should be done if any other animation comes in on same channel
     if (animation) {
-        console.log('Animation '.yellow + getAnimationId(config), 'trigger', animation.config.trigger);
+        //console.log('Animation '.yellow + getAnimationId(config), 'trigger', animation.config.trigger);
 
         switch (animation.config.trigger) {
             case 'ignore':
@@ -53,7 +53,7 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
         startNewAnimation();
     }
 
-    console.log('Animation '.yellow + getAnimationId(config), 'running:', animation.isActive());
+    //console.log('Animation '.yellow + getAnimationId(config), 'running:', animation.isActive());
 
     function startNewAnimation(){
         animation = setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef);
@@ -86,7 +86,8 @@ function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     animation.eventCallback('onReverseComplete', onComplete);
 
     function onComplete(){
-        console.log('Animation '.yellow + getAnimationId(config), 'onComplete', config.loop);
+
+        //console.log('Animation '.yellow + getAnimationId(config), 'onComplete', config.loop);
 
         var repeat = config.loop;
         switch (repeat){

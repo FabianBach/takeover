@@ -220,17 +220,8 @@ var abstractModule = function(config, prtktd){
         if(getInUse().socket === socket && !disableOnMaxTime){
             // if the socket is is use
             // and the control is not set to disable immediately:
-            if (!waitingConnections.length){
-                // and if nobody else is wating to get enabled
-                // we set a new timeout to check again later
-                // any enabled socket could take over the control by now
-                socket.occupyTimeout = setSocketTimeout(socket);
-
-            } else {
-                // if somebody is waiting to get enabled
-                // we wait till the socket stops using the control
-                socket.on('use_end', disable);
-            }
+            socket.occupyTimeout = setSocketTimeout(socket);
+            socket.on('use_end', disable);
 
         } else if (!waitingConnections.length){
             // if the socket is enabled but not in use
@@ -296,6 +287,8 @@ var abstractModule = function(config, prtktd){
         socket.removeAllListeners('use_end');
         clearSocketTimeout(socket.availableTimeout);
         clearSocketTimeout(socket.occupyTimeout);
+        socket.occupyTimeout = null;
+
         socket.emit('disable');
 
         sharedEventHandler.emit('socket_disabled', socket);
@@ -306,7 +299,7 @@ var abstractModule = function(config, prtktd){
             if(getInUse().status && getInUse().socket && (socket.id === getInUse().socket.id)){
                 fireUseEnd(socket);
                 sharedEventHandler.emit('socket_in_use_disabled', socket);
-                console.log('socket_in_use_disabled'.red);
+                //console.log('socket_in_use_disabled'.red);
             }
 
             delete activeConnections.sockets[socket.id];
@@ -319,7 +312,7 @@ var abstractModule = function(config, prtktd){
     function moveWaitingline(){
 
         if (!activeConnections.length && waitingConnections.length === 1) {
-            console.log('First connection to ' + getNameAndId());
+            console.log('First connection to '.yellow + getNameAndId());
             sharedEventHandler.emit('first_connection');
         }
 
@@ -335,7 +328,7 @@ var abstractModule = function(config, prtktd){
         }
 
         if (!activeConnections.length) {
-            console.log('No connections to ' + getNameAndId());
+            console.log('No connections to '.yellow + getNameAndId());
             sharedEventHandler.emit('no_connections');
         }
     }
@@ -374,9 +367,8 @@ var abstractModule = function(config, prtktd){
     // should check if value is a valid one and then call mapping
     function onValueChange (value, socket){
 
-        console.log('Control ' + getNameAndId() + ' value: ', value);
-        console.log('Socket ' + socket.id);
-
+        //console.log('Control ' + getNameAndId() + ' value: ', value);
+        //console.log('Socket ' + socket.id);
 
         setValue(value);
 
@@ -412,6 +404,7 @@ var abstractModule = function(config, prtktd){
     function onForeignValueChange (value, mapping){
         // only gets set and called if it is not a parent
         // will do mapping with the actual value to update foreign value mappings
+        // console.log('Control ' + prtktd.getNameAndId() + ' | foreign Value Change', value);
         if(!getInUse().status){ return; }
         var mappingLog = mapper.doMapping(getValue(), getMaxValue(), [mapping] );
         if (mappingLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, mappingLog);
@@ -471,6 +464,7 @@ var abstractModule = function(config, prtktd){
         //TODO: if no uncancelable animation is running
 
         setInUse(false);
+        setOccupied(false, socket);
 
         if (!isChild){
             moveWaitingline();
@@ -604,6 +598,13 @@ var abstractModule = function(config, prtktd){
         return getInUse();
     }
 
+    function getOccupied(){
+        return {
+            status: isOccupied,
+            socket: getInUse().socket
+        }
+    }
+
     function setOccupied(bool, socket){
 
         if (bool === isOccupied){ return }
@@ -662,6 +663,7 @@ var abstractModule = function(config, prtktd){
         pblc.getType = getType;
         pblc.getTitle = getTitle;
         pblc.getInUse = getInUse;
+        pblc.getOccupied = getOccupied;
         pblc.getResolution = getResolution;
         pblc.getValue = getValue;
         pblc.getMinValue = getMinValue;
@@ -686,6 +688,7 @@ var abstractModule = function(config, prtktd){
         prtktd.setName = setName;
         prtktd.getNameAndId = getNameAndId;
         prtktd.setInUse = setInUse;
+        prtktd.setOccupied = setOccupied;
         prtktd.addChild = addChild;
         prtktd.setChild = setChild;
         prtktd.getChild = getChild;
