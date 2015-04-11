@@ -38,6 +38,9 @@ function validateControlConfig(config){
     // disable on max use time
     config.disableOnMaxTime = !!config.disableOnMaxTime;
 
+    // disable while animations are running
+    config.disableOnAnimation = !!config.disableOnAnimation;
+
     // resolution
     config.resolution = parseInt(config.resolution || 100);
 
