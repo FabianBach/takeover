@@ -206,8 +206,10 @@ var abstractModule = function(config, prtktd){
     }
 
     function onSocketTimeout(socket){
-        isOccupied = false;
-        clearSocketTimeout(socket.occupyTimeout);
+
+        setOccupied(false, socket);
+
+        //clearSocketTimeout(socket.occupyTimeout);
         socket.occupyTimeout = null;
 
         // enable waiting crowd
@@ -260,8 +262,8 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler.emit('socket_enabled', socket);
         // TODO: apply special mapping or value when connected before first input
 
-        socket.on('value_change', fireValueChange.bind(null, socket));
         socket.on('in_use', fireInUse.bind(null, socket));
+        socket.on('value_change', fireValueChange.bind(null, socket));
         socket.on('use_end', fireUseEnd.bind(null, socket));
 
         socket.emit('enable', getValue());
@@ -300,14 +302,15 @@ var abstractModule = function(config, prtktd){
 
         // remove from active list if it was active
         if(activeConnections.sockets[socket.id]){
-            delete activeConnections.sockets[socket.id];
-            activeConnections.length = activeConnections.length - 1;
 
-            if(inUseSocket && (socket.id === inUseSocket.id)){
+            if(getInUse().status && getInUse().socket && (socket.id === getInUse().socket.id)){
                 fireUseEnd(socket);
                 sharedEventHandler.emit('socket_in_use_disabled', socket);
                 console.log('socket_in_use_disabled'.red);
             }
+
+            delete activeConnections.sockets[socket.id];
+            activeConnections.length = activeConnections.length - 1;
         }
     }
 
@@ -370,6 +373,10 @@ var abstractModule = function(config, prtktd){
     // gets invoked when a client sends a new value for the module
     // should check if value is a valid one and then call mapping
     function onValueChange (value, socket){
+
+        console.log('Control ' + getNameAndId() + ' value: ', value);
+        console.log('Socket ' + socket.id);
+
 
         setValue(value);
 
@@ -434,26 +441,16 @@ var abstractModule = function(config, prtktd){
     }
 
     function onUse(socket){
-        inUse = true;
-        isOccupied = true;
 
         clearSocketTimeout(socket.availableTimeout);
         socket.occupyTimeout = socket.occupyTimeout || setSocketTimeout(socket);
 
         if (!isChild){
-            if (socket){
-                socket.broadcast.emit('occupied', isOccupied);
-                inUseSocket = socket;
-
-            } else {
-                ioNamespace.emit('occupied', isOccupied);
-                inUseSocket = null;
-            }
 
             var disableArray = [];
             for(var someSocketId in activeConnections.sockets){
                 var someSocket = activeConnections.sockets[someSocketId];
-                if (inUseSocket && (someSocket.id !== inUseSocket.id)){
+                if (socket && (someSocket.id !== socket.id)){
                     // we have to disable them after filtering them
                     // because we would manipulate the object while stepping through it
                     disableArray.push(someSocket);
@@ -465,25 +462,17 @@ var abstractModule = function(config, prtktd){
                 putSocketFrontInLine(disableSocket);
             }
         }
+
+        setInUse(true, socket);
+        setOccupied(true, socket);
     }
 
     function onUseEnd(socket){
         //TODO: if no uncancelable animation is running
 
-        inUse = false;
-        isOccupied = false;
+        setInUse(false);
 
         if (!isChild){
-            if(socket){
-                // self triggered event
-                socket.broadcast.emit('occupied', isOccupied);
-
-            } else {
-                // foreign triggered event
-                ioNamespace.emit('occupied', isOccupied);
-            }
-
-            inUseSocket = null;
             moveWaitingline();
         }
     }
@@ -609,8 +598,28 @@ var abstractModule = function(config, prtktd){
 
     function setInUse(status, socket){
         inUse = !!status;
-        inUseSocket = socket || null;
+        if (inUse){
+            inUseSocket = socket || null;
+        }
         return getInUse();
+    }
+
+    function setOccupied(bool, socket){
+
+        if (bool === isOccupied){ return }
+
+        isOccupied = bool;
+
+        if (!isChild) {
+            if (socket) {
+                // self triggered event
+                socket.broadcast.emit('occupied', isOccupied);
+
+            } else {
+                // foreign triggered event
+                ioNamespace.emit('occupied', isOccupied);
+            }
+        }
     }
 
     function addChild(name, config){

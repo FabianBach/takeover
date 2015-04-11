@@ -31,7 +31,7 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         });
 
         element.on('pointerdown', function(event){
-            if (scope.control.isEnabled){
+            if (scope.control.isEnabled && !scope.control.isActive){
                 scope.control.isActive = true;
                 scope.control.socket.emit('in_use');
                 scope.$digest();

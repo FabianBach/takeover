@@ -16,9 +16,9 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         // set events on this element
         // link is the right place to do this
         element.on('pointerdown', function(event){
-            if(scope.control.isEnabled){
-                scope.control.socket.emit('value_change', scope.control.maxValue);
+            if(scope.control.isEnabled && !scope.control.isActive){
                 scope.control.socket.emit('in_use');
+                scope.control.socket.emit('value_change', scope.control.maxValue);
                 scope.control.isActive = true;
                 scope.$digest();
 

@@ -4,7 +4,7 @@
   "name": "up to 5 users button",
   "title": "BAM",
 
-  "maxUsers": 3,
+  "maxUsers": 10,
   "maxTime" : 3,
 
   "resolution": 1,

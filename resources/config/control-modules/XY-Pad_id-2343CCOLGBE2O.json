@@ -4,7 +4,7 @@
   "name": "debug pad",
   "title": "Position",
 
-  "maxUsers": 3,
+  "maxUsers": 10,
   "maxTime" : 5,
   "resolution": 255,
 

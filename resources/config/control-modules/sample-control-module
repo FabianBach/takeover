@@ -10,27 +10,37 @@
   "type" : "slider", // REQUIRED - STRING - not case sensitive - button, slider, xy-pad etc...
   "disabled" : true, // OPTIONAL - BOOLEAN - Defaults to false - if true this module will not be loaded
   "resolution": 100, // ? - NUMBER - e.g. steps of a Slider
-  "maxTime": 60, // OPTIONAL - NUMBER - defaults to infinty - time in seconds a user can use this control
   "maxUsers": 1, // OPTIONAL - NUMBER - defaults to infinity - number of users that have this control enabled simultaneously
+  "maxTime": 60, // OPTIONAL - NUMBER - defaults to infinty - time in seconds a user can use this control
+  "disableOnMaxTime" : true, // OPTIONAL - BOOLEAN - defaults to false - will disable the control on active user if set to true
 
   "mapping" : [   // REQUIRED - ARRAY - Array containing all the mapping objects for this module
     // see mappings
   ],
-  "onDisconnectMapping" : [
-    // TODO: Mapping or values to use when active client disconnects, such as turn light back on for example
-    // see mappings
-  ],
-  "onConnectMapping" : [
-    // TODO: Mapping or values to use on connection before first input
-    // see mappings
-  ],
-  "noConnectionMapping" : [
-    // TODO: Mapping or values to use when no client is connected
-    // see mappings
-  ],
-  "animation" : [
 
-  ]
+  "animation" : [
+    // see animations
+  ],
+
+  "onConnectMapping" : {
+    // TODO: Mapping or values to use on connection before first input
+    "mapping" : [   // REQUIRED - ARRAY - Array containing all the mapping objects for this module
+    // see mappings
+    ],
+    "animation" : [
+    // see animations
+    ]
+  },
+
+  "noConnectionMapping" : {
+    // TODO: Mapping or values to use when no client is connected
+    "mapping" : [   // REQUIRED - ARRAY - Array containing all the mapping objects for this module
+      // see mappings
+    ],
+    "animation" : [
+      // see animations
+    ]
+  }
 },
 
 

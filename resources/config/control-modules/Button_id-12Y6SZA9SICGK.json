@@ -1,36 +1,50 @@
 {
-  "disabled" : true,
+  "disabled" : false,
 
   "id" : "12Y6SZA9SICGK",
   "type": "button",
-  "name": "2 sec timeout button",
-  "title": "Green flash",
+  "name": "Fog Button",
+  "title": "Fogger fog fog",
 
-  "maxTime" : 2,
+  "maxTime" : 10,
 
   "resolution": 1,
 
   "mapping": [
-    {
-      "type": "dmx",
-      "channel": 3,
-      "minValue": 10,
-      "maxValue": 255
-    },
-    { "type" : "midi",
-      "msgType" : "Note On",
-      "channel" :  9,
-      "byte_1" : {
-        "doMapping" : true,
-        "minValue" : 0,
-        "maxValue" : 100,
-        "foreignValue": "P58IMX88MH34"
-      },
-      "byte_2" : {
-        "doMapping" : true,
-        "minValue" : 63,
-        "maxValue" : 127
-      }
+  ],
+
+  "animation": [
+    { "type" : "dmx",
+      "channel" : 20,
+
+      "startValue" : 0,
+
+      "loop": "stop",
+      "trigger": "ignore",
+      "triggerOnZero": false,
+
+      "steps": [
+        {
+          "type": "animate",
+          "to": 255,
+          "time": 250,
+          "curve": "linear"
+        },
+        {
+          "type": "wait",
+          "time": 1000
+        },
+        {
+          "type": "animate",
+          "to": 0,
+          "time": 250,
+          "curve": "linear"
+        },
+        {
+          "type": "wait",
+          "time": 15000
+        }
+      ]
     }
   ]
 }
