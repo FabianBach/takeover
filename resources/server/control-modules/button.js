@@ -7,10 +7,9 @@ var button = function(config, prtktd){
     var pblc = module(config, prtktd);
 
     var sharedEventHandler = prtktd.getEventHandler();
-    sharedEventHandler.on('socket_in_use_disabled', onSocketDisable);
+    sharedEventHandler.on('socket_in_use_disabled', onSocketInUseDisable);
 
-    //TODO: test this
-    function onSocketDisable(socket){
+    function onSocketInUseDisable(socket){
         var minValue = prtktd.getMinValue();
         prtktd.setValue(minValue, true, socket);
     }

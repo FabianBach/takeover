@@ -222,5 +222,6 @@ var that = {};
 
 that.validateConfig = validateControlConfig;
 that.validateMapping = validateMapping;
+that.validateAnimation = validateAnimation;
 
 module.exports = that;

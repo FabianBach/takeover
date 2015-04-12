@@ -129,7 +129,6 @@ var abstractModule = function(config, prtktd){
         //step through mappings and set listeners
         for(var i=0; i<mappings.length; i++){
             var mapping = mappings[i];
-            //FIXME: feels wrong to having a switch case logic here somehow...
             switch(mapping.type){
                 case 'dmx':
                     setListener(mapping.foreignValue, mapping);
@@ -399,7 +398,6 @@ var abstractModule = function(config, prtktd){
     // this will notify foreign control modules about any value change
     // the foreign modules just leaves its callback
     function bindForeignValueListener(listener){
-        //TODO: change to shared value-change?
         privateEventHandler.on('value_change', listener);
     }
 
@@ -410,38 +408,37 @@ var abstractModule = function(config, prtktd){
         //console.log('Control ' + getNameAndId() + ' value: ', value);
         //console.log('Socket ' + socket.id);
 
+        var dataLog = checkRecievedData(value);
+        if (dataLog.error.length){ console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog)};
+        var checkedData = dataLog.data;
+
+        //console.log(getNameAndId() + ' checked data:', checkedData);
+
         if (isParent){
-            for(var name in childObjs){
-                var child = childObjs[name];
-                var val = value[name];
+            for(var childName in childObjs){
+                var child = childObjs[childName];
+                var val = checkedData[childName];
 
                 if(!child || val === undefined){
-                    console.log('WARNING:'.yellow, 'no child or value with that name:', name);
+                    console.log('WARNING:'.yellow, 'no child or value with that name:', childName);
                     break;
                 }
-
                 child.setValue(val, socket);
             }
         }
 
         if(!isChild){
-            //TODO: get the value of the children back after they validated it
-            // like: funktion checkValue(value){ if (!isParent) validate() else giveItToChildren }
-
             if (socket && socket.broadcast){
-                socket.broadcast.emit('value_update', value);
+                socket.broadcast.emit('value_update', checkedData);
 
             } else {
-                ioNamespace.emit('value_update', value);
+                ioNamespace.emit('value_update', checkedData);
             }
         }
 
         if (!isParent) {
-            var dataLog = checkData(value);
-            if (dataLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog);
-
-            var processLog = processValue(value, true);
-            if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, processLog);
+            var processLog = processValue(checkedData, true);
+            if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', checkedData, processLog);
         }
     }
 
@@ -470,11 +467,39 @@ var abstractModule = function(config, prtktd){
 
     // this function is supposed to check if the data is okay or if something messed up
     // it could also correct the data in the object if an minor error is found and log a warning
-    function checkData (data){
-        // TODO: check recieved data
-        // probably best to use same validation as on init
+    function checkRecievedData (data){
+        var error = [];
+        var checkedData = {};
+
         // parent can not do it, has to be done by children
-        return {error: []}
+        if (isParent){
+            var children = getChildren();
+            for(var childName in children){
+                var child = getChild(childName);
+                if (!child){ return }
+
+                var checkLog = child.checkRecievedData(data[childName]);
+                if (checkLog.error.length) {
+                    error.push(checkLog.error);
+                }
+                checkedData[childName] = checkLog.data;
+            }
+        }
+
+        // if we are last in line we can validate the data
+        if (!isParent){
+            var parsedData = parseInt(data);
+            if (isNaN(parsedData)){
+                error.push('Bad data recieved:' + data)
+                checkedData = getMinValue();
+            } else {
+                parsedData = parsedData > getMaxValue() ? getMaxValue() : parsedData;
+                parsedData = parsedData < getMinValue() ? getMinValue() : parsedData;
+                checkedData = parsedData;
+            }
+        }
+
+        return {error: error, data: checkedData}
     }
 
     function onUse(socket){
@@ -719,6 +744,10 @@ var abstractModule = function(config, prtktd){
         return child || null;
     }
 
+    function getChildren(){
+        return childObjs;
+    }
+
     /*
      * ** PUBLIC STUFF **
      */
@@ -755,6 +784,7 @@ var abstractModule = function(config, prtktd){
         prtktd.getEventHandler = prtktd.getEventHandler || getEventHandler;
 
         prtktd.setValue = setValue;
+        prtktd.checkRecievedData = checkRecievedData;
         prtktd.setName = setName;
         prtktd.getNameAndId = getNameAndId;
         prtktd.setInUse = setInUse;
