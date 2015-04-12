@@ -20,6 +20,7 @@
   &.disabled{
 //    border-color: $tkvr-disabled;
     cursor: default;
+    opacity: 0.3;
   }
   &.occupied{
     //    border-color: $tkvr-highlight;
