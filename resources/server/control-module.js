@@ -20,7 +20,6 @@ function init (config, callback){
 
     createFromFiles(function(){
         setForeignListeners();
-        //TODO: give back error if something goes wrong
         callback();
     });
 
@@ -58,7 +57,6 @@ function createModule (config, shared){
     return module;
 }
 
-//TODO: use promises?
 function createFromFiles(configsPath, callback){
 
     if (typeof(configsPath) === 'function'){ callback = configsPath }
@@ -81,8 +79,7 @@ function createFromFiles(configsPath, callback){
 
 // will call the set foreign value listeners function on each created module
 // has to be done when all modules have been created
-// TODO: at the moment the modules get linked together
-// maybe it would be better to use the global event emitter
+// maybe it would be an option to use the global event emitter instead
 function setForeignListeners(){
     for(var module in createdModules){
         createdModules[module].setForeignValueListeners();

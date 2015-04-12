@@ -191,7 +191,7 @@ function sendMidi (midiObj){
 }
 
 function setUpOsc(config){
-    //TODO: setUpOsc
+    //TODO: OSC
 }
 
 function useOsc (value, maxValue, mappingData){

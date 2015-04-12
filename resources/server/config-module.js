@@ -5,7 +5,6 @@ function getConfigsFromPath(configsPath, callback) {
         callback = configsPath
     }
     if (typeof(configsPath) !== 'string') {
-        //TODO: return error
         configsPath = './resources/config/control-modules/';
     }
     if (configsPath[configsPath.length - 1] !== '/') {
@@ -56,13 +55,7 @@ function getConfigsFromPath(configsPath, callback) {
             callback(filesRead);
         }
     }
-    // TODO: maybe even watch that folder...
 }
-
-// TODO: for Backend:
-// generate config file
-// edit config file
-
 
 var that = {};
 that.getConfigsFromPath = getConfigsFromPath;

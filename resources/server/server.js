@@ -31,7 +31,7 @@ function init(config, callback){
     tkvrServer = tkvr.listen(port, onServerReady.bind(null, callback));
     io = io.listen(tkvrServer);
 
-    //TODO: set socket io timeout
+    //TODO: set socket io params
 }
 
 function onServerReady(callback){

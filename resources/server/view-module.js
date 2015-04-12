@@ -10,7 +10,6 @@ function init (config, callback){
     callback = callback || function(){};
 
     createFromFiles(function(){
-        //TODO: give back error if something goes wrong
         callback();
     });
 }

@@ -76,11 +76,11 @@ var abstractModule = function(config, prtktd){
 
         setEvents();
 
-        // TODO: apply special mapping or value when no client is connected initially
-        // also, the startup mapping will be applied, so this has to be done afterwards
-
         setPublicMembers();
         setProtectedMembers();
+
+        // this will do initial stuff e.g. onNoConnections
+        moveWaitingline();
 
         return {error: []};
     };
@@ -111,6 +111,8 @@ var abstractModule = function(config, prtktd){
         disableOnMaxTime = config.disableOnMaxTime;
         disableOnAnimation = config.disableOnAnimation;
         activeConnections.sockets = {};
+        activeConnections.length = 0;
+
 
         resolution = config.resolution;
         maxValue = resolution;
@@ -138,7 +140,7 @@ var abstractModule = function(config, prtktd){
                     setListener(mapping.byte_2.foreignValue, mapping);
                     break;
                 case 'osc':
-                    //TODO: osc
+                    //TODO: OSC
                     break;
             }
 
@@ -168,7 +170,6 @@ var abstractModule = function(config, prtktd){
 
         // will be invoked when a client connects to the namespace
         ioNamespace.on('connection', function(socket){
-            activeConnections.length = activeConnections.length || 0;
             console.log('Connected to control ' + getNameAndId() +' socket: '+ socket.id.grey);
 
             socket.on('disconnect', function(){
@@ -453,16 +454,18 @@ var abstractModule = function(config, prtktd){
 
     function processValue (value, doTriggerAnimations){
         // only called if it is not a parent
-
         //console.log('Control ' + getNameAndId() + ' value: ', value);
+        var error = [];
 
         var mapLog = mapper.doMapping(value, getMaxValue(), mappings);
+        if (mapLog.error.length){ error.push(mapLog.error); }
 
         if(doTriggerAnimations){
             var animationLog = triggerAnimations(value);
+            if (animationLog.error.length){ error.push(animationLog.error); }
         }
-        //TODO: animationLog is unused
-        return mapLog;
+
+        return {error: error};
     }
 
     // this function is supposed to check if the data is okay or if something messed up
@@ -552,9 +555,6 @@ var abstractModule = function(config, prtktd){
 
     function onOccupyEnd(socket){
         //console.log('onOccupyEnd'.red);
-
-        //TODO: ?? if no uncancelable animation is running
-        // maybe this even works without any further if
         if (!isChild){
             moveWaitingline();
         }
@@ -569,14 +569,16 @@ var abstractModule = function(config, prtktd){
     }
 
     function triggerAnimations(){
-        for (var animation in animations){
+        var error = [];
 
-            // FIXME: callbacks are defined each time a animation is triggered
+        for (var animation in animations){
 
             var animationConfig = animations[animation];
 
             if ( (getValue() !== 0) || animationConfig.triggerOnZero){
 
+                // callbacks are defined each time a animation is triggered
+                // but that is okay, because the old callback will be overwritten
                 animator.triggerAnimation(animationConfig,
                     onUpdateCallback.bind(null, animationConfig),
                     onCompleteCallback.bind(null, animationConfig));
@@ -605,6 +607,8 @@ var abstractModule = function(config, prtktd){
                 }
             }
         }
+
+        return {error: error};
     }
 
     // getters and setters
@@ -661,7 +665,6 @@ var abstractModule = function(config, prtktd){
         return value;
     }
 
-    //FIXME: this should not need a flag
     function setValue(data, socket){
         value = data;
         privateEventHandler.emit('value_change', data, socket);

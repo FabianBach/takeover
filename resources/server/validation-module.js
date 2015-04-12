@@ -113,44 +113,30 @@ function validateMidiMapping(mapping){
         if (mapping.channel > 16){ mapping.channel = 16}
     }
 
-    //TODO: same validation for byte_1 and byte_2 in one function!
-    // byte_1
-    mapping.byte_1 = mapping.byte_1 || {"doMapping" : false, "value": 0};
-    mapping.byte_1.doMapping = mapping.byte_1.doMapping || false;
-    if (mapping.byte_1.doMapping){
-        //minimum value
-        mapping.byte_1.minValue = parseInt(mapping.byte_1.minValue) || 0;
-        if (mapping.byte_1.minValue < 0){ mapping.byte_1.minValue = 0 }
-        if (mapping.byte_1.minValue > 127){ mapping.byte_1.minValue = 127 }
-        //maximum value
-        mapping.byte_1.maxValue = parseInt(mapping.byte_1.maxValue) || 0;
-        if (mapping.byte_1.maxValue < 0){ mapping.byte_1.maxValue = 0 }
-        if (mapping.byte_1.maxValue > 127){ mapping.byte_1.maxValue = 127 }
+    mapping.byte_1 = validateByte(mapping.byte_1);
+    mapping.byte_2 = validateByte(mapping.byte_2);
 
-        if (mapping.byte_1.minValue === mapping.byte_1.maxValue){error.push("minValue and maxValue are the same")}
-    }else{
-        mapping.byte_1.value = parseInt(mapping.byte_1.value || mapping.byte_1.maxValue || mapping.byte_1.minValue || 0);
-        if (mapping.byte_1.value < 0){ mapping.byte_1.value = 0 }
-        if (mapping.byte_1.value > 127){ mapping.byte_1.value = 127 }
-    }
-    // byte_2
-    mapping.byte_2 = mapping.byte_2 || {"doMapping" : false, "value": 0};
-    mapping.byte_2.doMapping = mapping.byte_2.doMapping || false;
-    if (mapping.byte_2.doMapping){
-        //minimum value
-        mapping.byte_2.minValue = parseInt(mapping.byte_2.minValue) || 0;
-        if (mapping.byte_2.minValue < 0){ mapping.byte_2.minValue = 0 }
-        if (mapping.byte_2.minValue > 127){ mapping.byte_2.minValue = 127 }
-        //maximum value
-        mapping.byte_2.maxValue = parseInt(mapping.byte_2.maxValue) || 0;
-        if (mapping.byte_2.maxValue < 0){ mapping.byte_2.maxValue = 0 }
-        if (mapping.byte_2.maxValue > 127){ mapping.byte_2.maxValue = 127 }
+    function validateByte(byte){
+        byte = byte || {"doMapping" : false, "value": 0};
+        byte.doMapping = byte.doMapping || false;
+        if (byte.doMapping){
+            //minimum value
+            byte.minValue = parseInt(byte.minValue) || 0;
+            if (byte.minValue < 0){ byte.minValue = 0 }
+            if (byte.minValue > 127){ byte.minValue = 127 }
+            //maximum value
+            byte.maxValue = parseInt(byte.maxValue) || 0;
+            if (byte.maxValue < 0){ byte.maxValue = 0 }
+            if (byte.maxValue > 127){ byte.maxValue = 127 }
 
-        if (mapping.byte_2.minValue === mapping.byte_2.maxValue){error.push("minValue and maxValue are the same")}
-    }else{
-        mapping.byte_2.value = parseInt(mapping.byte_2.value || mapping.byte_2.maxValue || mapping.byte_2.minValue || 0);
-        if (mapping.byte_2.value < 0){ mapping.byte_2.value = 0 }
-        if (mapping.byte_2.value > 127){ mapping.byte_2.value = 127 }
+            if (byte.minValue === byte.maxValue){error.push("minValue and maxValue are the same")}
+        }else{
+            byte.value = parseInt(byte.value || byte.maxValue || byte.minValue || 0);
+            if (byte.value < 0){ byte.value = 0 }
+            if (byte.value > 127){ byte.value = 127 }
+        }
+
+        return byte;
     }
 
     return {error: error};
@@ -206,6 +192,8 @@ function validateAnimation(animations){
         animationConfig.doMapping = false;
         animationConfig.startValue = animationConfig.startValue || 0;
         animationConfig.value = animationConfig.startValue;
+
+        animationConfig.triggerOnZero = !!animationConfig.triggerOnZero || false;
 
     }
     // TODO: validate steps
