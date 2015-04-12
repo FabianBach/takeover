@@ -195,8 +195,10 @@ var abstractModule = function(config, prtktd){
     }
 
     function setSocketTimeout(socket){
-        // after a timeout the connection will be disabled and put back in waiting line
         if (maxTime === Infinity){ return }
+
+        // make sure there are no other timeouts set before setting new ones
+        clearAllSocketTimeouts(socket);
 
         return setTimeout(function(){
             onSocketTimeout(socket);
@@ -208,6 +210,15 @@ var abstractModule = function(config, prtktd){
         clearTimeout(timeout);
     }
 
+    function clearAllSocketTimeouts(socket){
+        if (maxTime === Infinity){ return }
+
+        clearSocketTimeout(socket.availableTimeout);
+        socket.availableTimeout = null;
+        clearSocketTimeout(socket.occupyTimeout);
+        socket.occupyTimeout = null;
+    }
+
     function onSocketTimeout(socket){
 
         //console.log('socketTimeout'.grey);
@@ -215,11 +226,8 @@ var abstractModule = function(config, prtktd){
         // this will also enable the waiting sockets by moving the waiting line
         setOccupied(false, socket);
 
-        //clearSocketTimeout(socket.occupyTimeout);
-        //socket.occupyTimeout = null;
-
         // wait until the socket in use stops using the control, then disable it
-        // disable all the sockets which are not using the control immedeately
+        // disable all the sockets which are not using the control immediately
         if(getInUse().socket === socket && !disableOnMaxTime){
             // if the socket is is use
             // and the control is not set to disable immediately:
@@ -232,14 +240,14 @@ var abstractModule = function(config, prtktd){
 
         } else if (!waitingConnections.length){
             // if the socket is enabled but not in use
-            // and if nobody else is waiting to get enabled
-            // we just check again later
+            // but other socket is waiting to get enabled
+            // we just check back again later
+            console.log('setting available timeout 1111'.red + socket.id);
             socket.availableTimeout = setSocketTimeout(socket);
-            socket.occupyTimeout = null;
 
         } else {
-            // if somebody is waiting to get enabled
-            // and the socket is not using the control:
+            // if other sockets are waiting to get enabled
+            // and this socket is not using the control:
             timeoutDisable()
         }
 
@@ -248,15 +256,14 @@ var abstractModule = function(config, prtktd){
             if (waitingConnections.length){
                 timeoutDisable()
             } else {
+                console.log('setting available timeout 2222'.red + socket.id);
                 socket.availableTimeout = setSocketTimeout(socket);
-                socket.occupyTimeout = null;
-                socket.useEndListenerSet = false;
             }
         }
 
         function timeoutDisable(){
             // remove the callback to this function
-            socket.removeListener('use_end', disable);
+            socket.removeListener('use_end', timeoutMaybeDisable);
             socket.useEndListenerSet = false;
             // the following will also disable the socket and set inUse to false
             putSocketBackInLine(socket);
@@ -284,6 +291,8 @@ var abstractModule = function(config, prtktd){
 
         sharedEventHandler.emit('socket_enabled', socket);
         socket.emit('enable', getValue());
+
+        console.log('setting available timeout 3333'.red + socket.id);
         socket.availableTimeout = setSocketTimeout(socket);
 
         return socket;
@@ -320,9 +329,7 @@ var abstractModule = function(config, prtktd){
         socket.removeAllListeners('use_end');
 
         // also do not react to timeouts of disabled sockets
-        clearSocketTimeout(socket.availableTimeout);
-        clearSocketTimeout(socket.occupyTimeout);
-        socket.occupyTimeout = null;
+        clearAllSocketTimeouts(socket);
 
         // tell the socket it has been disabled
         socket.emit('disable');
@@ -355,7 +362,7 @@ var abstractModule = function(config, prtktd){
     // this socket will then be made active
     function moveWaitingline(){
 
-        //console.log('waiting line moving...'.yellow + getNameAndId());
+        console.log('waiting line moving...'.yellow + getNameAndId());
 
         if (!activeConnections.length && waitingConnections.length === 1) {
             console.log('First connection to '.yellow + getNameAndId());
