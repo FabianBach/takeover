@@ -1,5 +1,3 @@
-// TODO: animations for x and y axis
-
 // config.
 // isParent
 // isChild
@@ -27,11 +25,13 @@ var xyPad = function(config, prtktd){
     function getAxisConfig(axisName, baseConfig){
 
         var config = global.tkvrClone(baseConfig);
+        var axis = config[axisName + '-axis'];
         config.isParent = false;
         config.isChild = true;
         config.parentObj = prtktd;
         config.type = 'slider';
-        config.mapping = config[axisName + 'Mapping'];
+        config.mapping = axis.mapping;
+        config.animation = axis.animation;
         config.id = config.id + '-'+axisName.toUpperCase();
         config.name = config.name + ' '+axisName+'-axis';
 

@@ -10,50 +10,54 @@
   "maxTime" : 5,
   "resolution": 255,
 
-  "xMapping": [
-    {
-      "type": "dmx",
-      "channel": 11,
-      "minValue": 0,
-      "maxValue": 255
-    },
-    {
-      "type": "midi",
-      "msgType": "controller change",
-      "channel": 1,
-      "byte_1": {
-        "doMapping": false,
-        "value": 52
-      },
-      "byte_2": {
-        "doMapping": true,
+  "x-axis": {
+    "mapping": [
+      {
+        "type": "dmx",
+        "channel": 11,
         "minValue": 0,
-        "maxValue": 127,
-        "invert": true
+        "maxValue": 255
+      },
+      {
+        "type": "midi",
+        "msgType": "controller change",
+        "channel": 1,
+        "byte_1": {
+          "doMapping": false,
+          "value": 52
+        },
+        "byte_2": {
+          "doMapping": true,
+          "minValue": 0,
+          "maxValue": 127,
+          "invert": true
+        }
       }
-    }
-  ],
+    ]
+  },
 
-  "yMapping": [
-    {
-      "type": "dmx",
-      "channel": 12,
-      "minValue": 0,
-      "maxValue": 255
-    },
-    {
-      "type": "midi",
-      "msgType": "controller change",
-      "channel": 1,
-      "byte_1": {
-        "doMapping": false,
-        "value": 53
-      },
-      "byte_2": {
-        "doMapping": true,
+  "y-axis": {
+    "mapping" : [
+      {
+        "type": "dmx",
+        "channel": 12,
         "minValue": 0,
-        "maxValue": 127
+        "maxValue": 255
+      },
+      {
+        "type": "midi",
+        "msgType": "controller change",
+        "channel": 1,
+        "byte_1": {
+          "doMapping": false,
+          "value": 53
+        },
+        "byte_2": {
+          "doMapping": true,
+          "minValue": 0,
+          "maxValue": 127
+        }
       }
-    }
-  ]
+    ]
+  }
 }
