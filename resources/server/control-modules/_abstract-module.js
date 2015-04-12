@@ -223,8 +223,10 @@ var abstractModule = function(config, prtktd){
 
         //console.log('socketTimeout'.grey);
 
-        // this will also enable the waiting sockets by moving the waiting line
-        setOccupied(false, socket);
+        if (waitingConnections.length){
+            // this will also enable the waiting sockets by moving the waiting line
+            setOccupied(false, socket);
+        }
 
         // wait until the socket in use stops using the control, then disable it
         // disable all the sockets which are not using the control immediately
@@ -242,7 +244,6 @@ var abstractModule = function(config, prtktd){
             // if the socket is enabled but not in use
             // but other socket is waiting to get enabled
             // we just check back again later
-            console.log('setting available timeout 1111'.red + socket.id);
             socket.availableTimeout = setSocketTimeout(socket);
 
         } else {
@@ -256,7 +257,6 @@ var abstractModule = function(config, prtktd){
             if (waitingConnections.length){
                 timeoutDisable()
             } else {
-                console.log('setting available timeout 2222'.red + socket.id);
                 socket.availableTimeout = setSocketTimeout(socket);
             }
         }
@@ -292,7 +292,6 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler.emit('socket_enabled', socket);
         socket.emit('enable', getValue());
 
-        console.log('setting available timeout 3333'.red + socket.id);
         socket.availableTimeout = setSocketTimeout(socket);
 
         return socket;
@@ -362,7 +361,7 @@ var abstractModule = function(config, prtktd){
     // this socket will then be made active
     function moveWaitingline(){
 
-        console.log('waiting line moving...'.yellow + getNameAndId());
+        //console.log('waiting line moving...'.yellow + getNameAndId());
 
         if (!activeConnections.length && waitingConnections.length === 1) {
             console.log('First connection to '.yellow + getNameAndId());
