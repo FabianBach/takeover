@@ -672,6 +672,7 @@ var abstractModule = function(config, prtktd){
     }
 
     function setValue(data, socket){
+        if (value === data){ return; }
         value = data;
         privateEventHandler.emit('value_change', data, socket);
     }
