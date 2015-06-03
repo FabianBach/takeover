@@ -12,6 +12,12 @@
   "resolution": 1,
 
   "mapping": [
+    { "type" : "osc",
+      "name" : "OSC 1",
+      "channel" : "/some/channel",
+      "minValue" : 0,
+      "maxValue" : 1337
+    },
     { "type": "dmx",
       "channel": 16,
       "minValue": 12,

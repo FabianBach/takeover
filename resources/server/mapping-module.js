@@ -4,8 +4,9 @@
 
 //TODO: maybe split up in mapper and sender
 
-var dmx,
-    midi;
+var dmx;
+var midi;
+var osc;
 
 var controlModule = require(global.tkvrBasePath + '/resources/server/control-module.js');
 
@@ -73,18 +74,18 @@ function useDmx (value, maxValue, mapping){
         sendDmx({
             channel: mapping.channel,
             value: mappedValueCh1,
-            universe: mapping.universe
+            universe: mapping.name
         });
         sendDmx({
             channel: mapping.channel+1,
             value: mappedValueCh2,
-            universe: mapping.universe
+            universe: mapping.name
         });
     }else{
         sendDmx({
             channel: mapping.channel,
             value: mappedValue,
-            universe: mapping.universe
+            universe: mapping.name
         });
     }
 }
@@ -112,7 +113,7 @@ function setUpMidi(config){
             if(midiOut.getPortName(i) === config[midiName]){
                 midiOut.openPort(i);
                 process.on('beforeExit', function(code){
-                    midiOut.closePort();
+                    midiOut.closePort(i);
                 });
                 midi[midiName] = midiOut;
             }
@@ -141,14 +142,13 @@ function useMidi (value, maxValue, mappingData){
         channel: channel,
         value1: mappedValue1,
         value2: mappedValue2,
-        midiOut: mappingData.midiOut
+        midiOut: mappingData.name
     });
 }
 
 function sendMidi (midiObj){
     //console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
     if (!midi){ return }
-    var sendObj = {};
 
     var firstBytePart = '0000';
     switch (midiObj.type){
@@ -191,18 +191,41 @@ function sendMidi (midiObj){
 }
 
 function setUpOsc(config){
-    //TODO: OSC
+    var oscModule = require('node-osc');
+    osc = {};
+
+    for (var oscName in config){
+        var host = config[oscName].host;
+        var port = parseInt(config[oscName].port);
+
+        if(host && port && !isNaN(port)){
+            osc[oscName] = new oscModule.Client(host, port);
+        }
+    }
 }
 
-function useOsc (value, maxValue, mappingData){
-    sendOsc(value);
+function useOsc (value, maxValue, mapping){
+
+    console.log(value, maxValue);
+    var mappedValue = mapValue(value, maxValue, mapping);
+    if(typeof mappedValue === 'undefined'){ return console.log('Mapping went wrong on OSC value: '.red, mappedValue, value, maxValue) }
+
+    sendOsc({
+        'value': mappedValue,
+        'address': mapping.channel,
+        'oscOut': mapping.name
+    });
 }
 
 function sendOsc (oscObj){
-    console.log('OSC not implemented yet!'.red);
-    console.log('OSC: ' + oscObj);
-}
+    console.log('OSC: '.blue + oscObj.oscOut +' '+ oscObj.value);
 
+    for(var oscOut in osc){
+        if((oscOut === oscObj.oscOut) || (typeof oscObj.oscOut !== 'string')){
+            osc[oscOut].send(oscObj.address, oscObj.value);
+        }
+    }
+}
 
 // General mapping helper functions
 function mapValue(value, maxValue, mapping){
@@ -227,7 +250,10 @@ function mapValue(value, maxValue, mapping){
 
         var minVal = typeof mapping.minValue === 'number' ? mapping.minValue : mapping.value;
         var maxVal = typeof mapping.maxValue === 'number' ? mapping.maxValue : mapping.value;
-        mappedValue = getMappedValue(mapData, mapMax, minVal, maxVal, mapping.invert);
+
+        if(typeof minVal === 'number' && typeof maxVal === 'number'){
+            mappedValue = getMappedValue(mapData, mapMax, minVal, maxVal, mapping.invert);
+        }
 
     }else{
         mappedValue = mapping.value;

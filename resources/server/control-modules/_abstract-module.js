@@ -123,6 +123,20 @@ var abstractModule = function(config, prtktd){
         animations = config.animation;
     }
 
+    function setEvents(){
+        privateEventHandler.on('value_change', onValueChange);
+        privateEventHandler.on('foreign_value_change', onForeignValueChange);
+
+        sharedEventHandler.on('in_use', onUse);
+        sharedEventHandler.on('use_end', onUseEnd);
+
+        sharedEventHandler.on('on_occupie', onOccupy);
+        sharedEventHandler.on('occupie_end', onOccupyEnd);
+
+        sharedEventHandler.on('no_connections', onNoConnections);
+        sharedEventHandler.on('first_connection', onFirstConnection);
+    }
+
     function setForeignValueListeners(){
         if(isParent){
             return;
@@ -388,20 +402,6 @@ var abstractModule = function(config, prtktd){
 
     }
 
-    function setEvents(){
-        privateEventHandler.on('value_change', onValueChange);
-        privateEventHandler.on('foreign_value_change', onForeignValueChange);
-
-        sharedEventHandler.on('in_use', onUse);
-        sharedEventHandler.on('use_end', onUseEnd);
-
-        sharedEventHandler.on('on_occupie', onOccupy);
-        sharedEventHandler.on('occupie_end', onOccupyEnd);
-
-        sharedEventHandler.on('no_connections', onNoConnections);
-        sharedEventHandler.on('first_connection', onFirstConnection);
-    }
-
     // this will notify foreign control modules about any value change
     // the foreign modules just leaves its callback
     function bindForeignValueListener(listener){
@@ -416,7 +416,7 @@ var abstractModule = function(config, prtktd){
         //console.log('Socket ' + socket.id);
 
         var dataLog = checkRecievedData(value);
-        if (dataLog.error.length){ console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog)};
+        if (dataLog.error.length){ console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog)}
         var checkedData = dataLog.data;
 
         //console.log(getNameAndId() + ' checked data:', checkedData);
@@ -495,11 +495,11 @@ var abstractModule = function(config, prtktd){
             }
         }
 
-        // if we are last in line we can validate the data
+        // if we are last in line (no children) we can validate the data
         if (!isParent){
             var parsedData = parseInt(data);
             if (isNaN(parsedData)){
-                error.push('Bad data recieved:' + data)
+                error.push('Bad data recieved:' + data);
                 checkedData = getMinValue();
             } else {
                 parsedData = parsedData > getMaxValue() ? getMaxValue() : parsedData;

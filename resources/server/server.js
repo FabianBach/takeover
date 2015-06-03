@@ -14,8 +14,9 @@ var tkvr = {};
 
 function init(config, callback){
     var port = config.port || 8080;
+    // create a new express instance
     tkvr = express();
-    //tkvr.use(express.static(__dirname + '/public'));
+    //
     tkvr.use(express.static(global.tkvrBasePath + '/public'));
 
     tkvr.get('/tkvr-view-list', function(req, res){
@@ -31,7 +32,7 @@ function init(config, callback){
     tkvrServer = tkvr.listen(port, onServerReady.bind(null, callback));
     io = io.listen(tkvrServer);
 
-    //TODO: set socket io params
+    //TODO?: configure socket io?
 }
 
 function onServerReady(callback){

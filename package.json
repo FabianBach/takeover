@@ -9,6 +9,7 @@
     "dmx": "https://github.com/FabianBach/node-dmx/tarball/master",
     "express": "^4.11.0",
     "midi": "^0.9.2",
+    "node-osc": "^1.1.0",
     "socket.io": "^1.2.1"
   },
   "devDependencies": {

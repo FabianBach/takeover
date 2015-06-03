@@ -60,6 +60,7 @@ function createView(config){
 }
 
 function getViews(){
+    //TODO: Cache this list
     var list = [];
     for( var view in createdViews){
         var viewItem = createdViews[view];

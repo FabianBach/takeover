@@ -15,9 +15,8 @@
 
   "osc": {
     "OSC 1":{
-      "url": "some osc url",
-      "port": "1234",
-      "prefix": "needed?"
+      "host": "127.0.0.1",
+      "port": "7000"
     }
   }
 }
