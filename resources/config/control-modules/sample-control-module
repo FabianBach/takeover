@@ -99,8 +99,8 @@
 
   "startValue" : 0, // REQUIRED - NUMBER - animation starting point
 
-  "loop": "reverse", // OPTIONAL - STRING - defaults to no loop - e.g. reverse, restart, wait, stop
-  "trigger": "pause", // OPTIONAL - STRING - defaults to "restart" - e.g. restart, continue, == ignore, reverse, stop, pause
+  "loop": "reverse", // OPTIONAL - STRING - defaults to no loop - e.g. reverse, restart, wait or stop
+  "trigger": "pause", // OPTIONAL - STRING - defaults to "restart" - e.g. restart, continue, == ignore, reverse, stop, pause or finish
   "triggerOnZero": true, // OPTIONAL - BOOLEAN - defaults to false - will trigger when e.g. button is released or switch is turned off
   "steps": [ // REQUIRED - ARRAY - contains all the steps the animation should do
     {
