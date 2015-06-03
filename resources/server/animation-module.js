@@ -9,16 +9,25 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
 
     var animation = getAnimation(config);
 
-    // fist check if any animation is running on that channel
-    // and what should be done if any other animation comes in on same channel
+    // fist check if this animation is already existing and probably running
+    // and what should be done if triggered again
     if (animation) {
         //console.log('Animation '.yellow + getAnimationId(config), 'trigger', animation.config.trigger);
 
-        switch (animation.config.trigger) {
+        switch (config.trigger) {
             case 'ignore':
             case 'continue':
                 if (!animation.isActive()){
                     startNewAnimation();
+                }
+                break;
+
+            case 'finish':
+                if (!animation.isActive()){
+                    startNewAnimation();
+                }else{
+                    // should not forget to set that back to original. FIXME: not so nice to do like this...
+                    config.loop = 'stop';
                 }
                 break;
 
@@ -62,6 +71,7 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
 
 function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     objRef = objRef || {value : config.startValue};
+    config.originalLoop = config.loop;
 
     //set up start point
     var animation = new TimelineLite().to(objRef, 0, {value: config.startValue} );
@@ -111,6 +121,8 @@ function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
                 break;
 
             case 'stop':
+                if(config.trigger == 'finish'){ config.loop = config.originalLoop; }
+                // no break intended!
             default:
                 animation.kill();
                 onCompleteCallback();

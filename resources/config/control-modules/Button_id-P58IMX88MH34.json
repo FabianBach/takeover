@@ -67,33 +67,30 @@
       "channel": 3,
       "startValue": 0,
 
-      "loop": "wait",
-      "trigger": "reverse",
-      "triggerOnZero": false,
-
-      "steps": [
-        {
-          "type" : "animate",
-          "to" : 255,
-          "time" : 1000,
-          "curve": "linear"
-        }
-      ]
-    },
-    { "type": "dmx",
-      "channel": 2,
-      "startValue": 0,
-
-      "loop": "reverse",
-      "trigger": "pause",
+      "loop": "restart",
+      "trigger": "finish",
       "triggerOnZero": true,
 
       "steps": [
         {
           "type" : "animate",
           "to" : 255,
-          "time" : 250,
+          "time" : 0,
           "curve": "linear"
+        },
+        {
+          "type" : "wait",
+          "time" : 40
+        },
+        {
+          "type" : "animate",
+          "to" : 0,
+          "time" : 0,
+          "curve": "linear"
+        },
+        {
+          "type" : "wait",
+          "time" : 100
         }
       ]
     }

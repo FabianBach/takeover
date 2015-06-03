@@ -68,6 +68,8 @@ function useDmx (value, maxValue, mapping){
     value = parseInt(value);
     var mappedValue = mapValue(value, maxValue, mapping);
 
+    // TODO: step over many universes in array
+
     if(mapping.fine){
         var mappedValueCh1 = mappedValue % 255;
         var mappedValueCh2 = mappedValue / 255;
@@ -136,6 +138,8 @@ function useMidi (value, maxValue, mappingData){
     var channel = mappingData.channel;
     var mappedValue1 = mapValue(value, maxValue, mappingData.byte_1);
     var mappedValue2 = mapValue(value, maxValue, mappingData.byte_2);
+
+    // TODO: step over many channels in array
 
     sendMidi({
         type: type,
@@ -209,6 +213,8 @@ function useOsc (value, maxValue, mapping){
     console.log(value, maxValue);
     var mappedValue = mapValue(value, maxValue, mapping);
     if(typeof mappedValue === 'undefined'){ return console.log('Mapping went wrong on OSC value: '.red, mappedValue, value, maxValue) }
+
+    // TODO: step over many oscOuts in array
 
     sendOsc({
         'value': mappedValue,
