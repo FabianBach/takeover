@@ -1,10 +1,11 @@
 // sample view config
-        // json
+// json
 
 {
   "id": "ABCDE12345",
   "name": "sample view",
-  "orientation": "landscape",
+  "disabled": true,
+  "orientation": "landscape", // TODO: unused parameter
   "grid": {
     "x": 10,
     "y": 4

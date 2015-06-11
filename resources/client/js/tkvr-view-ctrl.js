@@ -6,10 +6,12 @@ tkvr.controller('tkvrViewCtrl', function($scope, $http, $routeParams, tkvrOrient
     $http.get('/tkvr-view/' + $routeParams.id).
         success(function(data, status, headers, config) {
             $scope.view = data;
+            $scope.view.isPortrait = $scope.view.orientation === 'portrait';
+            $scope.view.isLandscape = $scope.view.orientation === 'landscape';
         }).
         error(function(data, status, headers, config) {
             $scope.view = [];
-            // TODO: log error
+            // TODO: log error and try to get that view again
         });
 
     // listen to orientation changes of orientation directive

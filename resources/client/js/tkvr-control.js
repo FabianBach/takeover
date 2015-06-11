@@ -16,74 +16,89 @@ tkvr.directive('tkvrControl', function($compile){
       }
   }
 
-  // the pre-link function will be called at parent scopes first
-  // and be going down to the child scopes
-  // we will put a container for the control inside the grid
-  // and append the control inside of it
-  function preLink(scope, element, attrs){
-      controlContainer = applyViewGrid(scope, element);
-      controlElement = appendControlElement(scope, element);
-      checkControlOrientation(scope);
-  }
-
-  // the post-link function will be called at child scopes first
-  // and be going up to the parent scopes
-  // we will just set a listener on events fired in the scope
-  function postLink(scope, element, attrs){
-      scope.$on('orientationchange', function(event, orientation){
-          scope.orientation = orientation;
-          applyViewGrid(scope, element);
-          checkControlOrientation(scope);
-      });
-  }
-
-  // this will position absolute the container of the control element
-  function applyViewGrid(scope, element){
-    var gridWidth = scope.orientation.isPortrait
-        ? scope.view.grid.x
-        : scope.view.grid.y;
-
-    var gridHeight = scope.orientation.isPortrait
-        ? scope.view.grid.y
-        : scope.view.grid.x;
-
-    var elementWidth = scope.orientation.isPortrait
-        ? scope.control.width
-        : scope.control.height;
-
-    var elementHeight = scope.orientation.isPortrait
-        ? scope.control.height
-        : scope.control.width;
-
-    var elementPosX = scope.orientation.isPortrait
-        ? scope.control.position.x
-        : scope.view.grid.y - scope.control.position.y - scope.control.height;
-
-    var elementPosY = scope.orientation.isPortrait
-        ? scope.control.position.y
-        : scope.control.position.x;
-
-    //TODO: if reaching out of grid correct that;
-    element.css('width', (elementWidth / gridWidth * 100) +'em');
-    element.css('height', (elementHeight / gridHeight * 100) +'em');
-
-    element.css('left', (elementPosX / gridWidth * 100) +'em');
-    element.css('top', (elementPosY / gridHeight * 100) +'em');
-
-    return element;
-  }
-
-  // This function just sets the orientation of the control in its scope
-  // by comparing the height and the width of it
-  function checkControlOrientation(scope){
-    scope.control.isVertical = scope.control.height > scope.control.width;
-    scope.control.isHorizontal = !scope.control.isVertical;
-
-    if (scope.orientation.isLandscape){
-      scope.control.isVertical = !scope.control.isVertical;
-      scope.control.isHorizontal = !scope.control.isHorizontal;
+    // the pre-link function will be called at parent scopes first
+    // and be going down to the child scopes
+    // we will put a container for the control inside the grid
+    // and append the control inside of it
+    function preLink(scope, element, attrs){
+        setViewTurnFlag(scope);
+        controlContainer = applyViewGrid(scope, element);
+        controlElement = appendControlElement(scope, element);
+        checkControlOrientation(scope);
     }
-  }
+
+    // the post-link function will be called at child scopes first
+    // and be going up to the parent scopes
+    // we will just set a listener on events fired in the scope
+    function postLink(scope, element, attrs){
+        scope.$on('orientationchange', function(event, orientation){
+            setViewTurnFlag(scope);
+            scope.orientation = orientation;
+            applyViewGrid(scope, element);
+            checkControlOrientation(scope);
+        });
+    }
+
+    // this will position absolute the container of the control element
+    function setViewTurnFlag(scope){
+        // check if the view has to be rendered turned by 90 deg.
+        var turnView = (scope.orientation.isPortrait && scope.view.isLandscape) ||
+            (scope.orientation.isLandscape && scope.view.isPortrait);
+
+        console.log(turnView);
+        scope.view.turnView = turnView;
+    }
+
+    function applyViewGrid(scope, element){
+
+        // this will position absolute the wrapper of the control element
+        // and then append the control element to it as child
+        var gridWidth = scope.view.turnView
+            ? scope.view.grid.y
+            : scope.view.grid.x;
+
+        var gridHeight = scope.view.turnView
+            ? scope.view.grid.x
+            : scope.view.grid.y;
+
+        var elementWidth = scope.view.turnView
+            ? scope.control.height
+            : scope.control.width;
+
+        var elementHeight = scope.view.turnView
+            ? scope.control.width
+            : scope.control.height;
+
+        var elementPosX = scope.view.turnView
+            ? scope.control.position.y
+            : scope.control.position.x;
+            //: scope.view.grid.y - scope.control.position.y - scope.control.height;
+
+        var elementPosY = scope.view.turnView
+            ? scope.control.position.x
+            : scope.control.position.y;
+
+        //TODO: if reaching out of grid correct that;
+        element.css('width', (elementWidth / gridWidth * 100) +'em');
+        element.css('height', (elementHeight / gridHeight * 100) +'em');
+
+        element.css('right', (elementPosX / gridWidth * 100) +'em');
+        element.css('top', (elementPosY / gridHeight * 100) +'em');
+
+        return element;
+    }
+
+    // This function just sets the orientation of the control in its scope
+    // by comparing the height and the width of it
+    function checkControlOrientation(scope){
+        scope.control.isVertical = scope.control.height > scope.control.width;
+        scope.control.isHorizontal = !scope.control.isVertical;
+
+        if (scope.view.turnView){
+            scope.control.isVertical = !scope.control.isVertical;
+            scope.control.isHorizontal = !scope.control.isHorizontal;
+        }
+    }
 
   // This is where the magic happens.
   // This function creates a simple template string for the control-type.

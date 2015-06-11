@@ -154,7 +154,7 @@ var abstractModule = function(config, prtktd){
                     setListener(mapping.byte_2.foreignValue, mapping);
                     break;
                 case 'osc':
-                    //TODO: OSC
+                    // TODO: OSC
                     break;
             }
 

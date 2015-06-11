@@ -175,7 +175,7 @@ function validateOscMapping(mapping){
 }
 
 function validateGeneralMapping(mapping){
-    // TODO: validate mapping stuff like:
+    // TODO: validate general mapping stuff like:
 
     // if minVal === maxVal -> doMapping = false -> value = minVal;
     // if !minVal -> check if val > minVal -> maxVal = val
@@ -213,3 +213,4 @@ that.validateMapping = validateMapping;
 that.validateAnimation = validateAnimation;
 
 module.exports = that;
+// TODO: Validate View

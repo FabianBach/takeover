@@ -22,20 +22,20 @@ TODOS
 
 
     find a nice way to make the io instance available to all modules
-        but global would be uncool
+        but not global
         at the moment it is passed to object by reference in the config object
         UPDATE: I guess that is the best way to do this?
+        Maybe use require, that would be nice
 
 
-    overwork the way of logging
+    logging
         add some ids and more useful information
         and some colors...
 
 
     call super functions nicer somehow
         at the moment we even have to check if there is this function in the shared object
-        UPDATE: do we even have to call superfuncs or is it cool that way?
+        UPDATE: do we even have to call superfuncs or is it okay that way?
 
 BUGS
-
-    no bugs yet... phew
+    no bugs known... phew

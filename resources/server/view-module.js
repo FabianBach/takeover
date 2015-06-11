@@ -35,7 +35,7 @@ function createFromFiles(configsPath, callback){
 }
 
 function createView(config){
-    if (!config) return;
+    if (!config || !!config.disabled) return;
 
     var validateLog = validateConfig(config);
     if(validateLog.error.length){return console.log('view-factory'.grey + ' error: '.red + validateLog.error)}
@@ -74,7 +74,7 @@ function getViews(){
 }
 
 function getViewById(id){
-    if(!id){ return console.log('view-factory'.grey + ' error: '.red + 'Invalid id to get')}
+    if(!id){ return console.log('view-factory'.grey + ' error: '.red + 'No View with such id: ' + id)}
     return createdViews[id];
 }
 
@@ -89,6 +89,8 @@ module.exports = that;
 function validateConfig(config){
     var error = [];
 
+    config.disabled = !!config.disabled;
+
     if (!config.id){ config.id = parseInt(Math.random() * new Date().getTime() * 10000000).toString(36).toUpperCase(); }
 
     // position
@@ -97,6 +99,17 @@ function validateConfig(config){
     //    if (config.position.x === undefined){ error.push('No x-position in config')}
     //    if (config.position.y === undefined){ error.push('No y-position in config')}
     //}
+
+    // orientation
+    if (!config.orientation ||
+        config.orientation.toLowerCase() !== 'portrait' ||
+        config.orientation.toLowerCase() !== 'landscape')
+    {
+        config.orientation = 'portrait'
+    }
+    else{
+        config.orientation = config.orientation.toLowerCase();
+    }
 
     // size
     if (!config.grid){ error.push('No grid sizes in config')}

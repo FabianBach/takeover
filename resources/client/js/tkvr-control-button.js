@@ -17,6 +17,7 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
 
         // set events on this element
         // link is the right place to do this
+        // TODO: pointerId to enable multitouch
         element.on('pointerdown', function(event){
             if(scope.control.isEnabled && !scope.control.isActive){
                 scope.control.socket.emit('in_use');

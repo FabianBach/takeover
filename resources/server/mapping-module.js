@@ -69,6 +69,7 @@ function useDmx (value, maxValue, mapping){
     var mappedValue = mapValue(value, maxValue, mapping);
 
     // TODO: step over many universes in array
+    // TODO: step over many channels in array
 
     if(mapping.fine){
         var mappedValueCh1 = mappedValue % 255;
@@ -139,6 +140,7 @@ function useMidi (value, maxValue, mappingData){
     var mappedValue1 = mapValue(value, maxValue, mappingData.byte_1);
     var mappedValue2 = mapValue(value, maxValue, mappingData.byte_2);
 
+    // TODO: step over many midiOuts in array
     // TODO: step over many channels in array
 
     sendMidi({
@@ -215,6 +217,7 @@ function useOsc (value, maxValue, mapping){
     if(typeof mappedValue === 'undefined'){ return console.log('Mapping went wrong on OSC value: '.red, mappedValue, value, maxValue) }
 
     // TODO: step over many oscOuts in array
+    // TODO: step over many addresses in array
 
     sendOsc({
         'value': mappedValue,
