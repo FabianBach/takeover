@@ -1,3 +1,8 @@
+// NOT IN USE - unfinished
+
+// Angular directive
+// This will append an element to the target element
+// to visually react on touch or click positions
 tkvr.directive('tkvrAnimExpand', function(){
 
     return tkvrButton = {

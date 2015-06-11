@@ -1,5 +1,8 @@
+// Angular entrance point
+// defines the tkvr Angular app
 var tkvr = angular.module('tkvr', ['ngRoute']);
 
+// Setting up the hash routes of the app
 tkvr.config(function($routeProvider){
 
     //Set up the routes
@@ -16,11 +19,8 @@ tkvr.config(function($routeProvider){
             redirectTo: '/list'
         });
 
-    // TODO: do that in some main controller or something
+    // TODO:
     // connect to main socket to establish namespace connections faster
-    // check if connected regulary
-    // and broadcast some disconnect event in rootScope on timeout
-    //$scope.socket = io.connect(window.location.origin);
-
-    // TODO: also disconnect the client on destroy event of angular
+    // $scope.socket = io.connect(window.location.origin);
+    // also disconnect the client on destroy event of angular
 });

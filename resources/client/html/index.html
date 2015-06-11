@@ -2,17 +2,20 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <!-- disable user scaling to prevent the page from zooming on double taps,
+            which will happen very often on this page.
+            The page will be build fluid, so no need to zoom anyway -->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>tkvr</title>
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 <section ng-app="tkvr" ng-view id="tkvr">
-    <!--angular templates come here-->
+    <!-- angular templates will be added here by script -->
 </section>
 
 <footer>
-    <!--TODO: concat these scripts?-->
+    <!-- Frameworks and libraries -->
     <script type="text/javascript" src="/socket.io/socket.io.js/"></script>
     <script type="text/javascript" src="/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="/js/PEP.min.js"></script>

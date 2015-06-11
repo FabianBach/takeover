@@ -1,3 +1,4 @@
+<!-- template for control element button -->
 <div class="input"
      ng-class="{
         enabled: control.isEnabled,
@@ -10,5 +11,5 @@
      touch-action="none"
      >
     <span class="indicator"></span>
-    <span class="label">{{control.title | uppercase}}</span>
+    <span class="label">{{::control.title | uppercase}}</span>
 </div>

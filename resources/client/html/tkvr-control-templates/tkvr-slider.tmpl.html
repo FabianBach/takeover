@@ -1,15 +1,15 @@
+<!-- template for control element slider -->
 <div class="input"
      ng-class="{
         enabled: control.isEnabled,
         disabled: control.isDisabled,
         active: control.isActive,
         occupied: control.isOccupied,
-        vertical: control.isVertical,
-        horizontal: control.isHorizontal
+        horizontal: control.isHorizontal,
+        vertical: control.isVertical
         }"
      touch-action="none"
      >
-
     <span class="indicator"></span>
     <span class="label">{{::control.title | uppercase}}</span>
 </div>

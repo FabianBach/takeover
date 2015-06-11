@@ -1,3 +1,6 @@
+// Angular directive for control module: xy-pad
+// this directive will be called by the tkvrControl directive with $compile()()
+// It defines the individual behaviour of the control module, mainly its events
 tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords){
 
     return tkvrXyPad = {
@@ -5,12 +8,11 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
         templateUrl: 'tkvr-xy-pad.tmpl.html',
         replace: true,
         link: link
-        //TODO: scope?
     };
 
     function link(scope, element, attrs){
 
-        //set up sockets for this element
+        //set up sockets and its Namespace for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
         // set events on this element
@@ -74,6 +76,10 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
             }
         });
 
+
+        // set up a listener for foreign value changes
+        // so that new value can be updated in real time
+        // TODO: put that in socket-service
         scope.control.socket.on('value_update', function(newValue){
             if (scope.control.isActive){ return }
             scope.control.value = newValue;

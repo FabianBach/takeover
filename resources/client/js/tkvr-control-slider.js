@@ -1,3 +1,6 @@
+// Angular directive for control module: slider
+// this directive will be called by the tkvrControl directive with $compile()()
+// It defines the individual behaviour of the control module, mainly its events
 tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoords){
 
     return tkvrSlider = {
@@ -5,12 +8,11 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         templateUrl: 'tkvr-slider.tmpl.html',
         replace: true,
         link: link
-        //TODO: scope?
     };
 
     function link(scope, element, attrs){
 
-        //set up sockets for this element
+        //set up sockets and its Namespace for this element
         scope.control.socket = tkvrSocketIoSetup(scope.control.namespace, scope);
 
         // set events on this element
@@ -18,14 +20,14 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
         element.on('pointerenter pointerdown', function(event){
             if (scope.control.isEnabled){
                 scope.control.hasFocus = true;
-                //scope.$digest();
+                //scope.$digest(); // TODO: $call would be better?
             }
         });
 
         element.on('pointerleave', function(event){
             if(!scope.control.isActive){
                 scope.control.hasFocus = false;
-                //scope.$digest();
+                //scope.$digest(); // TODO: $call would be better?
             }
         });
 
@@ -33,7 +35,7 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             if (scope.control.isEnabled && !scope.control.isActive){
                 scope.control.isActive = true;
                 scope.control.socket.emit('in_use');
-                scope.$digest();
+                scope.$digest(); // TODO: $call would be better?
             }
         });
 
@@ -41,7 +43,7 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             if (!scope.control.isActive){ return }
             scope.control.isActive = false;
             scope.control.socket.emit('use_end');
-            scope.$digest();
+            scope.$digest(); // TODO: $call would be better?
         });
 
         $('html').on('pointermove pointerdown', function(event){
@@ -71,7 +73,11 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             }
         });
 
-        scope.control.socket
+
+      // set up a listener for foreign value changes
+      // so that new value can be updated in real time
+      // TODO: put that in socket-service
+      scope.control.socket
             .on('value_update', function(newValue){
                 if (scope.control.isActive){ return }
                 onValueChange(newValue);
@@ -81,7 +87,7 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             scope.control.value = newValue;
             moveIndicator();
             //TODO: digest on every pointermove?
-            //scope.$digest();
+            //scope.$digest(); // TODO: $call would be better?
         }
 
         function moveIndicator(){
