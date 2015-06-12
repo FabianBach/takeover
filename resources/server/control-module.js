@@ -88,7 +88,7 @@ function setForeignListeners(){
 
 function setForeignListener(moduleId, listener){
     var module = createdModules[moduleId];
-    if(!module){ return };
+    if(!module){ return }
     module.onValueChange(listener);
     console.log('Foreign value listener on:', moduleId.grey);
 }

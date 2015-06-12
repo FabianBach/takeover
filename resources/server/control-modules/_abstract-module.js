@@ -1,25 +1,22 @@
-
-// this function will return a new object with its own private scope and public methods
-// it can be handed a configuration object
-// somehow like a factory
+// Control Module - Basic Abstract Module
+// This function will return a new object
+// with private and public and protected methods.
+// It is configured by handing in a pojo.
+// This function works somehow like a factory.
 var abstractModule = function(config, prtktd){
 
-    /*
-     * ** PRIVATE STUFF **
-     */
+    /* ** Everything is PRIVATE ** */
+    // Everything inside this function is private.
+    // Public methods have to be added to the public object.
+    // Protected methods have to be added to the protected object.
 
-    // this object will be provided by an object that inherits from this object
-    // we can add members to it we want to share with it, but we don't want to make public
-    // the inheriting object can then use the normally private methods of this object
+    // The protected methods are realised by passing them around in a object.
+    // This object will be provided by and to any child-module that inherits from this module.
     prtktd = prtktd || {};
 
-    // this class does not inherit from any other class
-    // so we start with a new and empty object
-    // this object will be returned at the end
+    // The public methods are collected in a object that will be returned at the end.
     var pblc;
 
-    // everything is private and can not be invoked outside of this scope
-    // public stuff will be added to the returned object
     var isParent,
         isChild;
 
@@ -50,42 +47,49 @@ var abstractModule = function(config, prtktd){
         occupyingAnimationsCount = 0;
 
     var privateEventHandler, // for modules internally
-        sharedEventHandler, // for connnected parent and child modules
-        globalEventHandler, // for all modules created ever
+        sharedEventHandler, // for inheriting parent and child modules
+        globalEventHandler, // for all modules globally
         validator,
         mapper,
         animator;
 
-    // this function will be called at first
-    // it will validate the configuration and set the super object to inherit from
+    // This function will be called at first.
+    // Somehow like a constructor inside a constructor.
+    // It will validate the configuration and set the super object to inherit from
     var init = function(){
 
+        // get references to all needed modules
         validator = require(global.tkvrBasePath + '/resources/server/validation-module');
         mapper = require(global.tkvrBasePath + '/resources/server/mapping-module');
         animator = require(global.tkvrBasePath + '/resources/server/animation-module');
 
+        // validate and correct and apply the configuration
         var validationLog = validator.validateConfig(config);
         if (validationLog.error.length) return {error: validationLog.error};
-
         applyConfig(config);
 
+        // open a new namespace for websockets
         if (!isChild){
             var socketLog = createSocket(config.io);
             if (socketLog.error.length) return {error: socketLog.error};
         }
 
+        //
         setEvents();
-
         setPublicMembers();
         setProtectedMembers();
 
-        // this will do initial stuff e.g. onNoConnections
+        // this will trigger some initial events
+        // e.g. onNoConnections
         moveWaitingline();
 
+        // TODO: this is not really useful like that
         return {error: []};
     };
 
-    // use the information provided in the validated configuration to set and override variables of the object
+    // Use the information provided in the validated configuration
+    // to set and override variables of the module
+    // and also set some default values
     function applyConfig (config){
 
         isParent = !!config.isParent;
@@ -117,12 +121,13 @@ var abstractModule = function(config, prtktd){
         resolution = config.resolution;
         maxValue = resolution;
         minValue = 0;
-        value = minValue;
+        value = minValue; //TODO: initial value in config
 
         mappings = config.mapping;
         animations = config.animation;
     }
 
+    // Make the module listen to all the stuff that happens
     function setEvents(){
         privateEventHandler.on('value_change', onValueChange);
         privateEventHandler.on('foreign_value_change', onForeignValueChange);
@@ -137,13 +142,14 @@ var abstractModule = function(config, prtktd){
         sharedEventHandler.on('first_connection', onFirstConnection);
     }
 
+    // This makes it possible to use the foreignValue option in the config.
+    // The function steps through all the mappings and checks for the foreignValue option.
     function setForeignValueListeners(){
-        if(isParent){
+        if (isParent){
             return;
         }
 
-        //step through mappings and set listeners
-        for(var i=0; i<mappings.length; i++){
+        for (var i = 0; i < mappings.length; i++){
             var mapping = mappings[i];
             switch(mapping.type){
                 case 'dmx':
@@ -154,10 +160,14 @@ var abstractModule = function(config, prtktd){
                     setListener(mapping.byte_2.foreignValue, mapping);
                     break;
                 case 'osc':
-                    // TODO: OSC
+                    setListener(mapping.foreignValue, mapping);
                     break;
             }
 
+            // The setForeignValueListener function is provided by the control factory.
+            // This module does not has to know where to find the foreign value.
+            // All it does is placing a callback and wait for it to be called.
+            // The callback then fires an private event which the modules reacts to.
             function setListener(foreignValue, mapping){
                 if(foreignValue){
                     prtktd.setForeignListener(foreignValue, function(value){
@@ -168,9 +178,9 @@ var abstractModule = function(config, prtktd){
         }
     }
 
-    // this will create a new namespace for sockets to connect directly to this server module
-    // it will also handle the connecting sockets and save the references
-    // also, the connections will be set active or put in the waiting line
+    // This will create a new namespace for client sockets to connect directly to the server part of this module.
+    // It will also handle the connecting sockets and save the references.
+    // Also, the connections will be set active or put in the waiting line.
     function createSocket (io){
         var error = [];
 
@@ -178,11 +188,11 @@ var abstractModule = function(config, prtktd){
             return {error: error};
         }
 
-        // creates a new and unique namespace using the id
+        // Creates a new and unique namespace using the unique id of the module.
         ioSocket = io;
         ioNamespace = io.of(getNamespace());
 
-        // will be invoked when a client connects to the namespace
+        // Listen to client connections to the namespace
         ioNamespace.on('connection', function(socket){
             console.log('Connected to control ' + getNameAndId() +' socket: '+ socket.id.grey);
 
@@ -190,28 +200,42 @@ var abstractModule = function(config, prtktd){
                 disableSocket(socket);
             });
 
-            // if the max number of users is not reached yet set socket active
-            // else put socket in waiting line
+            // Fires an event if no socket was connected at all until now
+            if (!activeConnections.length) {
+              console.log('First connection to '.yellow + getNameAndId());
+              sharedEventHandler.emit('first_connection');
+            }
+
+            // If the max number of users is not reached yet
+            // and the socket is currently not occupied set socket active.
+            // Else put socket in the waiting line.
             if (!getOccupied().status && activeConnections.length < maxUsers){
                 enableSocket(socket);
             }else{
-                //putSocketBackInLine(socket);
+                // putSocketBackInLine(socket);
                 putSocketFrontInLine(socket);
             }
 
+            // Initial value update for new client
             socket.emit('value_update', getValue());
 
             console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
-
         });
 
         return {error: error};
     }
 
+    // There are two types of timeouts:
+    // The available timeout defines how much time the user has to start using the module.
+    // The occupy timeout defines how long the user can then use the module exclusively.
+
+    // This timeout is used to not let an user occupy the control module for ever ever, for ever ever?
+    // Also used to move inactive users to the waiting line.
     function setSocketTimeout(socket){
         if (maxTime === Infinity){ return }
 
-        // make sure there are no other timeouts set before setting new ones
+        // make sure there are no other timeouts set
+        // before setting new ones
         clearAllSocketTimeouts(socket);
 
         return setTimeout(function(){
@@ -233,62 +257,64 @@ var abstractModule = function(config, prtktd){
         socket.occupyTimeout = null;
     }
 
+    // This will also enable the waiting sockets by moving the waiting line
     function onSocketTimeout(socket){
-
-        //console.log('socketTimeout'.grey);
-
         if (waitingConnections.length){
-            // this will also enable the waiting sockets by moving the waiting line
             setOccupied(false, socket);
         }
 
-        // wait until the socket in use stops using the control, then disable it
-        // disable all the sockets which are not using the control immediately
+        // If the user is still using the control module,
+        // do not disable him immediately if not configured.
         if(getInUse().socket === socket && !disableOnMaxTime){
-            // if the socket is is use
-            // and the control is not set to disable immediately:
+
+            // Wait until user stops using the module after timeout.
+            // Set listener only once.
             if (!socket.useEndListenerSet){
                 socket.on('use_end', timeoutMaybeDisable);
                 socket.useEndListenerSet = true;
             }
-
+            // set occupy timeout again to check back again later when things might have changed
             socket.occupyTimeout = setSocketTimeout(socket);
 
+        // If the module is not in use anymore, but there are no waiting connections,
+        // just leave it available to use for that client
         } else if (!waitingConnections.length){
-            // if the socket is enabled but not in use
-            // but other socket is waiting to get enabled
-            // we just check back again later
+            // set available timeout to check back again later when things might have changed
             socket.availableTimeout = setSocketTimeout(socket);
 
+        // If the module is not in use and some users are waiting to get it available
+        // put that socket back in line, he has had enough time to start using it
         } else {
-            // if other sockets are waiting to get enabled
-            // and this socket is not using the control:
             timeoutDisable()
         }
 
 
+        // This checks if the module is disabled or still available
+        // to a socket when it stops using it after its occupy timeout
         function timeoutMaybeDisable(){
             if (waitingConnections.length){
                 timeoutDisable()
             } else {
-                socket.availableTimeout = setSocketTimeout(socket);
+              // set available timeout to check back again later when things might have changed
+              socket.availableTimeout = setSocketTimeout(socket);
             }
         }
 
+        // disables the socket, if it wants or not.
         function timeoutDisable(){
-            // remove the callback to this function
             socket.removeListener('use_end', timeoutMaybeDisable);
             socket.useEndListenerSet = false;
-            // the following will also disable the socket and set inUse to false
+            // will disable the socket and set inUse to false
             putSocketBackInLine(socket);
         }
     }
 
+    // Enables a socket to let him start using this control module.
+    // It starts listening to all its events
+    // and tells the socket it has been enabled.
     function enableSocket(socket){
         activeConnections.sockets[socket.id] = socket;
         activeConnections.length = activeConnections.length + 1;
-
-        //console.log(getNameAndId() + ' enabling a socket ' + socket.id);
 
         socket.on('in_use', function(){
             setInUse(true, socket);
@@ -299,93 +325,87 @@ var abstractModule = function(config, prtktd){
         });
 
         socket.on('use_end', function(){
-            //console.log('socket use_end'.red);
             setInUse(false, socket);
         });
 
+        // Let children know what happens
         sharedEventHandler.emit('socket_enabled', socket);
+        // Let that socket know it is enabled and whats that actual value
         socket.emit('enable', getValue());
-
+        // Set available timeout to put him back in the waiting line
+        // if he does not start using the module.
         socket.availableTimeout = setSocketTimeout(socket);
 
         return socket;
     }
 
+    // Puts a socket IN FRONT of the waiting line,
+    // so it gets to use it next
     function putSocketFrontInLine(socket){
-
-        //console.log(getNameAndId() + ' front in line ' + socket.id);
-
         disableSocket(socket);
-        // push it back in waiting line if still connected
         if(socket.connected){
             waitingConnections.unshift(socket);
         }
     }
 
+    // Puts a socket IN BACK of the waiting line,
+    // so it has to wait till all the other sockets had a turn
     function putSocketBackInLine(socket){
-
-        //console.log(getNameAndId() + ' back in line ' + socket.id);
-
         disableSocket(socket);
-        // push it back in waiting line if still connected
         if(socket.connected){
             waitingConnections.push(socket);
         }
     }
 
-    // will disable its interface on the client
+    // Will remove all the listeners for socket sent events,
+    // so what ever it will send will be ignored.
+    // It will also tell the socket that it has been disabled.
     function disableSocket(socket){
 
-        // make sure we do not react to any events of disabled sockets
+        // Make sure we ignore any events of disabled sockets
         socket.removeAllListeners('value_change');
         socket.removeAllListeners('in_use');
         socket.removeAllListeners('use_end');
 
-        // also do not react to timeouts of disabled sockets
+        // Also ignore timeouts of disabled sockets
         clearAllSocketTimeouts(socket);
 
-        // tell the socket it has been disabled
+        // Tell the socket it has been disabled
         socket.emit('disable');
 
-        // remove the disabled socket from active list if it was active
+        // Remove the disabled socket from active list if it was active
         if(activeConnections.sockets[socket.id]){
 
             // if the socket was not only active but also using the control at the moment
             // we have to be careful to not forget to clean up because it could not do it itself
             if(getInUse().status && getInUse().socket && (socket.id === getInUse().socket.id)){
-                //console.log('socket_in_use_disabled'.red);
-
                 if (!getOccupied().status){
                     setInUse(false, socket);
                 }
-
+                // Tell the children what did happen
                 sharedEventHandler.emit('socket_in_use_disabled', socket);
             }
 
-            // finally remove it from the active list
+            // Finally remove that socket from the active list
             delete activeConnections.sockets[socket.id];
             activeConnections.length = activeConnections.length - 1;
         }
 
-        // also tell children, might come in handy some time
+        // Also tell children what is happening
         sharedEventHandler.emit('socket_disabled', socket);
     }
 
-    // this will step trough the waiting list until it finds a connected socket
-    // this socket will then be made active
+    // This will step trough the waiting list until it finds a connected socket.
+    // This socket will then be made active and moved to the active list.
     function moveWaitingline(){
 
-        //console.log('waiting line moving...'.yellow + getNameAndId());
-
-        if (!activeConnections.length && waitingConnections.length === 1) {
-            console.log('First connection to '.yellow + getNameAndId());
-            sharedEventHandler.emit('first_connection');
-        }
-
-        for(var a = activeConnections.length;
-            a < (maxUsers + getInUse().status)
-            && waitingConnections.length > 0;
-            a = activeConnections.length){
+        // Step through the waiting list until
+        // the active list reached its maximum
+        // or the waiting list has no more entries
+        for ( var a = activeConnections.length;
+              a < (maxUsers + getInUse().status)
+              && waitingConnections.length > 0;
+              a = activeConnections.length) {
 
             var socket = waitingConnections.shift();
             if (socket.connected){
@@ -393,33 +413,26 @@ var abstractModule = function(config, prtktd){
             }
         }
 
+        // If we do not have any connected sockets, we fire an event.
+        // We could start some animation with that or trigger some special mapping.
         if (!activeConnections.length) {
             console.log('No connections to '.yellow + getNameAndId());
             sharedEventHandler.emit('no_connections');
         }
-
-        //console.log('... waiting line moved'.yellow + getNameAndId());
-
     }
 
-    // this will notify foreign control modules about any value change
-    // the foreign modules just leaves its callback
+    // This will notify foreign control modules about any value change.
+    // The foreign modules just leaves its callback which will then be invoked.
     function bindForeignValueListener(listener){
         privateEventHandler.on('value_change', listener);
     }
 
-    // gets invoked when a client sends a new value for the module
-    // should check if value is a valid one and then call mapping
+    // Gets called when the value of the module has changed.
     function onValueChange (value, socket){
-
-        //console.log('Control ' + getNameAndId() + ' value: ', value);
-        //console.log('Socket ' + socket.id);
 
         var dataLog = checkRecievedData(value);
         if (dataLog.error.length){ console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog)}
         var checkedData = dataLog.data;
-
-        //console.log(getNameAndId() + ' checked data:', checkedData);
 
         if (isParent){
             for(var childName in childObjs){
