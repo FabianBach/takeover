@@ -45,7 +45,6 @@ tkvr.directive('tkvrControl', function($compile){
         var turnView = (scope.orientation.isPortrait && scope.view.isLandscape) ||
             (scope.orientation.isLandscape && scope.view.isPortrait);
 
-        console.log(turnView);
         scope.view.turnView = turnView;
     }
 

@@ -212,7 +212,7 @@ function setUpOsc(config){
 
 function useOsc (value, maxValue, mapping){
 
-    console.log(value, maxValue);
+    //console.log(value, maxValue);
     var mappedValue = mapValue(value, maxValue, mapping);
     if(typeof mappedValue === 'undefined'){ return console.log('Mapping went wrong on OSC value: '.red, mappedValue, value, maxValue) }
 
@@ -227,8 +227,6 @@ function useOsc (value, maxValue, mapping){
 }
 
 function sendOsc (oscObj){
-    console.log('OSC: '.blue + oscObj.oscOut +' '+ oscObj.value);
-
     for(var oscOut in osc){
         if((oscOut === oscObj.oscOut) || (typeof oscObj.oscOut !== 'string')){
             osc[oscOut].send(oscObj.address, oscObj.value);
