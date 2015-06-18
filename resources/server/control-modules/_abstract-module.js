@@ -449,11 +449,14 @@ var abstractModule = function(config, prtktd){
 
         if(!isChild){
             if (socket && socket.broadcast){
+                //TODO: do send it but with with timeout only or something to use less network
                 socket.broadcast.emit('value_update', checkedData);
 
             } else {
                 ioNamespace.emit('value_update', checkedData);
             }
+
+            console.log(getName().grey, 'val', checkedData);
         }
 
         if (!isParent) {

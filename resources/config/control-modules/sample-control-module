@@ -5,8 +5,8 @@
 
 {
   "id": "A1B2C3D4E5F6", // OPTIONAL - STRING - has to be unique
-  "name" : "sample module mapping", // OPTIONAL - STRING
-  "title": "Some label", // OPTIONAL - STRING
+  "name" : "sample module mapping", // OPTIONAL - STRING - for setting purposes only, not visible to user
+  "title": "Some label", // OPTIONAL - STRING - could be shown on the module visible for the user
   "type" : "slider", // REQUIRED - STRING - not case sensitive - button, slider, xy-pad etc...
   "disabled" : true, // OPTIONAL - BOOLEAN - Defaults to false - if true this module will not be loaded
   "resolution": 100, // ? - NUMBER - e.g. steps of a Slider
@@ -94,7 +94,8 @@
   * ANIMATIONS
   **/
 {
-  "type" : "dmx", // REQUIRED - STRING - can be dmx, midi or osc
+  "type" : "protocol", // REQUIRED - STRING - can be dmx, midi or osc
+  "name" : "name of output device", // OPTIONAL - STRING - Has to match any set protocol out name of main-config
   "channel" : 127, // REQUIRED - NUMBER - 512 max
 
   "startValue" : 0, // REQUIRED - NUMBER - animation starting point
@@ -107,7 +108,7 @@
       "type": "animate", // REQUIRED - STRING - has to be "animate" or "wait"
       "to": 128, // REQUIRED - NUMBER - Value the mapping shuold be animated to
       "time": 250, // REQUIRED - NUMBER - Animation-time in milliseconds
-      "curve": "linear" // OPTIONAL - STRING - defaults to linear - name of easing curves can be found and testet at greenSock
+      "curve": "linear" // OPTIONAL - STRING - defaults to linear - name of easing curves can be found and testet at greenSock: http://greensock.com/docs/#/HTML5/GSAP/Easing/
     },
 
     {

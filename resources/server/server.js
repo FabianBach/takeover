@@ -13,7 +13,7 @@ var tkvrServer;
 var tkvr = {};
 
 function init(config, callback){
-    var port = config.port || 8080;
+    var port = config.port || 80;
     // create a new express instance
     tkvr = express();
     //

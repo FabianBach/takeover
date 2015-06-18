@@ -3,7 +3,7 @@
   .border{
     border-color: $tkvr-border-clr;
     border-width: $tkvr-input-border-width;
-    border-style: dashed;
+    border-style: dotted;
     box-sizing: border-box;
     @include tkvr-stretch-with-padding(-4em);
   }
