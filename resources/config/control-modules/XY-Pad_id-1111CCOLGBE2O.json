@@ -1,0 +1,33 @@
+{
+  "disabled" : false,
+
+  "id": "1111CCOLGBE2O",
+  "type": "xy-pad",
+  "name": "Parkhouse Pad",
+  "title": "park.house",
+
+  "resolution": 255,
+
+  "x-axis": {
+    "mapping": [
+      {
+        "type": "dmx",
+        "channel": 1,
+        "fine" : true,
+        "minValue": 0,
+        "maxValue": 30000
+      }
+    ]
+  },
+  "y-axis": {
+    "mapping" : [
+      {
+        "type": "dmx",
+        "channel": 3,
+        "fine" : true,
+        "minValue": 0,
+        "maxValue": 20000
+      }
+    ]
+  }
+}

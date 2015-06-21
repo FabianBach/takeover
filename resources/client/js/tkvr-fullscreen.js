@@ -19,7 +19,7 @@ tkvr.directive('tkvrFullscreen', function(){
         // the request has to happen on some kind of user triggered event
         if (screenfull && screenfull.enabled) {
             element.on('pointerdown', function(){
-                screenfull.request();
+                //screenfull.request();
             });
         }
     }

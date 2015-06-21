@@ -2,28 +2,28 @@
   "startupMapping": [
     {
       "type": "dmx",
-      "channel": 1,
+      "channel": 5,
       "value": 0
     },
     {
       "type": "dmx",
-      "channel": 2,
-      "value": 10
+      "channel": 6,
+      "value": 0
     },
     {
       "type": "dmx",
-      "channel": 3,
-      "value": 10
+      "channel": 7,
+      "value": 0
     },
     {
       "type": "dmx",
-      "channel": 4,
-      "value": 10
+      "channel": 8,
+      "value": 55
     },
     {
       "type": "dmx",
       "channel": 11,
-      "value": 0
+      "value": 255
     },
     {
       "type": "dmx",
@@ -33,17 +33,12 @@
     {
       "type": "dmx",
       "channel": 13,
-      "value": 120
+      "value": 50
     },
     {
       "type": "dmx",
-      "channel": 16,
-      "value": 10
-    },
-    {
-      "type": "dmx",
-      "channel": 17,
-      "value": 255
+      "channel": 14,
+      "value": 0
     }
   ]
 }

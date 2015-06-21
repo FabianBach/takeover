@@ -1,0 +1,18 @@
+{
+  "disabled" : true,
+
+  "id" : "DLVHMRKSI8Q7",
+  "type": "slider",
+  "name": "Color slider",
+  "title": "Color",
+
+  "resolution": 8,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 5,
+      "minValue": 0,
+      "maxValue": 79
+    }
+  ]
+}

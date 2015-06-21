@@ -1,0 +1,18 @@
+{
+  "disabled" : false,
+
+  "id" : "AABBBAMTWKQO",
+  "type": "slider",
+  "name": "Color slider",
+  "title": "Color",
+
+  "resolution": 100,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 6,
+      "minValue": 0,
+      "maxValue": 152
+    }
+  ]
+}

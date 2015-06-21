@@ -1,0 +1,18 @@
+{
+  "disabled" : false,
+
+  "id" : "P58H9F088MH34",
+  "type": "button",
+  "name": "Strobe Button",
+  "title": "BAM",
+
+  "resolution": 1,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 13,
+      "minValue": 50,
+      "maxValue": 150
+    }
+  ]
+}

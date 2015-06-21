@@ -2,6 +2,7 @@
   "id": "YP15IVTDCNPC",
   "title": "ultra test view",
   "orientation": "portrait",
+  "disabled": true,
   "grid": {
     "x": 10,
     "y": 12

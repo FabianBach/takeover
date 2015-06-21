@@ -1,0 +1,18 @@
+{
+  "disabled" : false,
+
+  "id" : "CGFJAMTWKQO",
+  "type": "slider",
+  "name": "Rotation slider",
+  "title": "Rotation",
+
+  "resolution": 60,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 9,
+      "minValue": 0,
+      "maxValue": 60
+    }
+  ]
+}

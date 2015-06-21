@@ -72,8 +72,9 @@ function useDmx (value, maxValue, mapping){
     // TODO: step over many channels in array
 
     if(mapping.fine){
-        var mappedValueCh1 = mappedValue % 255;
-        var mappedValueCh2 = mappedValue / 255;
+        var mappedValueCh1 = parseInt(mappedValue / 255);
+        var mappedValueCh2 = parseInt(mappedValue % 255);
+
         sendDmx({
             channel: mapping.channel,
             value: mappedValueCh1,
@@ -85,6 +86,7 @@ function useDmx (value, maxValue, mapping){
             universe: mapping.name
         });
     }else{
+
         sendDmx({
             channel: mapping.channel,
             value: mappedValue,

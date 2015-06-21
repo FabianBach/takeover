@@ -1,0 +1,47 @@
+{
+  "id": "AABBCCJDMF02",
+  "title": "park.house test",
+  "orientation": "portrait",
+  "grid": {
+    "x": 10,
+    "y": 10
+  },
+  "controls": [
+    {
+      "id": "1111CCOLGBE2O",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "width": 10,
+      "height": 5
+    },
+    {
+      "id": "AABBBAMTWKQO",
+      "position": {
+        "x": 0,
+        "y": 5
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "id": "CGFJAMTWKQO",
+      "position": {
+        "x": 0,
+        "y": 7
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "id": "P58H9F088MH34",
+      "position": {
+        "x": 0,
+        "y": 9
+      },
+      "width": 10,
+      "height": 2
+    }
+  ]
+}
