@@ -1,6 +1,6 @@
 {
   "id": "AABBCCJDMF02",
-  "title": "park.house test",
+  "title": "Movin Head",
   "orientation": "portrait",
   "grid": {
     "x": 10,
@@ -8,6 +8,7 @@
   },
   "controls": [
     {
+      "comment": "XY-Pad for Head Movement",
       "id": "1111CCOLGBE2O",
       "position": {
         "x": 0,
@@ -17,6 +18,7 @@
       "height": 5
     },
     {
+      "comment": "Slider for Colors",
       "id": "AABBBAMTWKQO",
       "position": {
         "x": 0,
@@ -26,6 +28,7 @@
       "height": 2
     },
     {
+      "comment": "Slider for Rotation",
       "id": "CGFJAMTWKQO",
       "position": {
         "x": 0,
@@ -35,10 +38,21 @@
       "height": 2
     },
     {
+      "comment": "Button for Strobe",
       "id": "P58H9F088MH34",
       "position": {
         "x": 0,
         "y": 9
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "comment": "Button for Prism",
+      "id": "LC8I01Q88MH34",
+      "position": {
+        "x": 0,
+        "y": 11
       },
       "width": 10,
       "height": 2

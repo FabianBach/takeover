@@ -85,8 +85,8 @@ function useDmx (value, maxValue, mapping){
             value: mappedValueCh2,
             universe: mapping.name
         });
-    }else{
 
+    }else{
         sendDmx({
             channel: mapping.channel,
             value: mappedValue,

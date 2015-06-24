@@ -1,41 +1,49 @@
 {
   "startupMapping": [
     {
+      "comment": "Speed",
       "type": "dmx",
       "channel": 5,
       "value": 0
     },
     {
+      "comment": "Color",
       "type": "dmx",
       "channel": 6,
       "value": 0
     },
     {
+      "comment": "GOBO 1",
       "type": "dmx",
       "channel": 7,
       "value": 0
     },
     {
+      "comment": "GOBO 2",
       "type": "dmx",
       "channel": 8,
       "value": 55
     },
     {
+      "comment": "Focus",
       "type": "dmx",
       "channel": 11,
       "value": 255
     },
     {
+      "comment": "Dimmer",
       "type": "dmx",
       "channel": 12,
       "value": 255
     },
     {
+      "comment": "Shutter",
       "type": "dmx",
       "channel": 13,
       "value": 50
     },
     {
+      "comment": "Function",
       "type": "dmx",
       "channel": 14,
       "value": 0

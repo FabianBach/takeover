@@ -15,7 +15,7 @@
         "channel": 1,
         "fine" : true,
         "minValue": 0,
-        "maxValue": 30000
+        "maxValue": 60000
       }
     ]
   },
@@ -26,7 +26,7 @@
         "channel": 3,
         "fine" : true,
         "minValue": 0,
-        "maxValue": 20000
+        "maxValue": 60000
       }
     ]
   }

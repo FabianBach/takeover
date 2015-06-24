@@ -456,7 +456,7 @@ var abstractModule = function(config, prtktd){
                 ioNamespace.emit('value_update', checkedData);
             }
 
-            console.log(getName().grey, 'val', checkedData);
+            //console.log(getName().grey, 'val', checkedData);
         }
 
         if (!isParent) {
