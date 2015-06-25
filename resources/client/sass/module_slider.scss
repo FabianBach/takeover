@@ -56,14 +56,14 @@
       @include tkvr-indicator-occupied-transition;
     }
   }
-  .disabled {
-    .indicator{
-      background-color: $tkvr-disabled;
-      @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
-      @include tkvr-indicator-occupied-transition;
-    }
-  }
-  .occupied{
+//  .disabled {
+//    .indicator{
+//      background-color: $tkvr-disabled;
+//      @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
+//      @include tkvr-indicator-occupied-transition;
+//    }
+//  }
+  .occupied, .disabled{
     .indicator {
       background-color: $tkvr-light;
       @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
@@ -76,7 +76,7 @@
       @include tkvr-indicator-size($tkvr-input-indicator-size-active);
       @include tkvr-shadow-active;
       @include tkvr-indicator-transition; //override the foreign transition
-      //      @include tkvr-indicator-holo($tkvr-highlight, $tkvr-input-indicator-size-holo);
+      z-index: 100;
     }
   }
 }

@@ -36,12 +36,22 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
             if (scope.control.isEnabled && !scope.control.isActive){
                 scope.control.isActive = true;
                 scope.control.socket.emit('in_use');
+
+                var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+                pointerId = pointerId || 0;
+                scope.activePointer = pointerId;
+
                 scope.$digest(); // TODO: $call would be better?
             }
         });
 
         $('html').on('pointerup pointercancel', function(event){
             if (!scope.control.isActive){ return }
+
+            var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+            pointerId = pointerId || 0;
+            if(pointerId != scope.activePointer){ return }
+
             scope.control.isActive = false;
             scope.control.socket.emit('use_end');
             scope.$digest(); // TODO: $call would be better?
@@ -52,6 +62,9 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
                 && scope.control.isEnabled
                 && scope.control.isActive)){ return }
 
+            var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+            pointerId = pointerId || 0;
+            if(pointerId != scope.activePointer){ return }
 
             var progress = {};
             if (scope.control.isVertical){

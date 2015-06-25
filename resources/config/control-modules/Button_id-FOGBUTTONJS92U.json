@@ -1,10 +1,10 @@
 {
   "disabled" : false,
 
-  "id" : "12Y6SZA9SICGK",
+  "id" : "FOGBUTTONJS92U",
   "type": "button",
   "name": "Fog Button",
-  "title": "Fogger fog fog",
+  "title": "Fog",
 
   "maxTime" : 10,
 

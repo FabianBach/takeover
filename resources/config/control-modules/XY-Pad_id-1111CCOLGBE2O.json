@@ -4,7 +4,9 @@
   "id": "1111CCOLGBE2O",
   "type": "xy-pad",
   "name": "Parkhouse Pad",
-  "title": "park.house",
+  "title": "Move",
+
+  "maxTime": 25,
 
   "resolution": 255,
 
@@ -15,7 +17,7 @@
         "channel": 1,
         "fine" : true,
         "minValue": 0,
-        "maxValue": 60000
+        "maxValue": 10000
       }
     ]
   },
@@ -25,8 +27,8 @@
         "type": "dmx",
         "channel": 3,
         "fine" : true,
-        "minValue": 0,
-        "maxValue": 60000
+        "minValue": 5000,
+        "maxValue": 25000
       }
     ]
   }

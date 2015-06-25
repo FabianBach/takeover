@@ -42,6 +42,7 @@ var abstractModule = function(config, prtktd){
         ioSocket,
         ioNamespace,
         activeConnections = {},
+        maxConnections = 0,
         waitingConnections = [],
         disableOnAnimation,
         occupyingAnimationsCount = 0;
@@ -219,7 +220,9 @@ var abstractModule = function(config, prtktd){
             // Initial value update for new client
             socket.emit('value_update', getValue());
 
-            console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().cyan);
+            var totalConnections = activeConnections.length + waitingConnections.length;
+            maxConnections = ((maxConnections < totalConnections) ? totalConnections : maxConnections);
+            console.log('maxUsers: ' + maxUsers.toString().cyan, '\tactive: ' + activeConnections.length.toString().cyan, '\twaiting: ' + waitingConnections.length.toString().red, '\tHIGHEST: ' + maxConnections.toString().yellow);
         });
 
         return {error: error};
@@ -379,9 +382,10 @@ var abstractModule = function(config, prtktd){
             // if the socket was not only active but also using the control at the moment
             // we have to be careful to not forget to clean up because it could not do it itself
             if(getInUse().status && getInUse().socket && (socket.id === getInUse().socket.id)){
-                if (!getOccupied().status){
+
+                //if (!getOccupied().status){
                     setInUse(false, socket);
-                }
+                //}
                 // Tell the children what did happen
                 sharedEventHandler.emit('socket_in_use_disabled', socket);
             }

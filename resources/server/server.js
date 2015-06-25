@@ -46,14 +46,14 @@ function onServerReady(callback){
 
 function openWebSockets(){
     io.sockets.on('connection', function(socket){
-        console.log('Yeay, client connected!'.rainbow + socket.id.grey);
+        console.log('Yeay, client connected!'.bgCyan.black +'.......'.rainbow+ socket.id.grey);
         setSocketListeners(socket);
     });
 }
 
 function setSocketListeners(socket){
     socket.on('disconnect', function(data){
-        console.log('Oh, client disconnected...' + socket.id.grey);
+        console.log('Oh, client disconnected'.bgYellow.black +'.......'.rainbow+ socket.id.grey);
     });
 }
 

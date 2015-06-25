@@ -2,24 +2,33 @@
   background-color: $tkvr-dark;
 
   .input{
-    @include tkvr-stretch-with-padding(1em);
-    @include tkvr-shadow;
-    overflow: hidden;
-    border-radius: 10em;
+    border-radius: $tkvr-input-border-radius;
+  }
+
+  .overflow-hidden{
+    border-radius: $tkvr-input-border-radius;
   }
 
   .enabled{
     background-color: $tkvr-enabled;
+    @include tkvr-stretch-with-padding(2em);
+    @include tkvr-shadow;
+    z-index: 100;
   }
-  .disabled{
-    background-color: $tkvr-disabled;
-  }
-  .occupied{
+//  .disabled{
+//    background-color: $tkvr-disabled;
+//    @include tkvr-stretch-with-padding(3em);
+//    box-shadow: none;
+//  }
+  .occupied, .disabled{
     background-color: $tkvr-light;
+    @include tkvr-stretch-with-padding(3em);
+    box-shadow: none;
   }
   .active{
     background-color: $tkvr-highlight;
     @include tkvr-shadow-active;
+    @include tkvr-stretch-with-padding(1em);
   }
 
 

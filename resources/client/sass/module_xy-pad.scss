@@ -3,8 +3,9 @@
   .border{
     border-color: $tkvr-border-clr;
     border-width: $tkvr-input-border-width;
-    border-style: dotted;
+    border-style: solid;
     box-sizing: border-box;
+    border-radius: $tkvr-input-border-radius;
     @include tkvr-stretch-with-padding(-4em);
   }
   .input{
@@ -29,14 +30,14 @@
       @include tkvr-indicator-occupied-transition;
     }
   }
-  .disabled{
-    .indicator{
-      background-color: $tkvr-disabled;
-      @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
-      @include tkvr-indicator-occupied-transition;
-    }
-  }
-  .occupied{
+//  .disabled{
+//    .indicator{
+//      background-color: $tkvr-disabled;
+//      @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
+//      @include tkvr-indicator-occupied-transition;
+//    }
+//  }
+  .occupied, .disabled{
     .indicator{
       background-color: $tkvr-light;
       @include tkvr-indicator-size($tkvr-input-indicator-size-disabled);
@@ -49,6 +50,7 @@
       @include tkvr-indicator-size($tkvr-input-indicator-size-active);
       @include tkvr-shadow-active;
       @include tkvr-indicator-transition; // override the foreign transition
+      z-index: 100;
     }
   }
 }

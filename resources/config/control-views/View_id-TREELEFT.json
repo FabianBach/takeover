@@ -1,6 +1,6 @@
 {
-  "id": "AABBCCJDMF02",
-  "title": "Movin Head",
+  "id": "TREELEFT",
+  "title": "Trees on the left",
   "orientation": "portrait",
   "grid": {
     "x": 10,
@@ -29,7 +29,7 @@
     },
     {
       "comment": "Slider for Rotation",
-      "id": "CGFJAMTWKQO",
+      "id": "ROTATETWKQO",
       "position": {
         "x": 0,
         "y": 7

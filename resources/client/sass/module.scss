@@ -14,6 +14,39 @@
   -ms-user-select: none;
   user-select: none;
 
+  .label{
+    display: none;
+
+    position: absolute;
+    bottom: 90%;
+    left: 20%;
+
+    background-color: $tkvr-light;
+    padding: 2em;
+    @include tkvr-shadow;
+
+    .text {
+      color: $tkvr-dark;
+      font-size: $tkvr-font-size-mid;
+      text-align: center;
+    }
+
+    &:before {
+      $tkvr-label-pin-size: 1em;
+      content: '';
+      height: 0;
+      width: 0;
+      border-width: 4em;
+      border-style: solid;
+      border-color: $tkvr-light transparent transparent transparent;
+      position: absolute;
+      top: 100%;
+      left: 0;
+    }
+  }
+
+
+
   &.enabled{
 //    border-color: $tkvr-enabled;
   }
@@ -27,10 +60,9 @@
   }
   &.active{
 //    border-color: $tkvr-highlight;
-  }
-
-  .label{
-    display: none;
+    .label{
+      display: block;
+    }
   }
 
 }

@@ -37,18 +37,33 @@ tkvr.directive('tkvrXyPad', function(tkvrSocketIoSetup, tkvrControlPointerCoords
             if (scope.control.isEnabled && !scope.control.isActive){
                 scope.control.isActive = true;
                 scope.control.socket.emit('in_use');
+
+                var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+                pointerId = pointerId || 0;
+                scope.activePointer = pointerId;
+
                 scope.$digest();
             }
         });
 
         $('html').on('pointerup pointercancel', function(event){
             if (!scope.control.isActive){ return }
+
+            var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+            pointerId = pointerId || 0;
+            if(pointerId != scope.activePointer){ return }
+
             scope.control.isActive = false;
             scope.control.socket.emit('use_end');
             scope.$digest();
         });
 
         $('html').on('pointermove pointerdown', function(event){
+
+            var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+            pointerId = pointerId || 0;
+            if(pointerId != scope.activePointer){ return }
+
             if(scope.control.hasFocus && scope.control.isActive && scope.control.isEnabled){
 
                 var progress = tkvrControlPointerCoords(element, event);

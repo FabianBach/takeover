@@ -1,10 +1,10 @@
 {
   "disabled" : false,
 
-  "id" : "CGFJAMTWKQO",
+  "id" : "ROTATETWKQO",
   "type": "slider",
   "name": "Rotation slider",
-  "title": "Rotation",
+  "title": "Rotate",
 
   "resolution": 60,
 

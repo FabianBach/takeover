@@ -27,13 +27,20 @@ tkvr.directive('tkvrButton', function(tkvrSocketIoSetup, tkvrControlPointerCoord
 
                 var progress = tkvrControlPointerCoords(element, event);
 
+                var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+                pointerId = pointerId || 0;
+                scope.activePointer = pointerId;
+
                 element.find('.indicator').css('top', (1-progress.y)*100 +'%');
                 element.find('.indicator').css('left', (progress.x)*100 +'%');
             }
         });
 
-        $('html').on('pointerup pointercancel', function(){
+        $('html').on('pointerup pointercancel', function(event){
             if(scope.control.isEnabled && scope.control.isActive){
+                var pointerId = (event.originalEvent && event.originalEvent.pointerId);
+                pointerId = pointerId || 0;
+                if(pointerId != scope.activePointer){ return }
                 scope.control.socket.emit('value_change', scope.control.minValue);
                 scope.control.socket.emit('use_end');
                 scope.control.isActive = false;

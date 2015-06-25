@@ -1,6 +1,6 @@
 {
-  "id": "BM91ZJTDCNPC",
-  "title": "F O G G E R",
+  "id": "FOGSTAGE",
+  "title": "Fog (every 10 mins)",
   "orientation": "portrait",
   "disabled": false,
   "grid": {
@@ -9,7 +9,7 @@
   },
   "controls": [
     {
-      "id": "12Y6SZA9SICGK",
+      "id": "FOGBUTTONJS92U",
       "position": {
         "x": 0,
         "y": 0
