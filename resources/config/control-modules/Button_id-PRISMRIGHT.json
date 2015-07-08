@@ -1,0 +1,18 @@
+{
+  "disabled" : false,
+
+  "id" : "PRISMRIGHT",
+  "type": "button",
+  "name": "Prism Button",
+  "title": "Multiply",
+
+  "resolution": 1,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 10,
+      "minValue": 0,
+      "maxValue": 250
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 {
   "disabled" : false,
 
-  "id": "1111CCOLGBE2O",
+  "id": "XYPADLEFT",
   "type": "xy-pad",
   "name": "Parkhouse Pad",
   "title": "Move",
 
-  "maxTime": 25,
+  "maxTime": 15,
 
   "resolution": 255,
 
@@ -14,10 +14,10 @@
     "mapping": [
       {
         "type": "dmx",
-        "channel": 1,
+        "channel": 51,
         "fine" : true,
-        "minValue": 0,
-        "maxValue": 10000
+        "minValue": 2000,
+        "maxValue": 9000
       }
     ]
   },
@@ -25,10 +25,10 @@
     "mapping" : [
       {
         "type": "dmx",
-        "channel": 3,
+        "channel": 53,
         "fine" : true,
-        "minValue": 5000,
-        "maxValue": 25000
+        "minValue": 12000,
+        "maxValue": 17000
       }
     ]
   }

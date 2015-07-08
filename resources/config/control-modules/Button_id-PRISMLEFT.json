@@ -1,7 +1,7 @@
 {
   "disabled" : false,
 
-  "id" : "LC8I01Q88MH34",
+  "id" : "PRISMLEFT",
   "type": "button",
   "name": "Prism Button",
   "title": "Multiply",
@@ -10,7 +10,7 @@
 
   "mapping": [
     { "type": "dmx",
-      "channel": 10,
+      "channel": 60,
       "minValue": 0,
       "maxValue": 250
     }

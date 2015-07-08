@@ -1,6 +1,18 @@
 {
   "startupMapping": [
     {
+      "comment": "XAXIS",
+      "type": "dmx",
+      "channel": 1,
+      "value": 256
+    },
+    {
+      "comment": "YAXIS",
+      "type": "dmx",
+      "channel": 3,
+      "value": 265
+    },
+    {
       "comment": "Speed",
       "type": "dmx",
       "channel": 5,
@@ -46,6 +58,67 @@
       "comment": "Function",
       "type": "dmx",
       "channel": 14,
+      "value": 0
+    },
+
+    {
+      "comment": "XAXIS",
+      "type": "dmx",
+      "channel": 51,
+      "value": 256
+    },
+    {
+      "comment": "YAXIS",
+      "type": "dmx",
+      "channel": 53,
+      "value": 265
+    },
+    {
+      "comment": "Speed",
+      "type": "dmx",
+      "channel": 55,
+      "value": 0
+    },
+    {
+      "comment": "Color",
+      "type": "dmx",
+      "channel": 56,
+      "value": 0
+    },
+    {
+      "comment": "GOBO 1",
+      "type": "dmx",
+      "channel": 57,
+      "value": 0
+    },
+    {
+      "comment": "GOBO 2",
+      "type": "dmx",
+      "channel": 58,
+      "value": 55
+    },
+    {
+      "comment": "Focus",
+      "type": "dmx",
+      "channel": 61,
+      "value": 255
+    },
+    {
+      "comment": "Dimmer",
+      "type": "dmx",
+      "channel": 62,
+      "value": 255
+    },
+    {
+      "comment": "Shutter",
+      "type": "dmx",
+      "channel": 63,
+      "value": 50
+    },
+    {
+      "comment": "Function",
+      "type": "dmx",
+      "channel": 64,
       "value": 0
     }
   ]

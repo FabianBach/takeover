@@ -1,7 +1,7 @@
 {
   "disabled" : false,
 
-  "id" : "P58H9F088MH34",
+  "id" : "STROBELEFT",
   "type": "button",
   "name": "Strobe Button",
   "title": "Blink",
@@ -10,7 +10,7 @@
 
   "mapping": [
     { "type": "dmx",
-      "channel": 13,
+      "channel": 63,
       "minValue": 50,
       "maxValue": 150
     }

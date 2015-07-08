@@ -1,0 +1,20 @@
+{
+  "disabled" : false,
+
+  "id" : "ROTATERIGHT",
+  "type": "slider",
+  "name": "Rotation slider",
+  "title": "Rotate",
+
+  "maxTime": 15,
+
+  "resolution": 60,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 9,
+      "minValue": 0,
+      "maxValue": 60
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "id": "FOGSTAGE",
   "title": "Fog (every 10 mins)",
   "orientation": "portrait",
-  "disabled": false,
+  "disabled": true,
   "grid": {
     "x": 1,
     "y": 1

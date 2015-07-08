@@ -1,0 +1,61 @@
+{
+  "id": "MVNHDRIGHT",
+  "title": "TREES LEFT",
+  "orientation": "portrait",
+  "grid": {
+    "x": 10,
+    "y": 10
+  },
+  "controls": [
+    {
+      "comment": "XY-Pad for Head Movement",
+      "id": "XYPADRIGHT",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "width": 10,
+      "height": 5
+    },
+    {
+      "comment": "Slider for Colors",
+      "id": "COLORRIGHT",
+      "position": {
+        "x": 0,
+        "y": 5
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "comment": "Slider for Rotation",
+      "id": "ROTATERIGHT",
+      "position": {
+        "x": 0,
+        "y": 7
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "comment": "Button for Strobe",
+      "id": "STROBERIGHT",
+      "position": {
+        "x": 0,
+        "y": 9
+      },
+      "width": 10,
+      "height": 2
+    },
+    {
+      "comment": "Button for Prism",
+      "id": "PRISMRIGHT",
+      "position": {
+        "x": 0,
+        "y": 11
+      },
+      "width": 10,
+      "height": 2
+    }
+  ]
+}

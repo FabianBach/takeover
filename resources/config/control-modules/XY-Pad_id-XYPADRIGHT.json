@@ -1,0 +1,35 @@
+{
+  "disabled" : false,
+
+  "id": "XYPADRIGHT",
+  "type": "xy-pad",
+  "name": "Parkhouse Pad",
+  "title": "Move",
+
+  "maxTime": 15,
+
+  "resolution": 255,
+
+  "x-axis": {
+    "mapping": [
+      {
+        "type": "dmx",
+        "channel": 1,
+        "fine" : true,
+        "minValue": 77000,
+        "maxValue": 85000
+      }
+    ]
+  },
+  "y-axis": {
+    "mapping" : [
+      {
+        "type": "dmx",
+        "channel": 3,
+        "fine" : true,
+        "minValue": 12000,
+        "maxValue": 17000
+      }
+    ]
+  }
+}

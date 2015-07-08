@@ -1,0 +1,18 @@
+{
+  "disabled" : false,
+
+  "id" : "STROBERIGHT",
+  "type": "button",
+  "name": "Strobe Button",
+  "title": "Blink",
+
+  "resolution": 1,
+
+  "mapping": [
+    { "type": "dmx",
+      "channel": 13,
+      "minValue": 50,
+      "maxValue": 150
+    }
+  ]
+}

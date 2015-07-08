@@ -57,7 +57,7 @@
     // for example: 1: message (4bit) and channel (4bit), 2: key (7bit) and 3: velocity (7bit)
 
     "msgType" : "Note On", // Controller Change, Programm Change, Note On, Note Off, etc...
-    "channel" :  15, // max value = 4bit (1111) = 15 -> 1 - 16
+    "channel" :  15, // max value = 4bit (1111) = 15 -> Channel 1 - 16
     "byte_1" : {
       "doMapping" : true,
       "minValue" : 0, // no negative values

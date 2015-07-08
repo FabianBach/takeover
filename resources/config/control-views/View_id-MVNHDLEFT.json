@@ -1,6 +1,6 @@
 {
-  "id": "TREELEFT",
-  "title": "Trees on the left",
+  "id": "MVNHDLEFT",
+  "title": "TREES RIGHT",
   "orientation": "portrait",
   "grid": {
     "x": 10,
@@ -9,7 +9,7 @@
   "controls": [
     {
       "comment": "XY-Pad for Head Movement",
-      "id": "1111CCOLGBE2O",
+      "id": "XYPADLEFT",
       "position": {
         "x": 0,
         "y": 0
@@ -19,7 +19,7 @@
     },
     {
       "comment": "Slider for Colors",
-      "id": "AABBBAMTWKQO",
+      "id": "COLORLEFT",
       "position": {
         "x": 0,
         "y": 5
@@ -29,7 +29,7 @@
     },
     {
       "comment": "Slider for Rotation",
-      "id": "ROTATETWKQO",
+      "id": "ROTATELEFT",
       "position": {
         "x": 0,
         "y": 7
@@ -39,7 +39,7 @@
     },
     {
       "comment": "Button for Strobe",
-      "id": "P58H9F088MH34",
+      "id": "STROBELEFT",
       "position": {
         "x": 0,
         "y": 9
@@ -49,7 +49,7 @@
     },
     {
       "comment": "Button for Prism",
-      "id": "LC8I01Q88MH34",
+      "id": "PRISMLEFT",
       "position": {
         "x": 0,
         "y": 11
