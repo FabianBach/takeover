@@ -5,7 +5,7 @@
   "id": "ABCDE12345",
   "name": "sample view",
   "disabled": true,
-  "orientation": "landscape", // TODO: unused parameter
+  "orientation": "landscape",
   "grid": {
     "x": 10,
     "y": 4
