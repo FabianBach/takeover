@@ -14,11 +14,12 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     var animation = getAnimation(config);
 
     // fist check if this animation is already existing and probably running
-    // and what should be done if triggered again
     if (animation) {
         //console.log('Animation '.yellow + getAnimationId(config), 'trigger', animation.config.trigger);
 
+        // then check what to do when animation is triggered and do that
         switch (config.trigger) {
+
             case 'ignore':
             case 'continue':
                 if (!animation.isActive()){
@@ -44,7 +45,6 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
                 }
                 break;
 
-
             case 'pause':
                 animation.paused( !animation.paused() );
                 break;
@@ -62,6 +62,7 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
                 }
         }
 
+    // if we do not have that animation in cache, we create it
     } else {
         startNewAnimation();
     }
@@ -73,6 +74,7 @@ function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     }
 }
 
+// creates a new animation and
 function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     objRef = objRef || {value : config.startValue};
     config.originalLoop = config.loop;
@@ -99,6 +101,8 @@ function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     animation.eventCallback('onComplete', onComplete);
     animation.eventCallback('onReverseComplete', onComplete);
 
+    // check what to do when the animation has reached its end
+    //
     function onComplete(){
 
         //console.log('Animation '.yellow + getAnimationId(config), 'onComplete', config.loop);
@@ -133,6 +137,8 @@ function setUpAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
         }
     }
 
+    // set what to do when the animation has reached a new value
+    // and check if value has really changed for us
     animation.eventCallback('onUpdate', onUpdate);
 
     function onUpdate(){
@@ -154,6 +160,7 @@ function getAnimation(config){
     return animations[id] || null;
 }
 
+// create a new id and set it in animation if it does not have one yet
 function getAnimationId(config){
     var id = config.tkvrId;
     if (!id){

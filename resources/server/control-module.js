@@ -1,12 +1,12 @@
-// this module is a factory for control modules
-// depending on the type defined in the config
-// it will create and return a control module object
-// this will be the only control module needed to require
+// This module is a factory for control modules
+// depending on the type defined in the config.
+// It will create and return a control module object.
+// This will be the only control module needed to require.
 
 var io;
 var globalEventHandler;
 
-// all available modules should be listed here
+// All available modules should be listed here
 var controlModules = {};
     controlModules['_abstract'] = require('./control-modules/_abstract-module.js');
     controlModules['button'] = require('./control-modules/button.js');
@@ -26,6 +26,8 @@ function init (config, callback){
     globalEventHandler = new (require('events').EventEmitter);
 }
 
+// The actual module factory. It will instantiate all the modules by its configuration.
+// It will also generate a protected and public object for the new module to hand on to children.
 function createModule (config, shared){
 
     if (!io){ return console.log( 'control-module-factory '.grey + 'No io set, do that first!'.red )}
@@ -57,6 +59,7 @@ function createModule (config, shared){
     return module;
 }
 
+// Will read all the module configs and then create modules out of them
 function createFromFiles(configsPath, callback){
 
     if (typeof(configsPath) === 'function'){ callback = configsPath }
@@ -86,6 +89,8 @@ function setForeignListeners(){
     }
 }
 
+// This function is used to make modules set value change listeners on other modules.
+// Will be added in the protected object.
 function setForeignListener(moduleId, listener){
     var module = createdModules[moduleId];
     if(!module){ return }

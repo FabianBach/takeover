@@ -1,4 +1,5 @@
-
+// File-server and socket server will be initiated in here.
+// Also the REST-API is configured in here.
 
 //TODO: process.on('exit') or 'beforeExit
 

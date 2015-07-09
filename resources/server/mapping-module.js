@@ -1,7 +1,6 @@
-// this module is supposed to map the received value to the different protocol values
-// according to the mapping object defined in the config
-// this method has to be defined by each specific module itself
 
+// this module maps the received value to the different protocol values
+// according to the mapping object defined in the config
 //TODO: maybe split up in mapper and sender
 
 var dmx;
@@ -20,10 +19,10 @@ function init (config, callback){
     callback();
 }
 
-
 function doMapping (value, maxValue, mappings){
     var error = [];
 
+    // Check the type of the protocol to map to for each mapping entry
     for(var i = 0; i < mappings.length; i++){
         var mapping = mappings[i];
 
@@ -50,6 +49,7 @@ function doMapping (value, maxValue, mappings){
     return {error: error}
 }
 
+// load dmx drivers, init universes and cache them
 function setUpDmx(config){
 // TODO: there could be multiple DMX devices of same type connected
     var DMX = require('dmx');
@@ -64,6 +64,7 @@ function setUpDmx(config){
     }
 }
 
+// get the mapped value and then send it
 function useDmx (value, maxValue, mapping){
     value = parseInt(value);
     var mappedValue = mapValue(value, maxValue, mapping);
@@ -95,6 +96,7 @@ function useDmx (value, maxValue, mapping){
     }
 }
 
+// actually and finally send the new value over the protocol
 function sendDmx (dmxObj){
     //console.log('DMX: channel: ' + dmxObj.channel + ' value: '+ dmxObj.value);
     if (!dmx){ return }
@@ -107,6 +109,9 @@ function sendDmx (dmxObj){
     }
 }
 
+
+// print available midi devices to console
+// get configured devices to use them and cache them
 function setUpMidi(config){
     var midiModule = require('midi');
     printMidiList();
@@ -135,6 +140,7 @@ function setUpMidi(config){
     }
 }
 
+// get the mapped values and then send them
 function useMidi (value, maxValue, mappingData){
     value = parseInt(value);
     var type = mappingData.msgType;
@@ -154,6 +160,7 @@ function useMidi (value, maxValue, mappingData){
     });
 }
 
+// actually and finally send the new value over the protocol
 function sendMidi (midiObj){
     //console.log('MIDI: ' + midiObj.type + ' channel: ' + midiObj.channel + ' value: ' + midiObj.value1 + ' - ' + midiObj.value2);
     if (!midi){ return }
@@ -198,6 +205,8 @@ function sendMidi (midiObj){
     }
 }
 
+// set up some new osc clients to send to osc hosts
+// and cache them
 function setUpOsc(config){
     var oscModule = require('node-osc');
     osc = {};
@@ -212,6 +221,7 @@ function setUpOsc(config){
     }
 }
 
+// get the mapped value and then send it
 function useOsc (value, maxValue, mapping){
 
     //console.log(value, maxValue);
@@ -228,6 +238,7 @@ function useOsc (value, maxValue, mapping){
     });
 }
 
+// actually and finally send the new value over the protocol
 function sendOsc (oscObj){
     for(var oscOut in osc){
         if((oscOut === oscObj.oscOut) || (typeof oscObj.oscOut !== 'string')){
@@ -236,7 +247,8 @@ function sendOsc (oscObj){
     }
 }
 
-// General mapping helper functions
+// Check what to do with the values
+// maybe even get a foreign value for mapping
 function mapValue(value, maxValue, mapping){
     var mappedValue,
         mapData,
@@ -283,6 +295,8 @@ function getMappedValue (modVal, modMax, mapMin, mapMax, invert){
     return parseInt(mapValue);
 }
 
+// this will be called once on application startup
+// it is used to set up the different protocols by sending some configured static values over them
 function doStartupMapping(callback){
     console.log('Doing startup mapping...'.cyan);
     callback = callback || function(){};

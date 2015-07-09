@@ -845,15 +845,5 @@ var abstractModule = function(config, prtktd){
 module.exports = abstractModule;
 
 
-/*
- * ** STATIC STUFF **
- *
- * the following stuff will not be altered at runtime
- * and will be the same for every instance of the module
- * somehow like writing it to the prototype object, but not public
- * this can not be invoked by an inheriting object, except by reference
- */
-
-
 // nice logging
 require('colors');

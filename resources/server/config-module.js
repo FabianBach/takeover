@@ -1,6 +1,10 @@
+// Module to ready JSON Configs from Harddisk
+// will read all JSON files in given path and return an array containing all the file contents
+// works asynchronous so we need a callback
 
 function getConfigsFromPath(configsPath, callback) {
 
+    // TODO: get this hardcoded path out of here
     if (typeof(configsPath) === 'function') {
         callback = configsPath
     }
