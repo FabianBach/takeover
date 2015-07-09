@@ -1,12 +1,16 @@
-// TODO: fix this weird way of getting the TimelineLite
+// TODO: fix this weird way of getting the TimelineLite ... should be fixed by greensock
 var tween = require(global.tkvrBasePath + '/resources/server/tween-module.js');
 var TimelineLite = global.com.greensock.TimelineLite;
+
+// we are going to cache every animation created in here
 var animations = {};
+
 
 function triggerAnimation(config, onUpdateCallback, onCompleteCallback, objRef){
     onUpdateCallback = onUpdateCallback || function(){};
     onCompleteCallback = onCompleteCallback || function(){};
 
+    // get or creates the animation
     var animation = getAnimation(config);
 
     // fist check if this animation is already existing and probably running

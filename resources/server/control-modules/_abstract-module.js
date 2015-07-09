@@ -438,6 +438,7 @@ var abstractModule = function(config, prtktd){
         if (dataLog.error.length){ console.log('Control ' + prtktd.getNameAndId() + ' received bad value: ', value, dataLog)}
         var checkedData = dataLog.data;
 
+        // if this module is a parent, we give the received data down to the children
         if (isParent){
             for(var childName in childObjs){
                 var child = childObjs[childName];
@@ -451,6 +452,7 @@ var abstractModule = function(config, prtktd){
             }
         }
 
+        // if this module is not a child (maybe a parent, maybe standalone), we emit the new value to all the clients
         if(!isChild){
             if (socket && socket.broadcast){
                 //TODO: do send it but with with timeout only or something to use less network
@@ -463,23 +465,25 @@ var abstractModule = function(config, prtktd){
             //console.log(getName().grey, 'val', checkedData);
         }
 
+        // if this module is not a parent (maybe a child, maybe standalone), we process the new value (mapping, animations, etc)
         if (!isParent) {
             var processLog = processValue(checkedData, true);
             if (processLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', checkedData, processLog);
         }
     }
 
+    // only gets set and called if it is not a parent
+    // will do mapping with the actual value to update foreign value mappings
     function onForeignValueChange (value, mapping){
-        // only gets set and called if it is not a parent
-        // will do mapping with the actual value to update foreign value mappings
         // console.log('Control ' + prtktd.getNameAndId() + ' | foreign Value Change', value);
         if(!getInUse().status){ return; }
         var mappingLog = mapper.doMapping(getValue(), getMaxValue(), [mapping] );
         if (mappingLog.error.length) return console.log('Control ' + prtktd.getNameAndId() + ' could not map value ', value, mappingLog);
     }
 
+    // only called if it is not a parent on value change
+    // will do mappings and trigger animations
     function processValue (value, doTriggerAnimations){
-        // only called if it is not a parent
         //console.log('Control ' + getNameAndId() + ' value: ', value);
         var error = [];
 
@@ -544,35 +548,38 @@ var abstractModule = function(config, prtktd){
     function onOccupy(socket){
         //console.log('onOccupy'.red + 'socket: ' + !!socket);
 
+        // if the module is occupied by an socket we start the countdown for the exclusive use time
         if(socket){
             clearSocketTimeout(socket.availableTimeout);
             socket.occupyTimeout = socket.occupyTimeout || setSocketTimeout(socket);
         }
 
+        // if it is a parent or standalone module we tell all the sockets about the occupation
         if (!isChild){
 
+            // first we filter the sockets we have to disable
+            // we have to disable them after filtering them
+            // because we would manipulate the object while stepping through it
             var disableArray = [];
             for(var someSocketId in activeConnections.sockets){
                 var someSocket = activeConnections.sockets[someSocketId];
                 if ((someSocket.id !== (socket && socket.id))){
-                    // we have to disable them after filtering them
-                    // because we would manipulate the object while stepping through it
                     disableArray.push(someSocket);
                 }
             }
 
-            // now step through cache and disable
+            // now step through the filtered object and disable the sockets
             for(var i=0; i < disableArray.length; i++){
                 var disableSocket = disableArray[i];
                 putSocketFrontInLine(disableSocket);
             }
 
+            // if a socket occupies the module
             if (socket) {
-                // client triggered event
                 socket.broadcast.emit('occupied', getOccupied().status);
 
+            // if a animation or the system occupies the module
             } else {
-                // server triggered event
                 //console.log('Namespace emits occupied '.red, getOccupied().status);
                 ioNamespace.emit('occupied', getOccupied().status);
             }
@@ -619,11 +626,15 @@ var abstractModule = function(config, prtktd){
             }
         }
 
+        // gets called when ever the animation has reached a new value
+        // we will then use the mapper to write the new value to the protocols
         function onUpdateCallback(animationConfig, newValue, oldValue){
             animationConfig.value = newValue;
             mapper.doMapping(0, 0, [animationConfig]);
         }
 
+        // gets called when the animation reaches its end
+        // will stop occupation of the module when last animation has finished
         function onCompleteCallback(animationConfig){
             if (disableOnAnimation){
                 occupyingAnimationsCount--;
@@ -638,7 +649,6 @@ var abstractModule = function(config, prtktd){
     }
 
     // getters and setters
-
     function getId (){
         return id;
     }
