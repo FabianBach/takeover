@@ -1,27 +1,21 @@
 takeover
 =========
+(v 0.5.0)
 
-##description
+This is a system developed for easy to build interactive installations.
+It contains a server to send OSC, MIDI and DMX signals, and a frontend for anyone to control these protocols.
 
-Server with frontend to send OSC, MIDI and DMX signals. 
-
-The idea is to configure buttons, sliders, touch-areas and other inputs on the server,
-then group them by views and render them on any client browser.
-
+It is configured by creating buttons, sliders, touch-areas and other inputs on the server.
+Those are then grouped into views and be available via browser on any client.
 The interactions of the client will be send to the server via web-sockets in real time.
 On the server the received values will be mapped on previously configured DMX, MIDI and DMX values
-and be sent to listening hardware and software.
+and be sent to hardware and software over those protocols.
 
-For more information see the documentation directory (german) or read (the comments in) the code.
-This will be documented better at some time. I promise.
-
-
-##installation
-This Version does send DMX if you have an Enttec Open USB interface and MIDI if you are using a MidiMate II.
-It does not send any OSC Signals yet.
-To run this alpha state of the project follow these steps:
+##install
+To run this version of of the project follow these steps:
 
 - Install node.js
+
 
 - Windows:
     - install Visual Studio Express for DMX
@@ -31,19 +25,17 @@ To run this alpha state of the project follow these steps:
     - install some C++ compiler
     - install Mono
     
-- open console in project root directory and 
-    - npm install
-    - grunt sass
-    - grunt copy
+- open console, change to project directory and install by running `npm install` .
+
+
+- to get the application ready, execute the following grunt tasks: `grunt sass`, `grunt copy`, and `grunt concat` .
     
-- run the server:
-    - open the console
-    - change to this project directory
-    - type: node server.js
+##start
+To run the server open the console, change to project directory and run `node server.js`.
+Server will then listen on localhost:80.
 
-- to configure the server edit the server.js and restart server if running
-- to configure the inputs edit the json files in resources/config/ and restart server
-- to configure the views edit the json files in resources/config/ and restart server
+##configure
+All configurations are made in JSON-files and can be found in `/resources/config/`.
+The server has to be restarted to apply any changes.
 
-
-To develop you will also need ruby with sass gem and grunt
+Read the sample configs to learn more about the configuration of the application.

@@ -17,7 +17,6 @@ tkvr.directive('tkvrSlider', function(tkvrSocketIoSetup, tkvrControlPointerCoord
 
         // set events on this element
         // link is the right place to do this
-        // TODO: pointerId to enable multitouch
         element.on('pointerenter pointerdown', function(event){
             if (scope.control.isEnabled){
                 scope.control.hasFocus = true;

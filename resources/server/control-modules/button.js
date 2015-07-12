@@ -3,7 +3,7 @@ var button = function(config, prtktd){
 
     prtktd = prtktd || {};
 
-    var module = require('./_abstract-module.js');
+    var module = require('./_abstract-module.js'); // new module
     var pblc = module(config, prtktd);
 
     var sharedEventHandler = prtktd.getEventHandler();

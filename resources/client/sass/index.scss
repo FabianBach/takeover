@@ -1,3 +1,7 @@
+// index
+// The basic definitions for the project.
+// Main wrapper styles
+
 #tkvr{
   position: absolute;
   top: 0;
@@ -7,14 +11,10 @@
   overflow: hidden;
 
 
+  // very, very important line
+  // defines the basic size of everything
+  // because any sizes will be made in 'em' or 'rem'
   font-size: 1vw;
-
-//  @media screen and (orientation:portrait) {
-//    font-size: 1vw;
-//  }
-//  @media screen and (orientation:landscape) {
-//    font-size: 1vh;
-//  }
 
   line-height: 1;
 

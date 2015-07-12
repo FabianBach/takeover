@@ -205,8 +205,7 @@ function sendMidi (midiObj){
     }
 }
 
-// set up some new osc clients to send to osc hosts
-// and cache them
+// set up some new osc clients to send to osc hosts and cache them
 function setUpOsc(config){
     var oscModule = require('node-osc');
     osc = {};

@@ -6,6 +6,7 @@ var controlModuleFactory = require('./control-module.js');
 
 var createdViews = {};
 
+// will create all modules it can find on startup (once)
 function init (config, callback){
     callback = callback || function(){};
 
@@ -14,6 +15,8 @@ function init (config, callback){
     });
 }
 
+// searching for view  module configs,
+// creating one view for each config found
 function createFromFiles(configsPath, callback){
 
     if (typeof(configsPath) === 'function'){ callback = configsPath }
@@ -34,6 +37,7 @@ function createFromFiles(configsPath, callback){
     });
 }
 
+// this function actually creates and returns a view
 function createView(config){
     if (!config || !!config.disabled) return;
 
@@ -86,6 +90,7 @@ that.getViewById = getViewById;
 module.exports = that;
 
 
+// TODO: why is that function in here and not in the validation-module?
 function validateConfig(config){
     var error = [];
 

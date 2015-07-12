@@ -9,19 +9,21 @@ var xyPad = function(config, prtktd){
 
     prtktd = prtktd || {};
 
+    // is a parent element and will use two slider-child-modules
     config.isParent = true;
-    var module = require('./_abstract-module.js');
+    var module = require('./_abstract-module.js'); // new module
     var pblc = module(config, prtktd);
 
-    // X AXIS
+    // X AXIS - create frist child module
     var xConfig = getAxisConfig('x', config);
     var xAxis = prtktd.addChild('x', xConfig);
 
-    // Y AXIS
+    // Y AXIS - create second child module
     var yConfig = getAxisConfig('y', config);
     var yAxis = prtktd.addChild('y', yConfig);
 
 
+    // Just a helper function to create the child-configs
     function getAxisConfig(axisName, baseConfig){
 
         var config = global.tkvrClone(baseConfig);
@@ -42,7 +44,6 @@ var xyPad = function(config, prtktd){
 };
 
 module.exports = xyPad;
-
 
 // nice logging
 require('colors');
